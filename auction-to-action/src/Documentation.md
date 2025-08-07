@@ -8,10 +8,16 @@
 
 <!--  -->
 
-## 05/08/2025 - Tuesday - 4:10pm [ Update 0.0.1 ]
+## This update introduces several improvements to the Website:
 
-This update introduces several improvements to the Website:
+
+## 05/08/2025 - Tuesday - 4:10pm [ Update 0.0.1 ]
 
 - Added Chakra UI Version 2 
 - Added a custom theme provider
 - for defining a new color add it to src>Theme>theme.js and use it across all pages.
+
+## 07/08/2025 - Thursday - 11:31pm [ Update 0.0.2 ]
+
+- Added React Router Dom
+- Added file inventory paths [ Follow that method ]
