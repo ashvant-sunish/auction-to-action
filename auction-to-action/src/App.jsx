@@ -1,21 +1,18 @@
-import { Box, Heading, Text, Button, VStack } from '@chakra-ui/react'
 import './App.css'
-import theme from './Theme/theme.js'
+import { Routes, Route, useNavigate } from 'react-router-dom'
+import Login from './Pages/Login';
+import DashboardAdmin from './Pages/Admin/Dashboard.Admin';
+import DashboardUser from './Pages/User/Dashboard.User';
+
 function App() {
+  const navigate = useNavigate()
+
   return (
-    <Box p={8} maxWidth="600px" mx="auto">
-      <VStack spacing={6}>
-        <Heading as="h1" size="2xl" color="secondary">
-          Auction to Action
-        </Heading>
-        <Text fontSize="lg" textAlign="center" fontFamily="heading">
-          Welcome to your auction platform! Start building amazing features.
-        </Text>
-        <Button colorScheme="blue" size="lg">
-          Get Started
-        </Button>
-      </VStack>
-    </Box>
+    <Routes>
+      <Route exact path="/" element={<Login />} />
+      <Route path="/admindashboard" element={<DashboardAdmin />} />
+      <Route path="/userdashboard" element={<DashboardUser />} />
+    </Routes>
   )
 }
 

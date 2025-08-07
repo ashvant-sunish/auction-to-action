@@ -12,8 +12,8 @@ import { border, extendTheme } from "@chakra-ui/react";
         // Add or override other colors
       },
       fonts: {
-        heading: 'Georgia, serif',
-        body: 'Montserrat, sans-serif',
+        heading: ' Georgia, serif',  
+        body: ' Montserrat, sans-serif',
       },
       // ... more customizations
     };
