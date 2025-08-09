@@ -23,8 +23,9 @@ import {
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 
-function AdminLogin() {
-  const [formData, setFormData] = useState({ username: "", password: "" });
+
+function LoginComponentAdmin() {
+const [formData, setFormData] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -117,14 +118,6 @@ function AdminLogin() {
   };
 
   return (
-    <Box
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      bgGradient="linear(to-br, #6BA3BE, #0C969C)"
-      p={4}
-    >
       <Card maxW="420px" w="100%" boxShadow="xl" bg="white" borderRadius="lg">
         <CardBody p={8}>
           <VStack spacing={6}>
@@ -229,8 +222,7 @@ function AdminLogin() {
           </VStack>
         </CardBody>
       </Card>
-    </Box>
   );
 }
 
-export default AdminLogin;
+export default LoginComponentAdmin;

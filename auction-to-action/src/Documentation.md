@@ -49,3 +49,20 @@
   - Selection screen
   - Admin login page
   - User login page
+
+  # 10/08/2025 - Sunday - 3:20 AM [ Update 0.0.4]
+
+  ## Implemented User Login Functionality
+
+  - Developed the `Login.jsx` page with:
+    - Styles
+    - Header & Footer
+
+  ## File Directory Adjusted 
+
+  - Some Components , Pages and File Directory Changed
+
+  ## UI/UX Improvements
+
+  - Updated button styles and input fields for consistency with the custom theme
+  - Improved accessibility for login forms

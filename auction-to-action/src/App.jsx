@@ -3,8 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./Pages/Login";
 import DashboardAdmin from "./Pages/Admin/Dashboard.Admin";
 import DashboardUser from "./Pages/User/Dashboard.User";
-import AdminLogin from "./Pages/Admin/AdminLogin";
-import UserLogin from "./Pages/User/UserLogin.jsx";
+import AdminLogin from "./Pages/Admin/Admin.Login.jsx";
+import UserLogin from "./Pages/User/User.Login.jsx";
 
 function App() {
   return (
