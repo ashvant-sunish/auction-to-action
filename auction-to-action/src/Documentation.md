@@ -66,3 +66,8 @@
 
   - Updated button styles and input fields for consistency with the custom theme
   - Improved accessibility for login forms
+
+#10/08/2025 - Sunday -5:30 AM
+##Implemented User Login Component
+-Created LoginComponentUser.jsx based on the design and logic of LoginComponentAdmin.jsx.
+-Added form fields for Team Name and Team Code.
