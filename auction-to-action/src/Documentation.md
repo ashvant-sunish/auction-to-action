@@ -50,7 +50,7 @@
   - Admin login page
   - User login page
 
-  # 10/08/2025 - Sunday - 3:20 AM [ Update 0.0.4]
+# 10/08/2025 - Sunday - 3:20 AM [ Update 0.0.4]
 
   ## Implemented User Login Functionality
 
@@ -67,7 +67,13 @@
   - Updated button styles and input fields for consistency with the custom theme
   - Improved accessibility for login forms
 
-#10/08/2025 - Sunday -5:30 AM
-##Implemented User Login Component
--Created LoginComponentUser.jsx based on the design and logic of LoginComponentAdmin.jsx.
--Added form fields for Team Name and Team Code.
+# 10/08/2025 - Sunday - 5:30 AM [ Update 0.0.5 ]
+
+  ## Implemented User Login Component
+
+    - Created LoginComponentUser.jsx based on the design and logic of LoginComponentAdmin.jsx.
+    - Added form fields for Team Name and Team Code.
+
+# 23/08/2025 - Saturday 3:15 PM [ Update 0.0.6 ]
+
+  - User and admin login connection to the database completed

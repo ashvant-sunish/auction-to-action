@@ -22,9 +22,10 @@ import {
   AiOutlineExclamationCircle,
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function LoginComponentUser() {
-  const [formData, setFormData] = useState({ teamName: "", teamCode: "" });
+  const [formData, setFormData] = useState({ teamNumber: "", teamCredential: "" });
   const [showCode, setShowCode] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -42,13 +43,13 @@ function LoginComponentUser() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.teamName) newErrors.teamName = "Team Name is required.";
-    else if (formData.teamName.length < 3)
-      newErrors.teamName = "Team Name must be at least 3 characters.";
+    if (!formData.teamNumber) newErrors.teamNumber = "Register Number is required.";
+    else if (formData.teamNumber.length < 3)
+      newErrors.teamNumber = "Register Number must be at least 3 characters.";
 
-    if (!formData.teamCode) newErrors.teamCode = "Team Code is required.";
-    else if (formData.teamCode.length < 4)
-      newErrors.teamCode = "Team Code must be at least 4 characters.";
+    if (!formData.teamCredential) newErrors.teamCredential = "Password is required.";
+    else if (formData.teamCredential.length < 4)
+      newErrors.teamCredential = "Password must be at least 4 characters.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -61,23 +62,24 @@ function LoginComponentUser() {
     setMessage("");
 
     try {
-      await new Promise((r) => setTimeout(r, 1500));
+      const response = await axios.post(
+        "http://localhost:3001/api/team/login",
+        {
+          teamNumber: formData.teamNumber,
+          teamCredential: formData.teamCredential,
+        }
+      );
 
-      // Mock login check
-      if (
-        formData.teamName.toLowerCase() === "teamalpha" &&
-        formData.teamCode === "1234"
-      ) {
-        setMessageType("success");
-        setMessage("Login Successful! Redirecting to the User Dashboard...");
-        setTimeout(() => navigate("/userdashboard"), 1000);
-      } else {
-        setMessageType("error");
-        setMessage("Invalid Team Name or Team Code.");
-      }
-    } catch {
+      setMessageType("success");
+      setMessage(response.data.message);
+      setTimeout(() => navigate("/userdashboard"), 1000);
+    } catch (err) {
       setMessageType("error");
-      setMessage("Something went wrong. Try again later.");
+      if (err.response && err.response.data && err.response.data.message) {
+        setMessage(err.response.data.message);
+      } else {
+        setMessage("Something went wrong. Try again later.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -127,66 +129,66 @@ function LoginComponentUser() {
         <VStack spacing={6}>
           <Box textAlign="center">
             <Heading as="h1" size="lg" color="gray.800">
-              User Portal
+              Team Leader Login
             </Heading>
             <Text color="gray.500" fontSize="md" mt={2}>
-              Sign in to access your team dashboard
+              Sign in with your register number and password
             </Text>
           </Box>
           {message && <CustomAlert status={messageType}>{message}</CustomAlert>}
           <Box as="form" w="100%" onSubmit={handleSubmit} noValidate>
             <VStack spacing={5}>
-              {/* Team Name Field */}
-              <FormControl isInvalid={!!errors.teamName}>
+              {/* Register Number Field */}
+              <FormControl isInvalid={!!errors.teamNumber}>
                 <FormLabel
-                  htmlFor="teamName"
+                  htmlFor="teamNumber"
                   color="gray.700"
                   fontWeight="semibold"
                   fontSize="sm"
                 >
-                  Team Name
+                  Register Number
                 </FormLabel>
                 <Input
-                  id="teamName"
-                  name="teamName"
+                  id="teamNumber"
+                  name="teamNumber"
                   type="text"
-                  placeholder="e.g., Team Alpha"
-                  value={formData.teamName}
+                  placeholder="e.g., 21BCE1234"
+                  value={formData.teamNumber}
                   onChange={handleInputChange}
                   focusBorderColor="purple.500"
                   bg="gray.50"
                 />
-                {errors.teamName && (
+                {errors.teamNumber && (
                   <Text color="red.500" fontSize="xs" mt={1}>
-                    {errors.teamName}
+                    {errors.teamNumber}
                   </Text>
                 )}
               </FormControl>
 
-              {/* Team Code Field */}
-              <FormControl isInvalid={!!errors.teamCode}>
+              {/* Password Field */}
+              <FormControl isInvalid={!!errors.teamCredential}>
                 <FormLabel
-                  htmlFor="teamCode"
+                  htmlFor="teamCredential"
                   color="gray.700"
                   fontWeight="semibold"
                   fontSize="sm"
                 >
-                  Team Code
+                  Password
                 </FormLabel>
                 <InputGroup>
                   <Input
-                    id="teamCode"
-                    name="teamCode"
+                    id="teamCredential"
+                    name="teamCredential"
                     type={showCode ? "text" : "password"}
-                    placeholder="Enter your team code"
-                    value={formData.teamCode}
+                    placeholder="Enter your password"
+                    value={formData.teamCredential}
                     onChange={handleInputChange}
                     focusBorderColor="purple.500"
                     bg="gray.50"
                   />
                   <InputRightElement>
                     <IconButton
-                      aria-label={showCode ? "Hide code" : "Show code"}
+                      aria-label={showCode ? "Hide password" : "Show password"}
                       icon={
                         <Icon
                           as={showCode ? AiOutlineEyeInvisible : AiOutlineEye}
@@ -198,9 +200,9 @@ function LoginComponentUser() {
                     />
                   </InputRightElement>
                 </InputGroup>
-                {errors.teamCode && (
+                {errors.teamCredential && (
                   <Text color="red.500" fontSize="xs" mt={1}>
-                    {errors.teamCode}
+                    {errors.teamCredential}
                   </Text>
                 )}
               </FormControl>

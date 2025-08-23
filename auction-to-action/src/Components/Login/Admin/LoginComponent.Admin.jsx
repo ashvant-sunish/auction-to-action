@@ -23,7 +23,7 @@ import {
   AiOutlineExclamationCircle,
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 
 function LoginComponentAdmin() {
 const [formData, setFormData] = useState({ username: "", password: "" });
@@ -59,22 +59,26 @@ const [formData, setFormData] = useState({ username: "", password: "" });
     if (!validateForm()) return;
     setIsLoading(true);
     setMessage("");
+
     try {
-      await new Promise((r) => setTimeout(r, 1500));
-      if (
-        formData.username === "admin" &&
-        formData.password === "password123"
-      ) {
-        setMessageType("success");
-        setMessage("Login Successful! Redirecting to the Admin Dashboard...");
-        setTimeout(() => navigate("/admindashboard"), 1000);
-      } else {
-        setMessageType("error");
-        setMessage("Invalid admin username or password.");
-      }
-    } catch {
+      const response = await axios.post(
+        "http://localhost:3001/api/admin/login",
+        {
+          username: formData.username,
+          password: formData.password,
+        }
+      );
+
+      setMessageType("success");
+      setMessage(response.data.message);
+      setTimeout(() => navigate("/admindashboard"), 1000);
+    } catch (err) {
       setMessageType("error");
-      setMessage("Something went wrong. Try again later.");
+      if (err.response && err.response.data && err.response.data.message) {
+        setMessage(err.response.data.message);
+      } else {
+        setMessage("Something went wrong. Try again later.");
+      }
     } finally {
       setIsLoading(false);
     }

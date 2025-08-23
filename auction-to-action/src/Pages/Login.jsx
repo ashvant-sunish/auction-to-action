@@ -128,7 +128,9 @@ function Login() {
               </Flex>
             </TabPanel>
             <TabPanel>
-              <UserLogin />
+              <Flex direction="column" justifyContent="center" alignItems="center" pt={4} pb={4}>
+                <UserLogin />
+              </Flex>
             </TabPanel>
           </TabPanels>
         </Tabs>
