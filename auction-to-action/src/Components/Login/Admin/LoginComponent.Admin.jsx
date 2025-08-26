@@ -14,8 +14,7 @@ import {
   Card,
   CardBody,
   Icon,
-} 
-from "@chakra-ui/react";
+} from "@chakra-ui/react";
 import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
@@ -26,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function LoginComponentAdmin() {
-const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -87,18 +86,18 @@ const [formData, setFormData] = useState({ username: "", password: "" });
   const CustomAlert = ({ status, children }) => {
     const cfg = {
       success: {
-        bg: "green.50",
-        borderColor: "green.200",
-        color: "green.800",
+        bg: "green.900",
+        borderColor: "green.700",
+        color: "green.100",
         icon: AiOutlineCheckCircle,
-        iconColor: "green.500",
+        iconColor: "green.300",
       },
       error: {
-        bg: "red.50",
-        borderColor: "red.200",
-        color: "red.800",
+        bg: "red.900",
+        borderColor: "red.700",
+        color: "red.100",
         icon: AiOutlineExclamationCircle,
-        iconColor: "red.500",
+        iconColor: "red.300",
       },
     }[status];
     if (!cfg) return null;
@@ -123,110 +122,108 @@ const [formData, setFormData] = useState({ username: "", password: "" });
   };
 
   return (
-      <Card maxW="420px" w="100%" boxShadow="xl" bg="white" borderRadius="lg">
-        <CardBody p={8}>
-          <VStack spacing={6}>
-            <Box textAlign="center">
-              <Heading as="h1" size="lg" color="gray.800">
-                Admin Portal
-              </Heading>
-              <Text color="gray.500" fontSize="md" mt={2}>
-                Sign in to access the dashboard
-              </Text>
-            </Box>
-            {message && (
-              <CustomAlert status={messageType}>{message}</CustomAlert>
-            )}
-            <Box as="form" w="100%" onSubmit={handleSubmit} noValidate>
-              <VStack spacing={5}>
-                <FormControl isInvalid={!!errors.username}>
-                  <FormLabel
-                    htmlFor="username"
-                    color="gray.700"
-                    fontWeight="semibold"
-                    fontSize="sm"
-                  >
-                    Username
-                  </FormLabel>
-                  <Input
-                    id="username"
-                    name="username"
-                    type="text"
-                    placeholder="e.g., admin"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    focusBorderColor="purple.500"
-                    bg="gray.50"
-                  />
-                  {errors.username && (
-                    <Text color="red.500" fontSize="xs" mt={1}>
-                      {errors.username}
-                    </Text>
-                  )}
-                </FormControl>
-                <FormControl isInvalid={!!errors.password}>
-                  <FormLabel
-                    htmlFor="password"
-                    color="gray.700"
-                    fontWeight="semibold"
-                    fontSize="sm"
-                  >
-                    Password
-                  </FormLabel>
-                  <InputGroup>
-                    <Input
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      focusBorderColor="purple.500"
-                      bg="gray.50"
-                    />
-                    <InputRightElement>
-                      <IconButton
-                        aria-label={
-                          showPassword ? "Hide password" : "Show password"
-                        }
-                        icon={
-                          <Icon
-                            as={
-                              showPassword
-                                ? AiOutlineEyeInvisible
-                                : AiOutlineEye
-                            }
-                          />
-                        }
-                        size="sm"
-                        variant="ghost"
-                        onClick={togglePasswordVisibility}
-                      />
-                    </InputRightElement>
-                  </InputGroup>
-                  {errors.password && (
-                    <Text color="red.500" fontSize="xs" mt={1}>
-                      {errors.password}
-                    </Text>
-                  )}
-                </FormControl>
-                <Button
-                  type="submit"
-                  colorScheme="purple"
+    <Box
+      bg="rgba(255,255,255,0.15)"
+      borderRadius="2xl"
+      p={{ base: 10, md: 12 }}
+    >
+      <VStack spacing={6}>
+        <Heading
+          as="h1"
+          size="2xl"
+          color="white"
+          fontFamily="'Inter', sans-serif"
+          p={{ base: 5 }}
+        >
+          Admin Login
+        </Heading>
+        {message && <CustomAlert status={messageType}>{message}</CustomAlert>}
+        <Box as="form" w="100%" onSubmit={handleSubmit} noValidate>
+          <VStack spacing={5}>
+            <FormControl isInvalid={!!errors.username}>
+              <FormLabel htmlFor="username" color="gray.200">
+                Username
+              </FormLabel>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="admin"
+                value={formData.username}
+                onChange={handleInputChange}
+                bg="rgba(255, 255, 255, 0.1)"
+                borderColor="rgba(255, 255, 255, 0.2)"
+                color="white"
+                borderRadius="lg"
+                size="lg"
+                _placeholder={{ color: "gray.400" }}
+              />
+              {errors.username && (
+                <Text color="red.400" fontSize="xs" mt={1}>
+                  {errors.username}
+                </Text>
+              )}
+            </FormControl>
+            <FormControl isInvalid={!!errors.password}>
+              <FormLabel htmlFor="password" color="gray.200">
+                Password
+              </FormLabel>
+              <InputGroup>
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  bg="rgba(255, 255, 255, 0.1)"
+                  borderColor="rgba(255, 255, 255, 0.2)"
+                  color="white"
+                  borderRadius="lg"
                   size="lg"
-                  w="100%"
-                  isLoading={isLoading}
-                  loadingText="Signing in..."
-                  mt={4}
-                  _hover={{ bg: "purple.600" }}
-                >
-                  Sign In
-                </Button>
-              </VStack>
-            </Box>
+                  _placeholder={{ color: "gray.400" }}
+                />
+                <InputRightElement h="full">
+                  <IconButton
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    icon={
+                      <Icon
+                        as={showPassword ? AiOutlineEyeInvisible : AiOutlineEye}
+                        color="gray.300"
+                      />
+                    }
+                    variant="ghost"
+                    onClick={togglePasswordVisibility}
+                    _hover={{ bg: "transparent" }}
+                  />
+                </InputRightElement>
+              </InputGroup>
+              {errors.password && (
+                <Text color="red.400" fontSize="xs" mt={1}>
+                  {errors.password}
+                </Text>
+              )}
+            </FormControl>
+            <Button
+              type="submit"
+              bg="gray.50"
+              color="gray.900"
+              size="lg"
+              w="100%"
+              isLoading={isLoading}
+              loadingText="Signing in..."
+              mt={4}
+              borderRadius="xl"
+              _hover={{ bg: "gray.200" }}
+            >
+              Login
+            </Button>
           </VStack>
-        </CardBody>
-      </Card>
+        </Box>
+      </VStack>
+    </Box>
   );
 }
 
