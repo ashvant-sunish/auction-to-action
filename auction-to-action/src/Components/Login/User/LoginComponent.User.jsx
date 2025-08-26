@@ -14,6 +14,7 @@ import {
   Card,
   CardBody,
   Icon,
+  Link,
 } from "@chakra-ui/react";
 import {
   AiOutlineEye,
@@ -25,7 +26,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function LoginComponentUser() {
-  const [formData, setFormData] = useState({ teamNumber: "", teamCredential: "" });
+  const [formData, setFormData] = useState({
+    teamNumber: "",
+    teamCredential: "",
+  });
   const [showCode, setShowCode] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -43,11 +47,13 @@ function LoginComponentUser() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.teamNumber) newErrors.teamNumber = "Register Number is required.";
+    if (!formData.teamNumber)
+      newErrors.teamNumber = "Register Number is required.";
     else if (formData.teamNumber.length < 3)
       newErrors.teamNumber = "Register Number must be at least 3 characters.";
 
-    if (!formData.teamCredential) newErrors.teamCredential = "Password is required.";
+    if (!formData.teamCredential)
+      newErrors.teamCredential = "Password is required.";
     else if (formData.teamCredential.length < 4)
       newErrors.teamCredential = "Password must be at least 4 characters.";
 
@@ -88,18 +94,18 @@ function LoginComponentUser() {
   const CustomAlert = ({ status, children }) => {
     const cfg = {
       success: {
-        bg: "green.50",
-        borderColor: "green.200",
-        color: "green.800",
+        bg: "green.900",
+        borderColor: "green.700",
+        color: "green.100",
         icon: AiOutlineCheckCircle,
-        iconColor: "green.500",
+        iconColor: "green.300",
       },
       error: {
-        bg: "red.50",
-        borderColor: "red.200",
-        color: "red.800",
+        bg: "red.900",
+        borderColor: "red.700",
+        color: "red.100",
         icon: AiOutlineExclamationCircle,
-        iconColor: "red.500",
+        iconColor: "red.300",
       },
     }[status];
     if (!cfg) return null;
@@ -124,107 +130,109 @@ function LoginComponentUser() {
   };
 
   return (
-    <Card maxW="420px" w="100%" boxShadow="xl" bg="white" borderRadius="lg">
-      <CardBody p={8}>
-        <VStack spacing={6}>
-          <Box textAlign="center">
-            <Heading as="h1" size="lg" color="gray.800">
-              Team Leader Login
-            </Heading>
-            <Text color="gray.500" fontSize="md" mt={2}>
-              Sign in with your register number and password
-            </Text>
-          </Box>
-          {message && <CustomAlert status={messageType}>{message}</CustomAlert>}
-          <Box as="form" w="100%" onSubmit={handleSubmit} noValidate>
-            <VStack spacing={5}>
-              {/* Register Number Field */}
-              <FormControl isInvalid={!!errors.teamNumber}>
-                <FormLabel
-                  htmlFor="teamNumber"
-                  color="gray.700"
-                  fontWeight="semibold"
-                  fontSize="sm"
-                >
-                  Register Number
-                </FormLabel>
-                <Input
-                  id="teamNumber"
-                  name="teamNumber"
-                  type="text"
-                  placeholder="e.g., 21BCE1234"
-                  value={formData.teamNumber}
-                  onChange={handleInputChange}
-                  focusBorderColor="purple.500"
-                  bg="gray.50"
-                />
-                {errors.teamNumber && (
-                  <Text color="red.500" fontSize="xs" mt={1}>
-                    {errors.teamNumber}
-                  </Text>
-                )}
-              </FormControl>
+    <Box
+      bg="rgba(255,255,255,0.15)"
+      borderRadius="2xl"
+      p={{ base: 10, md: 12 }}
+    >
+      <VStack spacing={6}>
+        <Heading
+          as="h1"
+          size="2xl"
+          color="white"
+          fontFamily="'Inter', sans-serif"
+          p={{ base: 5 }}
+        >
+          Login
+        </Heading>
 
-              {/* Password Field */}
-              <FormControl isInvalid={!!errors.teamCredential}>
-                <FormLabel
-                  htmlFor="teamCredential"
-                  color="gray.700"
-                  fontWeight="semibold"
-                  fontSize="sm"
-                >
-                  Password
-                </FormLabel>
-                <InputGroup>
-                  <Input
-                    id="teamCredential"
-                    name="teamCredential"
-                    type={showCode ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={formData.teamCredential}
-                    onChange={handleInputChange}
-                    focusBorderColor="purple.500"
-                    bg="gray.50"
-                  />
-                  <InputRightElement>
-                    <IconButton
-                      aria-label={showCode ? "Hide password" : "Show password"}
-                      icon={
-                        <Icon
-                          as={showCode ? AiOutlineEyeInvisible : AiOutlineEye}
-                        />
-                      }
-                      size="sm"
-                      variant="ghost"
-                      onClick={toggleCodeVisibility}
-                    />
-                  </InputRightElement>
-                </InputGroup>
-                {errors.teamCredential && (
-                  <Text color="red.500" fontSize="xs" mt={1}>
-                    {errors.teamCredential}
-                  </Text>
-                )}
-              </FormControl>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                colorScheme="purple"
+        {message && <CustomAlert status={messageType}>{message}</CustomAlert>}
+        <Box as="form" w="100%" onSubmit={handleSubmit} noValidate>
+          <VStack spacing={5}>
+            <FormControl isInvalid={!!errors.teamNumber}>
+              <FormLabel htmlFor="teamNumber" color="gray.200">
+                Leader Registration Number
+              </FormLabel>
+              <Input
+                id="teamNumber"
+                name="teamNumber"
+                type="text"
+                placeholder="e.g., 21BCE1234"
+                value={formData.teamNumber}
+                onChange={handleInputChange}
+                bg="rgba(255, 255, 255, 0.1)"
+                borderColor="rgba(255, 255, 255, 0.2)"
+                color="white"
+                borderRadius="lg"
                 size="lg"
-                w="100%"
-                isLoading={isLoading}
-                loadingText="Signing in..."
-                mt={4}
-                _hover={{ bg: "purple.600" }}
-              >
-                Sign In
-              </Button>
-            </VStack>
-          </Box>
-        </VStack>
-      </CardBody>
-    </Card>
+                _placeholder={{ color: "gray.400" }}
+              />
+              {errors.teamNumber && (
+                <Text color="red.500" fontSize="xs" mt={1}>
+                  {errors.teamNumber}
+                </Text>
+              )}
+            </FormControl>
+
+            <FormControl isInvalid={!!errors.teamCredential}>
+              <FormLabel htmlFor="teamCredential" color="gray.200">
+                Password
+              </FormLabel>
+              <InputGroup>
+                <Input
+                  id="teamCredential"
+                  name="teamCredential"
+                  type={showCode ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={formData.teamCredential}
+                  onChange={handleInputChange}
+                  bg="rgba(255, 255, 255, 0.1)"
+                  borderColor="rgba(255, 255, 255, 0.2)"
+                  color="white"
+                  borderRadius="lg"
+                  size="lg"
+                  _placeholder={{ color: "gray.400" }}
+                />
+                <InputRightElement h="full">
+                  <IconButton
+                    aria-label={showCode ? "Hide code" : "Show code"}
+                    icon={
+                      <Icon
+                        as={showCode ? AiOutlineEyeInvisible : AiOutlineEye}
+                        color="gray.300"
+                      />
+                    }
+                    variant="ghost"
+                    onClick={toggleCodeVisibility}
+                    _hover={{ bg: "transparent" }}
+                  />
+                </InputRightElement>
+              </InputGroup>
+              {errors.teamCredential && (
+                <Text color="red.400" fontSize="xs" mt={1}>
+                  {errors.teamCredential}
+                </Text>
+              )}
+            </FormControl>
+
+            <Button
+              type="submit"
+              bg="gray.50"
+              color="gray.900"
+              size="lg"
+              w="100%"
+              isLoading={isLoading}
+              loadingText="Signing in..."
+              mt={4}
+              borderRadius="xl"
+              _hover={{ bg: "gray.200" }}
+            >
+              Login
+            </Button>
+          </VStack>
+        </Box>
+      </VStack>
+    </Box>
   );
 }
 
