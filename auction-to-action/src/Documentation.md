@@ -52,28 +52,63 @@
 
 # 10/08/2025 - Sunday - 3:20 AM [ Update 0.0.4]
 
-  ## Implemented User Login Functionality
+## Implemented User Login Functionality
 
-  - Developed the `Login.jsx` page with:
-    - Styles
-    - Header & Footer
+- Developed the `Login.jsx` page with:
+  - Styles
+  - Header & Footer
 
-  ## File Directory Adjusted 
+## File Directory Adjusted
 
-  - Some Components , Pages and File Directory Changed
+- Some Components , Pages and File Directory Changed
 
-  ## UI/UX Improvements
+## UI/UX Improvements
 
-  - Updated button styles and input fields for consistency with the custom theme
-  - Improved accessibility for login forms
+- Updated button styles and input fields for consistency with the custom theme
+- Improved accessibility for login forms
 
 # 10/08/2025 - Sunday - 5:30 AM [ Update 0.0.5 ]
 
-  ## Implemented User Login Component
+## Implemented User Login Component
 
     - Created LoginComponentUser.jsx based on the design and logic of LoginComponentAdmin.jsx.
     - Added form fields for Team Name and Team Code.
 
 # 23/08/2025 - Saturday 3:15 PM [ Update 0.0.6 ]
 
-  - User and admin login connection to the database completed
+- User and admin login connection to the database completed
+
+# 27/08/2025 - Wednesday 12:25 AM [ Update 0.0.7 ]
+
+## Major Design Overhaul for Authentication Pages
+
+- Implemented a complete visual redesign of the **User** and **Admin** login pages to create a more modern and immersive user experience.
+
+---
+
+## New Two-Column Layout
+
+- **Login.jsx** and **Admin.Login.jsx** were refactored to use a two-column layout.
+- **Left column**: Dedicated branding panel with event title, tagline, and illustration.
+- **Right column**: Focused on the login form.
+
+---
+
+## Enhanced Background and Styling
+
+- Replaced the simple background with a **multi-layered CSS gradient** and **pseudo-elements** for depth.
+- Login form cards (**LoginComponent.User** and **LoginComponent.Admin**) updated with a **glassmorphism effect**, including `backdrop-filter` blur.
+
+---
+
+## Theme and Typography Update
+
+- Primary font updated to **Inter** for a cleaner, modern look.
+- Updates applied in both `theme.js` and `index.html`.
+
+---
+
+## UX and Component Refinements
+
+- Removed the **"Sign up"** link from the user login component for a streamlined UI.
+- Disabled hover effect on the **password visibility (eye) icon** for cleaner interactions.
