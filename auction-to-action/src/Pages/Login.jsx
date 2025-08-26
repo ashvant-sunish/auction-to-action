@@ -1,163 +1,131 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Box, Text, Flex, VStack, Spacer, useColorModeValue, Tabs, TabList, TabPanels, Tab, TabPanel, Container, Center } from '@chakra-ui/react'
-import AdminLogin from "./Admin/Admin.Login";
-import UserLogin from "./User/User.Login";
+import { Link as RouterLink } from "react-router-dom";
+import { Box, Flex, Text, Link, Image, VStack } from "@chakra-ui/react";
+import LoginComponentUser from "../Components/Login/User/LoginComponent.User";
+import illustration from "../assets/images/login_illustrationbg.png";
 
-const Logo = (props) => {
-  return (
-    <Text fontWeight="bold" fontSize="2xl" {...props} color="white">
-      Center For Social Entrepreneurship and Development | VIT Vellore
-    </Text>
-  );
-};
-
-const ListHeader = ({ children }) => {
-  return (
-    <Text fontWeight={'500'} fontSize={'lg'} mb={2}>
-      {children}
-    </Text>
-  );
-};
 function Login() {
-  const navigate = useNavigate();
-
+  // sample exact hex from design (approx)
+  const tealBase = "#0f3b3d"; // dark teal
+  const tealMid = "#154a4c"; // mid teal stroke
+  const tealDeep = "#0a2f31"; // deepest strokes
+  const goldSoft = "rgba(199,152,58,0.18)";
+  const whiteSoft = "rgba(255,255,255,0.10)";
 
   return (
+    // Root: teal + gradient + soft glows
     <Box
-      bg={useColorModeValue('gray.50', 'gray.900')}
-      color={useColorModeValue('gray.700', 'gray.200')}>
-      <Box
-        px={{ base: 4, md: 12 }}
-        py={6}
-        bg={useColorModeValue('white', 'gray.800')}
-        boxShadow="md"
-        position="sticky"
-        top="0"
-        zIndex="100"
-      >
-        <Flex align="flex-start" justify="space-between">
+      minH="100vh"
+      position="relative"
+      overflow="hidden"
+      bg={tealBase}
+      _before={{
+        content: '""',
+        position: "absolute",
+        inset: 0,
+        // diagonal teal strokes
+        bgGradient: `linear(135deg, ${tealDeep} 0%, ${tealBase} 40%, ${tealMid} 70%, ${tealDeep} 100%)`,
+        opacity: 0.9,
+        zIndex: 0,
+      }}
+      _after={{
+        content: '""',
+        position: "absolute",
+        inset: 0,
+        // soft gold + white blotches like the poster
+        bgImage: `
+          radial-gradient(600px 300px at 85% 20%, ${goldSoft} 0%, transparent 60%),
+          radial-gradient(520px 260px at 15% 70%, ${whiteSoft} 0%, transparent 65%),
+          radial-gradient(380px 240px at 60% 80%, ${goldSoft} 0%, transparent 70%)
+        `,
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    >
+      <Flex minH="100vh" position="relative" zIndex={2}>
+        {/* LEFT SIDE */}
+        <VStack
+          flex={1.5}
+          display={{ base: "none", md: "flex" }}
+          bg="transparent"
+          p={10}
+          spacing={8}
+          align="flex-start"
+          justify="space-between"
+        >
           <VStack align="flex-start" spacing={0}>
+            <Text fontSize="lg" fontWeight="bold" color="white">
+              CSED
+            </Text>
+            <Text fontSize="md" color="white">
+              VIT Vellore
+            </Text>
+          </VStack>
+
+          {/* Text Block */}
+          <VStack align="flex-start" spacing={2} w="full">
             <Text
-              fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+              fontSize={{ base: "4xl", md: "5xl", lg: "6xl" }}
               fontWeight="900"
-              fontFamily="tungsten, 'Tungsten', Arial, sans-serif"
+              fontFamily="'Inter', sans-serif"
               textTransform="uppercase"
-              letterSpacing="widest"
-              color={useColorModeValue("red.600", "red.300")}
+              letterSpacing="wide"
+              color="white"
               lineHeight="1"
-              fontStyle="italic"
             >
-              Auction to Action
+              Auction To Action
             </Text>
             <Text
-              fontSize={{ base: "xs", md: "sm", lg: "md" }}
-              color={useColorModeValue("gray.600", "gray.400")}
+              fontSize={{ base: "md", md: "lg" }}
+              color="white"
               fontStyle="italic"
               fontWeight="medium"
               letterSpacing="wide"
-              mt={1}
+              mt={2}
             >
               When Bids Become Betrayal, Action Becomes War
             </Text>
-          </VStack>{}
-          <Spacer />
-          <Text
-            fontSize={{ base: "lg", md: "2xl" }}
-            fontWeight="extrabold"
-            color={useColorModeValue("blue.600", "blue.300")}
-            alignSelf="flex-start"
-            letterSpacing="widest"
-          >
-            CSED | VIT Vellore
+          </VStack>
+
+          <Image
+            src={illustration}
+            alt="Login Illustration"
+            objectFit="contain"
+            w="full"
+            maxW="500px"
+            alignSelf="center"
+          />
+
+          <Text fontSize="sm" color="white" alignSelf="center">
+            Made with ❤️ CSED Tech Team
           </Text>
-        </Flex>
-      </Box>
-      <Container minWidth={'60%'} minHeight={'0vh'} mt={5}>
-        <Tabs isFitted variant="unstyled">
-          <TabList
-            mb="1em"
-            p={2}
-            bg={useColorModeValue("gray.200", "gray.700")}
-            borderRadius="full"
-            boxShadow="md"
-            display="flex"
-            justifyContent="center"
-          >
-            <Tab
-              _selected={{
-                color: "white",
-                bg: "red.500",
-                boxShadow: "lg",
-                transform: "scale(1.08)",
-              }}
-              borderRadius="full"
-              px={8}
-              py={3}
-              fontWeight="bold"
-              fontSize={{ base: "md", md: "lg" }}
-              transition="all 0.2s"
-              mx={2}
-              letterSpacing="wide"
-            >
-              Admin
-            </Tab>
-            <Tab
-              _selected={{
-                color: "white",
-                bg: "red.500",
-                boxShadow: "lg",
-                transform: "scale(1.08)",
-              }}
-              borderRadius="full"
-              px={8}
-              py={3}
-              fontWeight="bold"
-              fontSize={{ base: "md", md: "lg" }}
-              transition="all 0.2s"
-              mx={2}
-              letterSpacing="wide"
-            >
-              Participants
-            </Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <Flex direction="column" justifyContent="center" alignItems="center" pt={4} pb={4}>
-                <AdminLogin />
-              </Flex>
-            </TabPanel>
-            <TabPanel>
-              <Flex direction="column" justifyContent="center" alignItems="center" pt={4} pb={4}>
-                <UserLogin />
-              </Flex>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Container>
-      <Box py={10} mt={6} bg={'bg'}>
+        </VStack>
+
+        {/* RIGHT SIDE */}
         <Flex
-          align={'center'}
-          _before={{
-            content: '""',
-            borderBottom: '1px solid',
-            borderColor: useColorModeValue('gray.200', 'gray.700'),
-            flexGrow: 1,
-            mr: 8,
-          }}
-          _after={{
-            content: '""',
-            borderBottom: '1px solid',
-            borderColor: useColorModeValue('gray.200', 'gray.700'),
-            flexGrow: 1,
-            ml: 8,
-          }}>
-          <Logo />
+          flex={1}
+          p={{ base: 4, sm: 8, md: 12 }}
+          align="center"
+          justify="center"
+          direction="column"
+          bg="transparent"
+        >
+          <Box w="100%" maxW="520px">
+            <LoginComponentUser />
+            <Text mt={6} textAlign="center" color="white">
+              Are you an Admin?{" "}
+              <Link
+                as={RouterLink}
+                to="/admin-login"
+                color="teal.200"
+                fontWeight="bold"
+              >
+                Click Here
+              </Link>
+            </Text>
+          </Box>
         </Flex>
-        <Text pt={6} fontSize={'sm'} textAlign={'center'} color="white">
-          Made with ❤️ by the CSED Technical Team
-        </Text>
-      </Box>
+      </Flex>
     </Box>
   );
 }
