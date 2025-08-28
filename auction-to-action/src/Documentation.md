@@ -112,3 +112,45 @@
 
 - Removed the **"Sign up"** link from the user login component for a streamlined UI.
 - Disabled hover effect on the **password visibility (eye) icon** for cleaner interactions.
+
+## Documentation and Description for all updates and edits
+
+- Updates the relevant data structures or state based on the provided input.
+- Performs necessary checks and validations before applying updates.
+- Ensures that all changes are propagated to dependent components or modules.
+- Handles error cases gracefully and logs any issues encountered during the update process.
+- Triggers any required events or notifications after successful updates.
+
+## This update introduces several improvements to the Website:
+
+## 29/08/2025 - Friday - 12:55 AM [ Update 0.0.8 ]
+
+Implemented User Dashboard and Bidding Pages  
+This update introduces the complete user-facing dashboard, providing a comprehensive interface for participants to track auction progress, view available materials, and monitor live bidding activity.
+
+### Created Core Dashboard Layout (UserDashboard.jsx)
+
+- Built the main dashboard page with a persistent sidebar and a dynamic top navbar.
+- The layout is fixed to the viewport height, with internal scrolling for content-heavy components to prevent a main page scrollbar and improve user experience.
+- The main content area features a three-column grid of stat cards for "Credit," "Debit," and "Property Amount," along with a two-column grid for detailed information tables.
+
+### Built Reusable Dashboard Components (Sidebar.jsx, Navbar.jsx)
+
+- Sidebar: A persistent navigation component that includes links to the main "Dashboard," "My Bidding History," and "Team Bid History" pages.
+- Navbar: A dynamic header that displays the current page title based on the URL. It also includes a profile icon with a hover tooltip.
+
+### Developed Bidding Information Components
+
+- Available Materials Table: An aggregated summary of all materials acquired from bids, displaying the total items and amount for each material type.
+- Live Bidding Card: A real-time information panel showing the current bid number, the item up for auction, and a list of recent bids.
+
+### Created Dedicated Bidding History Pages
+
+- My Bids Page (MyBids.jsx): A new page that displays a detailed table of the current user's personal bidding history, including the bid number, items, and the amount bid.
+- Team Bids Page (TeamBids.jsx): A new page showing a complete history of all bids made by the user's team, indicating which team member placed each bid.
+
+### Updated Application Routing (App.jsx)
+
+- Added new routes to App.jsx to handle navigation to the `/userdashboard`, `/my-bids`, and `/team-bids` pages, ensuring seamless integration into the application flow.
+
+---
