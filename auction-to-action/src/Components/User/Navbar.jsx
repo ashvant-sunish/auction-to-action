@@ -1,9 +1,7 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
 import {
   Box,
   Flex,
-  Text,
   IconButton,
   Icon,
   HStack,
@@ -14,22 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { MdHome, MdPerson } from "react-icons/md";
 
-const Navbar = () => {
-  const location = useLocation();
-
-  let pageTitle = "Dashboard";
-  switch (location.pathname) {
-    case "/userdashboard":
-      pageTitle = "Dashboard";
-      break;
-    case "/my-bids":
-      pageTitle = "My Bidding History";
-      break;
-    case "/team-bids":
-      pageTitle = "Team Bid History";
-      break;
-  }
-
+const Navbar = ({ pageTitle }) => {
   return (
     <Flex
       as="header"
@@ -51,7 +34,7 @@ const Navbar = () => {
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
             <BreadcrumbLink href="#" fontWeight="bold">
-              {pageTitle}
+              {pageTitle || "Dashboard"}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>

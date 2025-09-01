@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Box,
-  Flex,
   Heading,
   Table,
   Thead,
@@ -11,8 +10,6 @@ import {
   Td,
   TableContainer,
 } from "@chakra-ui/react";
-import Sidebar from "../../Components/Login/Dashboard/Sidebar";
-import Navbar from "../../Components/Login/Dashboard/Navbar";
 
 const allBids = [
   { id: 1, text: "2 × Property, 3 × Skilled Labour" },
@@ -59,37 +56,31 @@ const fullTeamHistory = allBids
 
 function TeamBids() {
   return (
-    <Flex h="100vh" overflow="hidden">
-      <Sidebar />
-      <Box flex="1" ml={{ base: 0, md: "260px" }} bg="gray.100">
-        <Navbar />
-        <Box p={8}>
-          <Heading size="lg" mb={6}>
-            Team Bidding History
-          </Heading>
-          <TableContainer bg="white" p={4} borderRadius="lg" shadow="md">
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th>Bid No.</Th>
-                  <Th>Items</Th>
-                  <Th>Bid By</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {fullTeamHistory.map((bid) => (
-                  <Tr key={bid.id}>
-                    <Td fontWeight="bold">BID {bid.id}</Td>
-                    <Td>{bid.text}</Td>
-                    <Td>{bid.member}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
-        </Box>
-      </Box>
-    </Flex>
+    <Box>
+      <Heading size="lg" mb={6}>
+        Team Bidding History
+      </Heading>
+      <TableContainer bg="white" p={4} borderRadius="lg" shadow="md">
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Bid No.</Th>
+              <Th>Items</Th>
+              <Th>Bid By</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {fullTeamHistory.map((bid) => (
+              <Tr key={bid.id}>
+                <Td fontWeight="bold">BID {bid.id}</Td>
+                <Td>{bid.text}</Td>
+                <Td>{bid.member}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
 

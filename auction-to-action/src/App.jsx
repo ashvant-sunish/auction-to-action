@@ -4,8 +4,7 @@ import Login from "./Pages/Login";
 import AdminLogin from "./Pages/Admin/Admin.Login";
 import UserDashboard from "./Pages/User/Dashboard.User";
 import AdminDashboard from "./Pages/Admin/Dashboard/Dashboard.Admin";
-import MyBids from "./Pages/User/MyBids";
-import TeamBids from "./Pages/User/TeamBids";
+
 import TestAdmin from "./Pages/Admin/Dashboard/test.admin";
 
 function App() {
@@ -14,8 +13,7 @@ function App() {
       <Route exact path="/" element={<Login />} />
       <Route path="/userdashboard" element={<UserDashboard />} />
       <Route path="/admindashboard" element={<AdminDashboard />} />
-      <Route path="/my-bids" element={<MyBids />} />
-      <Route path="/team-bids" element={<TeamBids />} />
+      <Route path="/adminlogin" element={<AdminLogin />} />
       <Route path="/test" element={<TestAdmin />} />
     </Routes>
   );

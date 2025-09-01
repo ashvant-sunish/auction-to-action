@@ -6,7 +6,6 @@
 - Handles error cases gracefully and logs any issues encountered during the update process.
 - Triggers any required events or notifications after successful updates.
 
-
 ## This update introduces several improvements to the Website:
 
 ## 05/08/2025 - Tuesday - 4:10pm [ Update 0.0.1 ]
@@ -124,7 +123,7 @@
 
 ## 29/08/2025 - Friday - 12:55 AM [ Update 0.0.8 ]
 
-    Implemented User Dashboard and Bidding Pages  
+    Implemented User Dashboard and Bidding Pages
     This update introduces the complete user-facing dashboard, providing a comprehensive interface for participants to track auction progress, view available materials, and monitor live bidding activity.
 
     ### Created Core Dashboard Layout (UserDashboard.jsx)
@@ -156,14 +155,33 @@
 
 ## 01/09/2025 - Monday - 5:25 PM [ Update 0.0.9]
 
-  - Implemented Admin Dashboard
-      -- Pages Including: 
-            - Bid History
-            - Team Management
-            - Admin Management
-      
-      *Pending : Main Dashboard Page / Default Page
-  
-  - Frontend Backend Integration
+- Implemented Admin Dashboard
+  -- Pages Including: - Bid History - Team Management - Admin Management
 
-      -- Basic Integration between user dashboard and server is almost done code added but still pending
+  \*Pending : Main Dashboard Page / Default Page
+
+- Frontend Backend Integration
+
+  -- Basic Integration between user dashboard and server is almost done code added but still pending
+
+# 01/09/2025 - Monday - 8:32 PM [ Update 0.0.10 ]
+
+## User Dashboard Refactor & Navigation Fixes
+
+### Key Changes
+
+- **State-Driven Navigation**
+
+  - Replaced `react-router-dom` with `useState` in `UserDashboard.jsx` for internal view switching.
+  - `UserDashboard.jsx` now acts as a controller, rendering active content.
+
+- **Component Restructure**
+
+  - Split main content into reusable components:
+    - `DashboardContent.jsx`
+    - `MyBids.jsx`
+    - `TeamBids.jsx`
+  - `UserDashboard.jsx` simplified into layout shell (Sidebar + Navbar + active content).
+
+- **Sidebar Communication**
+  - Sidebar triggers view changes via `setActiveComponent` prop drilling.
