@@ -3,11 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./Pages/Login";
 import AdminLogin from "./Pages/Admin/Admin.Login";
 import UserDashboard from "./Pages/User/Dashboard.User";
+import AdminDashboard from "./Pages/Admin/Dashboard/Dashboard.Admin";
 import MyBids from "./Pages/User/MyBids";
 import TeamBids from "./Pages/User/TeamBids";
-{
-  /*import AdminDashboard from "./Pages/Admin/Dashboard.Admin"; */
-}
+import TestAdmin from "./Pages/Admin/Dashboard/test.admin";
 
 function App() {
   return (
@@ -16,8 +15,10 @@ function App() {
       <Route path="/admin-login" element={<AdminLogin />} />
       {/*<Route path="/admindashboard" element={<AdminDashboard />} /> */}
       <Route path="/userdashboard" element={<UserDashboard />} />
+      <Route path="/admindashboard" element={<AdminDashboard />} />
       <Route path="/my-bids" element={<MyBids />} />
       <Route path="/team-bids" element={<TeamBids />} />
+      <Route path="/test" element={<TestAdmin />} />
     </Routes>
   );
 }

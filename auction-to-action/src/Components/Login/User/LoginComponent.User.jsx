@@ -24,6 +24,8 @@ import {
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import serverUrl from './../../../servercon';
+
 
 function LoginComponentUser() {
   const [formData, setFormData] = useState({
@@ -69,7 +71,7 @@ function LoginComponentUser() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/team/login",
+        `${serverUrl}/api/team/login`,
         {
           teamNumber: formData.teamNumber,
           teamCredential: formData.teamCredential,
@@ -78,6 +80,7 @@ function LoginComponentUser() {
 
       setMessageType("success");
       setMessage(response.data.message);
+      localStorage.setItem("token", response.data.token);
       setTimeout(() => navigate("/userdashboard"), 1000);
     } catch (err) {
       setMessageType("error");

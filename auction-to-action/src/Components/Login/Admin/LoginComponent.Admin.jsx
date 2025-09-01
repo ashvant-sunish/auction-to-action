@@ -23,6 +23,8 @@ import {
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import serverUrl from "../../../servercon";
+
 
 function LoginComponentAdmin() {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -61,7 +63,7 @@ function LoginComponentAdmin() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/admin/login",
+        `${serverUrl}/api/admin/login`,
         {
           username: formData.username,
           password: formData.password,

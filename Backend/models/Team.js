@@ -2,11 +2,18 @@ const mongoose = require('mongoose');
 
 const teamSchema = new mongoose.Schema({
   teamNumber: { type: Number, unique: true, required: true },
-  teamCredential: { type: String, unique: true, required: true }, // unique login code
+  teamCredential: { type: String, unique: true, required: true },
   isActive: { type: Boolean, default: false },
   budget: { type: Number, default: 20000 },
-  members: [{ type: String }],
+  inventory: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Item' 
+  }],
+  resources: {
+    type: Map,
+    of: Number,
+    default: {}
+  }
 });
 
-// This explicitly tells Mongoose to name the collection 'teamData'
 module.exports = mongoose.model('Team', teamSchema, 'teamData');

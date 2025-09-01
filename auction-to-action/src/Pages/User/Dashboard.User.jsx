@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -20,11 +20,17 @@ import {
   VStack,
   HStack,
   Text,
+  useToast,
+  Spinner,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import Sidebar from "../../Components/Login/Dashboard/Sidebar";
 import Navbar from "../../Components/Login/Dashboard/Navbar";
 import { MdTrendingDown, MdTrendingUp } from "react-icons/md";
 import { FaRupeeSign, FaGavel } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import serverUrl from "../../servercon";
 
 const StatCard = ({ icon, title, amount, percentage, isUp }) => (
   <Stat p={4} shadow="md" borderWidth="1px" borderRadius="lg" bg="white">
@@ -44,8 +50,187 @@ const StatCard = ({ icon, title, amount, percentage, isUp }) => (
   </Stat>
 );
 
-const AvailableMaterialsTable = () => {
-  const history = [
+function UserDashboard() {
+  const [budget, setBudget] = useState('₹0');
+  const [teamData, setTeamData] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const toast = useToast();
+  
+  //const [error, setError] = useState(null);
+
+  // Get JWT token from localStorage
+  const getAuthToken = () => {
+    return localStorage.getItem('token');
+  };
+
+  // Team Data Fetch
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const token = getAuthToken();
+      if (!token) {
+        console.log('❌ No token found, redirecting to login...');
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to access dashboard",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+        });
+        navigate('/');
+        return;
+      }
+
+      console.log('🔑 Token found, fetching dashboard data...');
+      const response = await fetch(`${serverUrl}/api/team/dashboard`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.log('❌ Token expired, redirecting to login...');
+          localStorage.removeItem('token');
+          localStorage.removeItem('teamData');
+          navigate('/');
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Fetched team data:', data);
+      
+      // Update state with fetched data
+      setTeamData(data);
+      setBudget(`₹${data.budget?.toLocaleString() || 0}`);
+      
+      setLoading(false);
+      return data;
+    } catch (error) {
+      console.error('❌ Error fetching data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch dashboard data",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      setLoading(false);
+    }
+  };
+
+  // Fetch data on page load
+  useEffect(() => {
+    console.log('🚀 Dashboard loaded, fetching team data...');
+    fetchData();
+  }, []); // Empty dependency array means this runs once on component mount
+
+  // Calculate debit amount from transactions
+  const calculateDebit = () => {
+    const totalDebit = transactions.reduce((sum, transaction) => sum + (transaction.price || 0), 0);
+    return `₹${totalDebit.toLocaleString()}`;
+  };
+
+  // Calculate property amount (placeholder - you can modify this logic)
+  const calculatePropertyAmount = () => {
+    const propertyTransactions = transactions.filter(t => 
+      t.itemId?.name?.toLowerCase().includes('property')
+    );
+    const totalProperty = propertyTransactions.reduce((sum, transaction) => sum + (transaction.price || 0), 0);
+    return `₹${totalProperty.toLocaleString()}`;
+  };
+
+  if (loading) {
+    return (
+      <Flex h="100vh" align="center" justify="center">
+        <VStack spacing={4}>
+          <Spinner size="xl" color="blue.500" />
+          <Text>Loading dashboard...</Text>
+        </VStack>
+      </Flex>
+    );
+  }
+
+/*  if (error) {
+    return (
+      <Flex h="100vh" align="center" justify="center" p={4}>
+        <Alert status="error" borderRadius="lg" maxW="md">
+          <AlertIcon />
+          {error}
+        </Alert>
+      </Flex>
+    );
+  }
+*/
+  return (
+    <Flex h="100vh" overflow="hidden">
+      <Sidebar />
+      <Box
+        flex="1"
+        ml={{ base: 0, md: "260px" }}
+        bg="gray.100"
+        h="100vh"
+        overflow="hidden"
+      >
+        <Navbar />
+        <Box
+          p={6}
+          h="calc(100vh - 72px)"
+          display="flex"
+          flexDirection="column"
+          gap={4}
+          overflow="hidden"
+        >
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+            <StatCard
+              icon={MdTrendingUp}
+              title="Balance"
+              amount={budget}
+              percentage="+55%"
+              isUp={true}
+            />
+            <StatCard
+              icon={MdTrendingDown}
+              title="Debit"
+              amount={calculateDebit()}
+              percentage="-3%"
+              isUp={false}
+            />
+            <StatCard
+              icon={FaRupeeSign}
+              title="Property Amount"
+              amount={calculatePropertyAmount()}
+              percentage="+5%"
+              isUp={true}
+            />
+          </SimpleGrid>
+
+          <SimpleGrid
+            columns={{ base: 1, lg: 2 }}
+            spacing={4}
+            mt={0}
+            flex="1"
+            overflow="hidden"
+            alignItems="start"
+          >
+            <AvailableMaterialsTable transactions={transactions} />
+            <CurrentBiddingInfo />
+          </SimpleGrid>
+        </Box>
+      </Box>
+    </Flex>
+  );
+}
+
+const AvailableMaterialsTable = ({ transactions }) => {
+  // Use real transaction data if available, otherwise use sample data
+  const sampleHistory = [
     { material: "2 × Property, 3 × Skilled Labour", items: 5, amount: "5,000" },
     {
       material: "1 × Property, 2 × Machinery & Tools, 1 × Utilities",
@@ -115,6 +300,15 @@ const AvailableMaterialsTable = () => {
     },
     { material: "2 × Property, 3 × Transportation", items: 5, amount: "4,750" },
   ];
+
+  // Convert transactions to material format or use sample data
+  const history = transactions?.length > 0 ? 
+    transactions.map(transaction => ({
+      material: transaction.itemId?.name || 'Unknown Item',
+      items: 1,
+      amount: transaction.price?.toString() || '0',
+    })) : 
+    sampleHistory;
 
   const materialData = history.reduce((acc, bid) => {
     const materials = bid.material.split(", ");
@@ -242,66 +436,5 @@ const CurrentBiddingInfo = () => {
     </Box>
   );
 };
-
-function UserDashboard() {
-  return (
-    <Flex h="100vh" overflow="hidden">
-      <Sidebar />
-      <Box
-        flex="1"
-        ml={{ base: 0, md: "260px" }}
-        bg="gray.100"
-        h="100vh"
-        overflow="hidden"
-      >
-        <Navbar />
-        <Box
-          p={6}
-          h="calc(100vh - 72px)"
-          display="flex"
-          flexDirection="column"
-          gap={4}
-          overflow="hidden"
-        >
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-            <StatCard
-              icon={MdTrendingUp}
-              title="Credit"
-              amount="₹53,000"
-              percentage="+55%"
-              isUp={true}
-            />
-            <StatCard
-              icon={MdTrendingDown}
-              title="Debit"
-              amount="₹2,300"
-              percentage="-3%"
-              isUp={false}
-            />
-            <StatCard
-              icon={FaRupeeSign}
-              title="Property Amount"
-              amount="₹2,00,000"
-              percentage="+5%"
-              isUp={true}
-            />
-          </SimpleGrid>
-
-          <SimpleGrid
-            columns={{ base: 1, lg: 2 }}
-            spacing={4}
-            mt={0}
-            flex="1"
-            overflow="hidden"
-            alignItems="start"
-          >
-            <AvailableMaterialsTable />
-            <CurrentBiddingInfo />
-          </SimpleGrid>
-        </Box>
-      </Box>
-    </Flex>
-  );
-}
 
 export default UserDashboard;

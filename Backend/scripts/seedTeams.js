@@ -1,48 +1,46 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const Team = require('../models/Team'); // Correct path to the model
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import Transaction from "../models/Transaction.js"; // adjust path if needed
 
-async function seedTeams() {
+dotenv.config();
+
+const connectDB = async () => {
   try {
-    // Connect to the database
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log("✅ Connected to MongoDB to seed teams...");
-
-    // Drop the old collection to ensure a fresh start
-    try {
-        await mongoose.connection.db.dropCollection('teamData');
-        console.log("🔥 Dropped existing 'teamData' collection.");
-    } catch (err) {
-        if (err.codeName === 'NamespaceNotFound') {
-            console.log("ℹ️ No existing 'teamData' collection to drop. Starting fresh.");
-        } else {
-            throw err;
-        }
-    }
-
-    const teams = [];
-    for (let i = 1; i <= 65; i++) {
-      // Create predictable credentials like REG001, REG002...
-      const credential = `REG${String(i).padStart(3, '0')}`;
-      teams.push({
-        teamNumber: i,
-        teamCredential: credential,
-        isActive: false
-      });
-    }
-
-    // Insert all the new teams into the database
-    await Team.insertMany(teams);
-    console.log("✅ 65 teams inserted successfully!");
-
+    console.log("MongoDB connected for seeding...");
   } catch (err) {
-    console.error("❌ Error inserting teams:", err);
-  } finally {
-    // Always close the connection
-    await mongoose.connection.close();
-    console.log("🔌 Database connection closed.");
+    console.error(err);
+    process.exit(1);
   }
-}
+};
 
-seedTeams();
+const seed = async () => {
+  await connectDB();
 
+  try {
+    await Transaction.deleteMany();
+
+    await Transaction.insertMany([
+      {
+        teamId: "TeamA",
+        itemName: "Laptop",
+        amount: 2000,
+        date: new Date(),
+      },
+      {
+        teamId: "TeamB",
+        itemName: "Projector",
+        amount: 1500,
+        date: new Date(),
+      },
+    ]);
+
+    console.log("Sample transactions inserted!");
+    process.exit(0);
+  } catch (err) {
+    console.error("Seeding failed", err);
+    process.exit(1);
+  }
+};
+
+seed();

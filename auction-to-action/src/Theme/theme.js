@@ -9,7 +9,9 @@ const customTheme = {
       200: '#032F30',
     },
     dark: '#031716',
-    bg: '#274D60'
+    bg: '#274D60',
+    white: '#FFFFFF',
+    
   },
   fonts: {
     heading: "'Inter', sans-serif",
