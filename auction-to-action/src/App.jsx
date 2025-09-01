@@ -12,8 +12,6 @@ function App() {
   return (
     <Routes>
       <Route exact path="/" element={<Login />} />
-      <Route path="/admin-login" element={<AdminLogin />} />
-      {/*<Route path="/admindashboard" element={<AdminDashboard />} /> */}
       <Route path="/userdashboard" element={<UserDashboard />} />
       <Route path="/admindashboard" element={<AdminDashboard />} />
       <Route path="/my-bids" element={<MyBids />} />

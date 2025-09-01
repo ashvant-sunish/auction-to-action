@@ -1,10 +1,14 @@
-import React from "react";
+import React,{ useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Box, Flex, Text, Link, Image, VStack } from "@chakra-ui/react";
 import LoginComponentUser from "../Components/Login/User/LoginComponent.User";
 import illustration from "../assets/images/login_illustrationbg.png";
+import LoginComponentAdmin from "../Components/Login/Admin/LoginComponent.Admin";
 
 function Login() {
+
+  const [page, setPage] = useState(true); // true for "user", false for "admin"
+
   // sample exact hex from design (approx)
   const tealBase = "#0f3b3d"; // dark teal
   const tealMid = "#154a4c"; // mid teal stroke
@@ -111,14 +115,13 @@ function Login() {
           bg="transparent"
         >
           <Box w="100%" maxW="520px">
-            <LoginComponentUser />
+            {page ? ( <LoginComponentUser /> ) : ( <LoginComponentAdmin /> )}
             <Text mt={6} textAlign="center" color="white">
               Are you an Admin?{" "}
               <Link
-                as={RouterLink}
-                to="/admin-login"
                 color="teal.200"
                 fontWeight="bold"
+                onClick={() => setPage(!page)}
               >
                 Click Here
               </Link>
