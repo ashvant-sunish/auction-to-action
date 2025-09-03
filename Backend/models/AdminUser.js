@@ -6,4 +6,11 @@ const adminUserSchema = new mongoose.Schema({
   role: { type: String, default: 'admin' },
 });
 
+// Hide password hash from API responses by default
+adminUserSchema.methods.toJSON = function() {
+  const admin = this.toObject();
+  delete admin.password;
+  return admin;
+};
+
 module.exports = mongoose.model('AdminUser', adminUserSchema);

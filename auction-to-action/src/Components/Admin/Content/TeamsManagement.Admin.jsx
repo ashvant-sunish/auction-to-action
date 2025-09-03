@@ -4,7 +4,7 @@ import TeamTableAdmin from './TeamManagment/TeamTable.Admin'
 
 function TeamsManagementAdmin() {
     return (
-        <Box width="80%" float="right">
+        <Box width="79%" float="right" ml={2} mr={2}>
             <Box bg="transparent" p={4} mt={2} borderRadius="md" textColor="white">
                 <Heading>Teams Management</Heading>
             </Box>

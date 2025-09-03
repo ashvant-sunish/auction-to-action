@@ -70,6 +70,15 @@ function LoginComponentAdmin() {
         }
       );
 
+      // Store token and user data for authentication
+      console.log('🔑 Storing admin token:', response.data.token);
+      localStorage.setItem('adminToken', response.data.token);
+      localStorage.setItem('adminUser', JSON.stringify({
+        username: formData.username,
+        role: 'admin'
+      }));
+      console.log('✅ Token stored successfully');
+
       setMessageType("success");
       setMessage(response.data.message);
       setTimeout(() => navigate("/admindashboard"), 1000);

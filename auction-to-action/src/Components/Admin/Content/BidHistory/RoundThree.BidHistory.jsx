@@ -19,9 +19,9 @@ function RoundThreeBidHistory() {
     const cancelRef = useRef();
 
     const [data, setData] = useState([
-        { id: 1, team_one: "Team Alpha", team_two: "Team Delta", item_traded: "Player Smith", money_traded: "50rs", trade_type: "player_for_money" },
-        { id: 2, team_one: "Team Beta", team_two: "Team Epsilon", item_traded: "Player Johnson", money_traded: "0rs", trade_type: "player_for_player", item_received: "Player Wilson" },
-        { id: 3, team_one: "Team Gamma", team_two: "Team Zeta", item_traded: "Budget", money_traded: "100rs", trade_type: "money_only" },
+            { id: 1, team_one: "Team Alpha", team_two: "Team Delta", team_one_itemstraded: "4x Property",team_one_moneytraded: "4000", team_two_itemstraded: "20x Goods", team_two_moneytraded: "0"  },
+            { id: 2, team_one: "Team Beta", team_two: "Team Epsilon", team_one_itemstraded: "10x Items", team_one_moneytraded: "2000", team_two_itemstraded: "40x Property", team_two_moneytraded: "0" },
+            { id: 3, team_one: "Team Gamma", team_two: "Team Zeta", team_one_itemstraded: "15x Goods", team_one_moneytraded: "0", team_two_itemstraded: "0", team_two_moneytraded: "20000" },
     ]);
 
     const handleView = (id) => {
@@ -122,6 +122,8 @@ function RoundThreeBidHistory() {
                                                 {selectedBid.team_one}
                                             </Badge>
                                             <Text mt={2} fontSize="sm" color="gray.600">Giving</Text>
+                                            <Text mt={2} fontSize="sm"><strong>Item:</strong> {selectedBid.team_one_itemstraded}</Text>
+                                            <Text mt={2} fontSize="sm"><strong>Money:</strong> {selectedBid.team_one_moneytraded}</Text>
                                         </Box>
 
                                         {/* Trade Arrow and Details */}
@@ -130,18 +132,6 @@ function RoundThreeBidHistory() {
                                                 <Text fontSize="2xl">⇄</Text>
                                                 <Box bg="yellow.100" p={3} borderRadius="md" border="2px dashed" borderColor="yellow.400">
                                                     <Text fontWeight="bold" color="yellow.800">Trade Details</Text>
-                                                    {selectedBid.item_traded && (
-                                                        <Text fontSize="sm"><strong>Item:</strong> {selectedBid.item_traded}</Text>
-                                                    )}
-                                                    {selectedBid.money_traded && selectedBid.money_traded !== "0rs" && (
-                                                        <Text fontSize="sm"><strong>Money:</strong> {selectedBid.money_traded}</Text>
-                                                    )}
-                                                    {selectedBid.item_received && (
-                                                        <Text fontSize="sm"><strong>For:</strong> {selectedBid.item_received}</Text>
-                                                    )}
-                                                    <Badge mt={1} colorScheme="purple" size="sm">
-                                                        {selectedBid.trade_type?.replace('_', ' ')}
-                                                    </Badge>
                                                 </Box>
                                             </VStack>
                                         </Box>
@@ -151,7 +141,10 @@ function RoundThreeBidHistory() {
                                             <Badge colorScheme="blue" fontSize="md" p={2} borderRadius="md">
                                                 {selectedBid.team_two}
                                             </Badge>
-                                            <Text mt={2} fontSize="sm" color="gray.600">Receiving</Text>
+                                            <Text mt={2} fontSize="sm" color="gray.600">Returning</Text>
+                                            <Text mt={2} fontSize="sm"><strong>Item:</strong> {selectedBid.team_two_itemstraded}</Text>
+                                            <Text mt={2} fontSize="sm"><strong>Money:</strong> {selectedBid.team_two_moneytraded}</Text>
+
                                         </Box>
                                     </Flex>
                                 </Box>
@@ -161,12 +154,13 @@ function RoundThreeBidHistory() {
                                     <Text fontWeight="bold" color="blue.800" mb={2}>Trade Summary</Text>
                                     <HStack justify="space-between">
                                         <Text fontSize="sm">
-                                            <strong>{selectedBid.team_one}</strong> trades {selectedBid.item_traded || 'item'} 
-                                            {selectedBid.money_traded && selectedBid.money_traded !== "0rs" && ` + ${selectedBid.money_traded}`}
+                                            <strong>{selectedBid.team_one}</strong> receives {selectedBid.team_two_itemstraded}
+                                            {' + ' + selectedBid.team_two_moneytraded + ' rs'}
                                         </Text>
                                         <Text fontSize="lg">→</Text>
                                         <Text fontSize="sm">
-                                            <strong>{selectedBid.team_two}</strong> receives {selectedBid.item_received || selectedBid.item_traded || 'item'}
+                                            <strong>{selectedBid.team_two}</strong> receives {selectedBid.team_one_itemstraded}
+                                            {' + ' + selectedBid.team_one_moneytraded + ' rs'}
                                         </Text>
                                     </HStack>
                                 </Box>

@@ -2,9 +2,30 @@ import React from 'react'
 import { Box, Flex, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Menu, MenuList, MenuButton, MenuItem, IconButton, Divider, Button } from '@chakra-ui/react';
 import { BsPersonCircle } from "react-icons/bs";
 import { CiLogout } from "react-icons/ci";
+import { useNavigate } from 'react-router-dom';
 
 function HeaderAdmin({ file, setfile }) {
-    const username = "AdminUser"; // Replace with actual username logic
+    const navigate = useNavigate();
+    
+    // Get current admin user from localStorage
+    const getCurrentUser = () => {
+        try {
+            const userData = localStorage.getItem('adminUser');
+            return userData ? JSON.parse(userData) : null;
+        } catch {
+            return null;
+        }
+    };
+    
+    const currentUser = getCurrentUser();
+    const username = currentUser?.username || "AdminUser";
+
+    // Logout function
+    const handleLogout = () => {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        navigate('/', {replace: true});
+    };
     let CurrentPage = "";
     switch (file) {
         case "dashboard":
@@ -18,6 +39,9 @@ function HeaderAdmin({ file, setfile }) {
             break;
         case "teamsmanagement":
             CurrentPage = "Teams Management";
+            break;
+        case "rounds":
+            CurrentPage = "Rounds";
             break;
         case "settings":
             CurrentPage = "Settings";
@@ -53,7 +77,7 @@ function HeaderAdmin({ file, setfile }) {
                                 Logged in as: {username}
                             </MenuItem>
                             <Divider></Divider>
-                            <MenuItem onClick={() => console.log('Logging out...')}>
+                            <MenuItem onClick={handleLogout}>
                                 <CiLogout /> &nbsp;Log Out
                             </MenuItem>
                         </MenuList>

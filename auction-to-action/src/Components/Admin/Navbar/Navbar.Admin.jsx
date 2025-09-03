@@ -31,6 +31,11 @@ function NavbarAdmin({ setfile, file }) {
                             Teams Management
                         </Box> : <Box p={3}>Teams Management</Box>}
                     </Box>
+                    <Box onClick={() => setfile('rounds')} p={2} borderBottom="1px" borderColor="gray.200">
+                        {file == 'rounds' ? <Box bg="primary.150" p={3} borderRadius="5px" color="white">
+                            Rounds
+                        </Box> : <Box p={3}>Rounds</Box>}
+                    </Box>
                     <Box onClick={() => setfile('settings')} p={2} borderBottom="1px" borderColor="gray.200">
                         {file == 'settings' ? <Box bg="primary.150" p={3} borderRadius="5px" color="white">
                             Settings

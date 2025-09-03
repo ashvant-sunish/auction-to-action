@@ -8,7 +8,7 @@ import RoundThreeBidHistory from './BidHistory/RoundThree.BidHistory';
 function BidHistoryAdmin() {
 
     return (
-        <Box width="80%" float="right">
+        <Box width="79%" float="right" ml={2} mb={2} mr={2}>
             <Box bg="transparent" p={4} mt={2} borderRadius="md" textColor="white">
                 <Heading>Bid History</Heading>
             </Box>
@@ -38,7 +38,7 @@ function BidHistoryAdmin() {
                     </AccordionPanel>
                 </AccordionItem>
         </Accordion>
-        <Accordion allowMultiple mt={4} mb={2} p={4} bg="white" borderRadius="md">
+        <Accordion allowMultiple mt={4} p={4} bg="white" borderRadius="md">
                 <AccordionItem>
                     <AccordionButton _expanded={{ bg: 'orange.100', color: 'orange.800' }}>
                         <Box flex="1" textAlign="left" fontWeight="semibold">

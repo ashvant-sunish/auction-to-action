@@ -9,6 +9,8 @@ const itemSchema = new mongoose.Schema({
     required: true 
   },
   basePrice: { type: Number, required: true },
+  // --- NEW: Field to store the winning bid amount ---
+  highestBidAmount: { type: Number, default: 0 },
   resources: { type: Map, of: Number }
 });
 

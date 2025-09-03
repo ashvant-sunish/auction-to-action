@@ -158,7 +158,7 @@
 - Implemented Admin Dashboard
   -- Pages Including: - Bid History - Team Management - Admin Management
 
-  \*Pending : Main Dashboard Page / Default Page
+  *Pending : Main Dashboard Page / Default Page
 
 - Frontend Backend Integration
 
@@ -185,3 +185,15 @@
 
 - **Sidebar Communication**
   - Sidebar triggers view changes via `setActiveComponent` prop drilling.
+
+
+  ## 03/09/2025 - Wednesday - 10:55 PM [ Update 0.0.11 ]
+
+  - Implemented Balance Updates to Admin Pages
+  - Integration With server :-
+
+          Admin Login / Logout
+          Admin CRUD Operations from admin dashboard
+          Team R Operation done CUD left
+   - Some Logics, States are updated in Admin Dashboard
+   - Some Changes to Backend Codes also
