@@ -158,7 +158,7 @@
 - Implemented Admin Dashboard
   -- Pages Including: - Bid History - Team Management - Admin Management
 
-  *Pending : Main Dashboard Page / Default Page
+  \*Pending : Main Dashboard Page / Default Page
 
 - Frontend Backend Integration
 
@@ -184,8 +184,8 @@
   - `UserDashboard.jsx` simplified into layout shell (Sidebar + Navbar + active content).
 
 - **Sidebar Communication**
-  - Sidebar triggers view changes via `setActiveComponent` prop drilling.
 
+  - Sidebar triggers view changes via `setActiveComponent` prop drilling.
 
   ## 03/09/2025 - Wednesday - 10:55 PM [ Update 0.0.11 ]
 
@@ -195,5 +195,28 @@
           Admin Login / Logout
           Admin CRUD Operations from admin dashboard
           Team R Operation done CUD left
-   - Some Logics, States are updated in Admin Dashboard
-   - Some Changes to Backend Codes also
+
+  - Some Logics, States are updated in Admin Dashboard
+  - Some Changes to Backend Codes also
+
+# 04/09/2025 - Thursday - 3:52 PM [ Update 0.0.12 ]
+
+## Implemented Round 3 Trading Form
+
+- Added a new **Round3.jsx** data entry component.
+- Uses a **dark, modern theme** integrated into the **"Rounds" tab**.
+
+---
+
+### Styling and UI Adjustments
+
+- Corrected the **background** on the Rounds admin page to match the site's **dark theme**.
+- Updated **tab text colors** for improved visibility.
+
+---
+
+### Navigation Button Cleanup
+
+- Resized the **"View Rounds"** button to a **small, centered button** for better alignment.
+- Removed the redundant **"View Dashboard"** button from the Rounds page.
+- Deleted `DashboardLinks.Admin.jsx` as it was no longer needed.
