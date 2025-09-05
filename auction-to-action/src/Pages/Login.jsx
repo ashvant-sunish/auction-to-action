@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Box, Flex, Text, Link, Image, VStack } from "@chakra-ui/react";
 import LoginComponentUser from "../Components/Login/User/LoginComponent.User";
@@ -6,8 +6,17 @@ import illustration from "../assets/images/login_illustrationbg.png";
 import LoginComponentAdmin from "../Components/Login/Admin/LoginComponent.Admin";
 
 function Login() {
-
   const [page, setPage] = useState(true); // true for "user", false for "admin"
+
+  useEffect(() => {
+    // Hide the scrollbar when the Login component is mounted
+    document.body.style.overflow = "hidden";
+
+    // Restore the scrollbar when the component unmounts
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount and cleanup on unmount
 
   // sample exact hex from design (approx)
   const tealBase = "#0f3b3d"; // dark teal
@@ -115,7 +124,7 @@ function Login() {
           bg="transparent"
         >
           <Box w="100%" maxW="520px">
-            {page ? ( <LoginComponentUser /> ) : ( <LoginComponentAdmin /> )}
+            {page ? <LoginComponentUser /> : <LoginComponentAdmin />}
             <Text mt={6} textAlign="center" color="white">
               {page ? "Are you an Admin?" : "Are you a Player?"}{" "}
               <Link

@@ -224,6 +224,15 @@
 # 05/09/2025 - Friday - 3:57 PM [ Update 0.0.13 ]
 
 ## Added Round 2 Mystery Boxes
+
 - Added **Round2.jsx** (mystery boxes) in Admin Dashboard under rounds file (design is yet to be updated).
 - Added **Rounds option** in user dashboard sidebar and updated the design (design still to be finished).
 
+# 05/09/2025 - Friday - 7:40 PM [ Update 0.0.14 ]
+
+## Bug Fixes
+
+- Fixed a bug which caused the login page the scroll
+- Fixed a bug in Available Materials table not sort properly
+- Added a full screen toggle for Available Materials and changed the title to Inventory
+- Fixed a bug in Admin Dashboard sidebar which caused it to select the text in the sidebar
