@@ -19,6 +19,7 @@ const CsedLogo = () => (
 const Sidebar = ({ setActiveComponent, activeComponent }) => {
   const navItems = [
     { name: "Dashboard", icon: MdDashboard, key: "dashboard" },
+    { name: "Rounds", icon: MdHistory, key: "rounds" },
     { name: "My Bidding History", icon: MdHistory, key: "my-bids" },
     { name: "Team Bid History", icon: MdGroups, key: "team-bids" },
   ];
@@ -31,7 +32,7 @@ const Sidebar = ({ setActiveComponent, activeComponent }) => {
       left="0"
       h="full"
       w="260px"
-      bg="#111c44"
+      bg="#0f3b3d"
       color="white"
       p={4}
       display={{ base: "none", md: "block" }}

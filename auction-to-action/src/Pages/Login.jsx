@@ -117,7 +117,7 @@ function Login() {
           <Box w="100%" maxW="520px">
             {page ? ( <LoginComponentUser /> ) : ( <LoginComponentAdmin /> )}
             <Text mt={6} textAlign="center" color="white">
-              Are you an Admin?{" "}
+              {page ? "Are you an Admin?" : "Are you a Player?"}{" "}
               <Link
                 color="teal.200"
                 fontWeight="bold"

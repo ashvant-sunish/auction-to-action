@@ -1,5 +1,6 @@
 import { Box, Tab, TabList, Tabs } from "@chakra-ui/react";
 import React, { useState } from "react";
+import Round2 from "./Rounds/Round2";
 import Round3 from "./Rounds/Round3";
 
 function RoundsAdmin({ ongoingRound, setfile }) {
@@ -32,7 +33,8 @@ function RoundsAdmin({ ongoingRound, setfile }) {
       case "Round Two":
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
-            <p>Round two!</p>
+            {/* <p>Round two!</p> */}
+            <Round2/>
           </Box>
         );
       case "Round Three":

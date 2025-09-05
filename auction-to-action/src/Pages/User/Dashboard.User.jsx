@@ -5,7 +5,7 @@ import Navbar from "../../Components/User/Navbar";
 import DashboardContent from "../../Components/User/DashboardContent";
 import MyBids from "../../Components/User/MyBids";
 import TeamBids from "../../Components/User/TeamBids";
-
+import RoundsUser from '../../Components/User/Rounds.User';
 function UserDashboard() {
   const [activeComponent, setActiveComponent] = useState("dashboard");
 
@@ -13,6 +13,7 @@ function UserDashboard() {
     dashboard: "Dashboard",
     "my-bids": "My Bidding History",
     "team-bids": "Team Bid History",
+    rounds: "Rounds",
   };
 
   const renderContent = () => {
@@ -23,6 +24,8 @@ function UserDashboard() {
         return <MyBids />;
       case "team-bids":
         return <TeamBids />;
+      case "rounds":
+        return <RoundsUser />;
       default:
         return <DashboardContent />;
     }
