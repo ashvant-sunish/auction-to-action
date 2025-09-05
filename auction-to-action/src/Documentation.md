@@ -220,3 +220,10 @@
 - Resized the **"View Rounds"** button to a **small, centered button** for better alignment.
 - Removed the redundant **"View Dashboard"** button from the Rounds page.
 - Deleted `DashboardLinks.Admin.jsx` as it was no longer needed.
+
+# 05/09/2025 - Friday - 3:57 PM [ Update 0.0.13 ]
+
+## Added Round 2 Mystery Boxes
+- Added **Round2.jsx** (mystery boxes) in Admin Dashboard under rounds file (design is yet to be updated).
+- Added **Rounds option** in user dashboard sidebar and updated the design (design still to be finished).
+
