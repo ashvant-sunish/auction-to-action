@@ -3,11 +3,6 @@ import {
   Box,
   Flex,
   SimpleGrid,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  StatArrow,
   Icon,
   Heading,
   Table,
@@ -22,39 +17,26 @@ import {
   Text,
   useToast,
   Spinner,
+  Input,
+  InputGroup,
+  InputLeftElement,
 } from "@chakra-ui/react";
 import { MdTrendingDown, MdTrendingUp } from "react-icons/md";
-import { FaRupeeSign, FaGavel } from "react-icons/fa";
+import { FaGavel, FaRupeeSign } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import serverUrl from "../../servercon";
 
-const StatCard = ({ icon, title, amount, percentage, isUp }) => (
-  <Stat p={4} shadow="md" borderWidth="1px" borderRadius="lg" bg="white">
-    <Flex>
-      <Box p={3} mr={4} bg={isUp ? "green.100" : "red.100"} borderRadius="full">
-        <Icon as={icon} color={isUp ? "green.500" : "red.500"} w={6} h={6} />
-      </Box>
-      <Box>
-        <StatLabel color="gray.500">{title}</StatLabel>
-        <StatNumber fontWeight="bold">{amount}</StatNumber>
-        <StatHelpText>
-          <StatArrow type={isUp ? "increase" : "decrease"} />
-          {percentage}
-        </StatHelpText>
-      </Box>
-    </Flex>
-  </Stat>
-);
-
 const AvailableMaterialsTable = ({ transactions }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  
   const sampleHistory = [
-    { material: "2 × Property, 3 × Skilled Labour", items: 5, amount: "5,000" },
+    { material: "2 × Property, 3 × Skilled Labour", amount: "5,000" },
     {
       material: "1 × Property, 2 × Machinery & Tools, 1 × Utilities",
-      items: 4,
       amount: "4,000",
     },
-    { material: "3 × Technology", items: 3, amount: "5,250" },
+    { material: "3 × Technology", amount: "5,250" },
   ];
 
   const history =
@@ -66,44 +48,169 @@ const AvailableMaterialsTable = ({ transactions }) => {
         }))
       : sampleHistory;
 
+  const filteredHistory = history.filter((item) =>
+    item.material.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Box
       bg="white"
-      p={4}
-      borderRadius="lg"
-      shadow="md"
+      p={6}
+      borderRadius="xl"
+      shadow="lg"
       h="full"
       display="flex"
       flexDirection="column"
+      border="1px solid"
+      borderColor="gray.100"
     >
-      <Heading size="sm" mb={3}>
-        Available Materials
-      </Heading>
-      <TableContainer overflowY="auto">
-        <Table variant="simple" size="sm">
-          <Thead position="sticky" top={0} bg="white" zIndex={1}>
+      <HStack justify="space-between" align="center" mb={4}>
+        <HStack>
+          <Icon as={FaRupeeSign} color="blue.500" boxSize={5} />
+          <Heading size="md" color="gray.700" fontWeight="600">
+            Available Materials
+          </Heading>
+        </HStack>
+        <Box
+          bg="blue.50"
+          px={3}
+          py={1}
+          borderRadius="full"
+          border="1px solid"
+          borderColor="blue.200"
+        >
+          <Text fontSize="xs" color="blue.600" fontWeight="semibold">
+            {filteredHistory.length} Items
+          </Text>
+        </Box>
+      </HStack>
+      
+      <InputGroup mb={4}>
+        <InputLeftElement pointerEvents="none">
+          <Icon as={FaSearch} color="gray.400" />
+        </InputLeftElement>
+        <Input
+          placeholder="Search materials..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          size="md"
+          bg="gray.50"
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="lg"
+          _focus={{
+            bg: "white",
+            borderColor: "blue.300",
+            boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)"
+          }}
+          _hover={{
+            borderColor: "gray.300"
+          }}
+        />
+      </InputGroup>
+
+      <TableContainer 
+        overflowY="auto" 
+        flex="1"
+        css={{
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+            borderRadius: '8px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#c1c1c1',
+            borderRadius: '8px',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: '#a8a8a8',
+          },
+        }}
+      >
+        <Table variant="simple" size="md">
+          <Thead position="sticky" top={0} bg="gray.50" zIndex={1}>
             <Tr>
-              <Th>Material</Th>
-              <Th isNumeric>Total Items</Th>
-              <Th isNumeric>Total Amount</Th>
+              <Th 
+                color="gray.600" 
+                fontWeight="600" 
+                fontSize="sm" 
+                textTransform="none"
+                borderColor="gray.200"
+                py={4}
+              >
+                Material
+              </Th>
+              <Th 
+                isNumeric 
+                color="gray.600" 
+                fontWeight="600" 
+                fontSize="sm" 
+                textTransform="none"
+                borderColor="gray.200"
+                py={4}
+              >
+                Amount Spent
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {history.map((item, index) => (
-              <Tr key={index}>
-                <Td>{item.material}</Td>
-                <Td isNumeric>{item.items}</Td>
-                <Td isNumeric>₹{item.amount}</Td>
+            {filteredHistory.map((item, index) => (
+              <Tr 
+                key={index}
+                _hover={{ bg: "blue.50" }}
+                transition="background-color 0.2s"
+              >
+                <Td 
+                  borderColor="gray.100" 
+                  py={4}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  <HStack>
+                    <Box
+                      w={2}
+                      h={2}
+                      bg="blue.400"
+                      borderRadius="full"
+                    />
+                    <Text>{item.material}</Text>
+                  </HStack>
+                </Td>
+                <Td 
+                  isNumeric 
+                  borderColor="gray.100" 
+                  py={4}
+                >
+                  <Text fontWeight="600" color="green.600">
+                    ₹{item.amount}
+                  </Text>
+                </Td>
               </Tr>
             ))}
           </Tbody>
         </Table>
+        
+        {filteredHistory.length === 0 && (
+          <Box 
+            textAlign="center" 
+            py={8}
+            color="gray.500"
+          >
+            <Icon as={FaSearch} boxSize={8} mb={2} />
+            <Text fontSize="sm">No materials found</Text>
+            <Text fontSize="xs" color="gray.400">
+              Try adjusting your search terms
+            </Text>
+          </Box>
+        )}
       </TableContainer>
     </Box>
   );
 };
-
-const CurrentBiddingInfo = () => {
+/*
+  const CurrentBiddingInfo = () => {
   const currentBidNumber = 75;
   const currentItem = "3 × Property, 4 × Skilled Labour, 2 × Utilities";
   const recentBids = [
@@ -158,8 +265,8 @@ const CurrentBiddingInfo = () => {
     </Box>
   );
 };
-
-function DashboardContent() {
+*/
+function DashboardContent({ teamData, balance }) {
   const [budget, setBudget] = useState("₹0");
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -233,41 +340,56 @@ function DashboardContent() {
       gap={4}
       overflow="hidden"
     >
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-        <StatCard
-          icon={MdTrendingUp}
-          title="Balance"
-          amount={budget}
-          percentage="+55%"
-          isUp={true}
-        />
-        <StatCard
-          icon={MdTrendingDown}
-          title="Debit"
-          amount={calculateDebit()}
-          percentage="-3%"
-          isUp={false}
-        />
-        <StatCard
-          icon={FaRupeeSign}
-          title="Property Amount"
-          amount={calculatePropertyAmount()}
-          percentage="+5%"
-          isUp={true}
-        />
-      </SimpleGrid>
-
-      <SimpleGrid
-        columns={{ base: 1, lg: 2 }}
-        spacing={4}
-        mt={0}
-        flex="1"
-        overflow="hidden"
-        alignItems="start"
-      >
+      <Flex gap={4} flexWrap="wrap">
+        <Box flex="1" minW="200px">
+          <Box 
+            p={4} 
+            shadow="md" 
+            borderWidth="1px" 
+            borderRadius="lg" 
+            bg="white"
+            mb={4}
+          >
+            <Flex>
+              <Box pl={4} pr={4} mr={4} bg="green.100" borderRadius="full" justifyContent={"center"} alignItems="center" display="flex">
+                <Icon as={MdTrendingUp} color="green.500" w={8} h={10} />
+              </Box>
+              <Box>
+                <Text color="gray.500" fontSize="sm">Current Balance</Text>
+                <Text fontWeight="bold" fontSize="2xl">
+                  {balance ? `₹${balance.toLocaleString()}` : "₹0"}
+                </Text>
+              </Box>
+            </Flex>
+          </Box>
+        </Box>
+        <Box flex="1" minW="200px">
+          <Box 
+            p={4} 
+            shadow="md" 
+            borderWidth="1px" 
+            borderRadius="lg" 
+            bg="white"
+            mb={4}
+          >
+            <Flex>
+              <Box pl={4} pr={4} mr={4} bg="red.100" borderRadius="full" justifyContent={"center"} alignItems="center" display="flex">
+                <Icon as={MdTrendingDown} color="red.500" w={8} h={10} />
+              </Box>
+              <Box>
+                <Text color="gray.500" fontSize="sm">Spended</Text>
+                <Text fontWeight="bold" fontSize="2xl">
+                  {calculateDebit()}
+                </Text>
+              </Box>
+            </Flex>
+          </Box>
+        </Box>
+      </Flex>
+      <Box w="100%" flex="1">
         <AvailableMaterialsTable transactions={transactions} />
-        <CurrentBiddingInfo />
-      </SimpleGrid>
+        {/* <CurrentBiddingInfo /> */}
+      </Box>
     </Box>
   );
 }

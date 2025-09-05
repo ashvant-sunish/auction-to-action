@@ -58,9 +58,6 @@ router.delete('/admins/:id', protectAdmin, adminController.deleteAdmin);
 
 // --- Team Data Route for Admin ---
 router.get('/teams', protectAdmin, adminController.getAllTeams);
-router.post('/teams', protectAdmin, adminController.addTeam);
-router.put('/teams/:id', protectAdmin, adminController.updateTeam);
-router.delete('/teams/:id', protectAdmin, adminController.deleteTeam);
 
 // --- Game Management Routes ---
 router.post('/award-bid', protectAdmin, adminController.awardBid);

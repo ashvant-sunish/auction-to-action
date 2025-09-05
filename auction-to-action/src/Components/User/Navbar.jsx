@@ -9,10 +9,17 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Tooltip,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Divider,
 } from "@chakra-ui/react";
 import { MdHome, MdPerson } from "react-icons/md";
+import { BsPersonCircle } from "react-icons/bs";
+import { CiLogout } from "react-icons/ci";
 
-const Navbar = ({ pageTitle }) => {
+const Navbar = ({ pageTitle, onLogout, teamData }) => {
   return (
     <Flex
       as="header"
@@ -41,14 +48,23 @@ const Navbar = ({ pageTitle }) => {
       </Box>
 
       <HStack spacing={4}>
-        <Tooltip label="Profile" hasArrow>
-          <IconButton
-            variant="ghost"
-            aria-label="Profile"
-            icon={<Icon as={MdPerson} />}
-            size="lg"
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            aria-label='Options'
+            icon={<BsPersonCircle />}
+            variant='none'
           />
-        </Tooltip>
+          <MenuList bg="white" textColor="black">
+            <MenuItem>
+              Logged in as: {teamData?.teamNumber || "Team"}
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={onLogout}>
+              <CiLogout /> &nbsp;Log Out
+            </MenuItem>
+          </MenuList>
+        </Menu>
       </HStack>
     </Flex>
   );
