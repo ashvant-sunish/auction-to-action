@@ -236,3 +236,13 @@
 - Fixed a bug in Available Materials table not sort properly
 - Added a full screen toggle for Available Materials and changed the title to Inventory
 - Fixed a bug in Admin Dashboard sidebar which caused it to select the text in the sidebar
+
+# 06/09/2025 - Saturday - 11:00 PM [ Update 0.0.15 ]
+
+## Round3 user update
+
+- Created Round 3 User Component
+- Added a new Round3.User.jsx component inside a new rounds subdirectory.
+- This component features a collapsible "Available Materials" table, allowing users to select items for trade.
+- The table was enhanced with checkboxes and numeric inputs to specify trade quantities. Inputs are only enabled when an item is selected.
+- A "Submit Trade" button was added to complete the trading action.

@@ -424,7 +424,7 @@ function DashboardContent({ teamData, balance }) {
                 </Box>
                 <Box>
                   <Text color="gray.500" fontSize="sm">
-                    Spended
+                    Spent
                   </Text>
                   <Text fontWeight="bold" fontSize="2xl">
                     {calculateDebit()}
