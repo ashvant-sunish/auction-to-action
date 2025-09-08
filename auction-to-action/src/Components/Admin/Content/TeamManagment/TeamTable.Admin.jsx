@@ -5,7 +5,7 @@ import {
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
     Text, VStack, HStack, Badge, useDisclosure, Input, FormControl, FormLabel,
     AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
-    Flex, Spinner, Center
+    Flex, Spinner, Center, useToast, Alert, AlertIcon
 } from '@chakra-ui/react';
 import { IoIosAdd } from "react-icons/io";
 import { GoTriangleUp,GoTriangleDown } from "react-icons/go";
@@ -13,7 +13,7 @@ import axios from 'axios';
 import serverUrl from '../../../../servercon';
 
 function TeamTableAdmin() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
     const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
@@ -24,6 +24,7 @@ function TeamTableAdmin() {
     const [isLoading, setIsLoading] = useState(true);
     const [teams, setTeams] = useState([]); // This will hold current display data
     const cancelRef = useRef();
+    const toast = useToast();
 
     // Fetch teams data from backend
     useEffect(() => {
@@ -90,9 +91,7 @@ function TeamTableAdmin() {
     };
 
     const handleEdit = () => {
-        console.log('✏️ Edit clicked, selectedTeam:', selectedTeam);
         setEditingTeam({ ...selectedTeam });
-        console.log('✏️ Set editingTeam to:', { ...selectedTeam });
         onClose();
         onEditOpen();
     };
@@ -103,19 +102,15 @@ function TeamTableAdmin() {
     };
 
     const confirmDelete = async () => {
-        console.log('🗑️ Deleting team:', selectedTeam);
         try {
             const token = localStorage.getItem('adminToken');
-            if (token && selectedTeam.id) {
-                console.log('🌐 DELETE request to:', `${serverUrl}/api/admin/teams/${selectedTeam.id}`);
-                await axios.delete(`${serverUrl}/api/admin/teams/${selectedTeam.id}`, {
+            if (token && selectedTeam._id) {
+                await axios.delete(`${serverUrl}/api/admin/teams/${selectedTeam._id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log('✅ Delete successful');
             }
         } catch (error) {
-            console.error('❌ Error deleting team:', error);
-            console.error('❌ Error response:', error.response?.data);
+            console.error('Error deleting team:', error);
         }
         
         // Refresh data from backend
@@ -125,27 +120,22 @@ function TeamTableAdmin() {
     };
 
     const saveEdit = async () => {
-        console.log('💾 Saving edit for team:', editingTeam);
         try {
             const token = localStorage.getItem('adminToken');
-            if (token && editingTeam.id) {
+            if (token && editingTeam._id) {
                 const updateData = {
-                    teamNumber: editingTeam.team_number,
-                    teamCredential: editingTeam.team_credential,
-                    credit: editingTeam.credits,
-                    isActive: editingTeam.is_active
+                    team_number: editingTeam.team_number,
+                    team_credential: editingTeam.team_credential,
+                    credits: editingTeam.credits,
+                    is_active: editingTeam.is_active
                 };
-                console.log('🌐 PUT request to:', `${serverUrl}/api/admin/teams/${editingTeam.id}`);
-                console.log('📦 Update data:', updateData);
                 
-                await axios.put(`${serverUrl}/api/admin/teams/${editingTeam.id}`, updateData, {
+                await axios.put(`${serverUrl}/api/admin/teams/${editingTeam._id}`, updateData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log('✅ Update successful');
             }
         } catch (error) {
-            console.error('❌ Error updating team:', error);
-            console.error('❌ Error response:', error.response?.data);
+            console.error('Error updating team:', error);
         }
         
         // Refresh data from backend
@@ -161,29 +151,30 @@ function TeamTableAdmin() {
         }));
     };
 
+    const handleNewTeamChange = (field, value) => {
+        setNewTeam(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
     const handleAddTeam = async () => {
-        console.log('➕ Adding team with data:', newTeam);
         try {
             const token = localStorage.getItem('adminToken');
             if (token) {
                 const addData = {
-                    teamNumber: newTeam.team_number,
-                    teamCredential: newTeam.team_credential,
-                    credit: newTeam.credits,
-                    isActive: newTeam.is_active !== undefined ? newTeam.is_active : true
+                    team_number: newTeam.team_number,
+                    team_credential: newTeam.team_credential,
+                    credits: newTeam.credits,
+                    is_active: newTeam.is_active || true
                 };
-                console.log('🌐 POST request to:', `${serverUrl}/api/admin/teams`);
-                console.log('📦 Add data:', addData);
                 
                 await axios.post(`${serverUrl}/api/admin/teams`, addData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log('✅ Add successful');
             }
         } catch (error) {
-            console.error('❌ Error adding team:', error);
-            console.error('❌ Error response:', error.response?.data);
-            console.error('❌ Error status:', error.response?.status);
+            console.error('Error adding team:', error);
         }
         
         // Refresh data from backend
@@ -192,13 +183,7 @@ function TeamTableAdmin() {
         onAddClose();
     };
 
-    const handleNewTeamChange = (field, value) => {
-        setNewTeam(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
+    // This function works with the existing /admin/updateTeam endpoint
     const toggleSortOrder = () => {
         setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
     };
@@ -239,6 +224,7 @@ function TeamTableAdmin() {
                     colorScheme="blue" 
                     onClick={onAddOpen}
                     size="sm"
+                    title="Add a new team"
                 >
                     Add New Team
                 </Button>
@@ -342,14 +328,26 @@ function TeamTableAdmin() {
                                         {selectedTeam.is_active ? 'Active' : 'Inactive'}
                                     </Badge>
                                 </HStack>
+                                
+                                {/* Available Operations Section */}
                             </VStack>
                         )}
                     </ModalBody>
                     <ModalFooter>
-                        <Button colorScheme="green" mr={3} onClick={handleEdit}>
+                        <Button 
+                            colorScheme="green" 
+                            mr={3} 
+                            onClick={handleEdit}
+                            title="Edit this team"
+                        >
                             Edit
                         </Button>
-                        <Button colorScheme="red" mr={3} onClick={handleDelete}>
+                        <Button 
+                            colorScheme="red" 
+                            mr={3} 
+                            onClick={handleDelete}
+                            title="Delete this team"
+                        >
                             Delete
                         </Button>
                         <Button colorScheme="blue" mr={3} onClick={onClose}>

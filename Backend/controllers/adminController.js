@@ -1,4 +1,4 @@
-const Team = require('../models/Team');
+const Team = require('../teammodel');
 const Item = require('../models/Item');
 const Transaction = require('../models/Transaction');
 const AdminUser = require('../models/AdminUser');
@@ -70,14 +70,77 @@ exports.deleteAdmin = async (req, res) => {
 
 exports.getAllTeams = async (req, res) => {
     try {
-        const teams = await Team.find({}).populate('inventory', 'name');
+        const teams = await Team.find({});
         res.status(200).json(teams);
     } catch (error) {
+        console.error('Error fetching teams:', error);
         res.status(500).json({ message: 'Server error fetching teams.' });
     }
 };
 
-// ... add/update/delete functions for Teams can be added here following the admin pattern if needed...
+exports.addTeam = async (req, res) => {
+    try {
+        const { teamNumber, teamCredential, credit, isActive } = req.body;
+        
+        // Check if team with this number already exists
+        const existingTeam = await Team.findOne({ teamNumber });
+        if (existingTeam) {
+            return res.status(400).json({ message: 'Team with this number already exists.' });
+        }
+
+        const newTeam = new Team({
+            teamNumber,
+            teamCredential,
+            credit: credit || 0,
+            debit: 0,
+            isActive: isActive !== undefined ? isActive : true,
+            items: []
+        });
+
+        await newTeam.save();
+        res.status(201).json({ message: 'Team created successfully.', team: newTeam });
+    } catch (error) {
+        console.error('Error creating team:', error);
+        res.status(500).json({ message: 'Server error while creating team.' });
+    }
+};
+
+exports.updateTeam = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { teamNumber, teamCredential, credit, isActive } = req.body;
+        
+        const updateData = {};
+        if (teamNumber !== undefined) updateData.teamNumber = teamNumber;
+        if (teamCredential !== undefined) updateData.teamCredential = teamCredential;
+        if (credit !== undefined) updateData.credit = credit;
+        if (isActive !== undefined) updateData.isActive = isActive;
+
+        const team = await Team.findByIdAndUpdate(id, updateData, { new: true });
+        if (!team) {
+            return res.status(404).json({ message: 'Team not found.' });
+        }
+
+        res.status(200).json({ message: 'Team updated successfully.', team });
+    } catch (error) {
+        console.error('Error updating team:', error);
+        res.status(500).json({ message: 'Server error while updating team.' });
+    }
+};
+
+exports.deleteTeam = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const team = await Team.findByIdAndDelete(id);
+        if (!team) {
+            return res.status(404).json({ message: 'Team not found.' });
+        }
+        res.status(200).json({ message: 'Team deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting team:', error);
+        res.status(500).json({ message: 'Server error while deleting team.' });
+    }
+};
 
 
 // --- GAME LOGIC ---

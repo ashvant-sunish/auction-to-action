@@ -16,7 +16,7 @@ const CsedLogo = () => (
   </Heading>
 );
 
-const Sidebar = ({ setActiveComponent, activeComponent }) => {
+const Sidebar = ({ setActiveComponent, activeComponent, currentRound }) => {
   const navItems = [
     { name: "Dashboard", icon: MdDashboard, key: "dashboard" },
     { name: "Rounds", icon: MdHistory, key: "rounds" },
@@ -38,11 +38,15 @@ const Sidebar = ({ setActiveComponent, activeComponent }) => {
       display={{ base: "none", md: "block" }}
     >
       <VStack align="stretch" spacing={4} h="full">
-        <Box p={4} display="flex" alignItems="center" justifyContent="center">
-          <CsedLogo />
+        <Box
+          border={"1px solid white"}
+          borderRadius={"10px"}
+        >
+          <Box color="white" letterSpacing="wider" p={3} justifyContent={"center"} textAlign={"center"}>
+            {currentRound}
+          </Box>
         </Box>
         <Divider borderColor="gray.600" />
-
         <VStack align="stretch" spacing={2} mt={8}>
           {navItems.map((item) => (
             <Link
@@ -65,6 +69,15 @@ const Sidebar = ({ setActiveComponent, activeComponent }) => {
             </Link>
           ))}
         </VStack>
+        <Box
+          p={2}
+          userSelect="none"
+          mt="auto"
+        >
+          <Box p={4} display="flex" alignItems="center" justifyContent="center">
+            <CsedLogo />
+          </Box>
+        </Box>
       </VStack>
     </Box>
   );

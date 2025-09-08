@@ -32,6 +32,8 @@ import { FaSearch } from "react-icons/fa";
 import { FiMaximize, FiMinimize } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import serverUrl from "../../servercon";
+import { Round2 } from './../Admin/Content/Rounds/Round2';
+import { RiAuctionLine } from "react-icons/ri";
 
 const AvailableMaterialsTable = ({
   transactions,
@@ -53,9 +55,9 @@ const AvailableMaterialsTable = ({
     const history =
       transactions?.length > 0
         ? transactions.map((transaction) => ({
-            material: transaction.itemId?.name || "Unknown Item",
-            amount: transaction.price?.toString() || "0",
-          }))
+          material: transaction.itemId?.name || "Unknown Item",
+          amount: transaction.price?.toString() || "0",
+        }))
         : sampleHistory;
 
     const materialsMap = new Map();
@@ -292,7 +294,10 @@ const AvailableMaterialsTable = ({
   );
 };
 
-function DashboardContent({ teamData, balance }) {
+function DashboardContent({ teamData, balance, currentRound }) {
+  // 
+  let bidnumber = "56";
+
   const [budget, setBudget] = useState("₹0");
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -428,6 +433,39 @@ function DashboardContent({ teamData, balance }) {
                   </Text>
                   <Text fontWeight="bold" fontSize="2xl">
                     {calculateDebit()}
+                  </Text>
+                </Box>
+              </Flex>
+            </Box>
+          </Box>
+          <Box flex="1" minW="200px">
+            <Box
+              p={4}
+              shadow="md"
+              borderWidth="1px"
+              borderRadius="lg"
+              bg="white"
+              mb={4}
+            >
+              <Flex>
+                <Box
+                  pl={4}
+                  pr={4}
+                  mr={4}
+                  bg="blue.100"
+                  borderRadius="full"
+                  justifyContent={"center"}
+                  alignItems="center"
+                  display="flex"
+                >
+                  <Icon as={RiAuctionLine} color="blue.500" w={8} h={10} />
+                </Box>
+                <Box>
+                  <Text color="gray.500" fontSize="sm">
+                    Bid Number
+                  </Text>
+                  <Text fontWeight="bold" fontSize="2xl">
+                    {bidnumber}
                   </Text>
                 </Box>
               </Flex>

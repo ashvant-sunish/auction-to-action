@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Heading } from "@chakra-ui/react";
 import React from "react";
 
 function NavbarAdmin({ setfile, file }) {
@@ -8,23 +8,22 @@ function NavbarAdmin({ setfile, file }) {
     { key: "adminmanagement", label: "Admin Management" },
     { key: "teamsmanagement", label: "Teams Management" },
     { key: "rounds", label: "Rounds" },
-    { key: "settings", label: "Settings" },
   ];
 
   return (
     <Box float="left" w="20%" h="100vh" p={2} bg="transparent" position="fixed">
-      <Box bg="white" p={4} borderRadius="md" h="100%">
-        <Box as="nav" display="flex" flexDirection="column" gap={3}>
+      <Box bg="white" p={4} borderRadius="md" h="100%" display="flex" flexDirection="column">
+        <Box as="nav" display="flex" flexDirection="column" gap={3} flex="1">
           <Box borderBottom="1px" borderColor="gray.200" p={3}>
             <Box
-              borderRadius="5px"
-              borderWidth="1px"
-              borderColor="bg"
               p={2}
               textAlign="center"
               userSelect="none"
+              color="bg"
             >
-              <h2>Admin Navigation</h2>
+              <Heading size="md" color="bg" letterSpacing="wider">
+                CSED ADMIN
+              </Heading>
             </Box>
           </Box>
           {navItems.map((item) => (

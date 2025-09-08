@@ -19,7 +19,7 @@ import { MdHome, MdPerson } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
 import { CiLogout } from "react-icons/ci";
 
-const Navbar = ({ pageTitle, onLogout, teamData }) => {
+const Navbar = ({ pageTitle, onLogout, teamData, }) => {
   return (
     <Flex
       as="header"

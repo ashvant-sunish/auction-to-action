@@ -1,13 +1,10 @@
-import { Box, Tab, TabList, Tabs } from "@chakra-ui/react";
+import { Box, Tab, TabList, Tabs, Toast } from "@chakra-ui/react";
 import React, { useState } from "react";
 import Round2 from "./Rounds/Round2";
 import Round3 from "./Rounds/Round3";
+import Round1 from "./Rounds/Round1";
 
 function RoundsAdmin({ ongoingRound, setfile }) {
-  const [activeRound, setActiveRound] = useState(ongoingRound);
-  if (setActiveRound == "Round 1") {
-    console.error("Please Start the round from dashboard");
-  }
 
   // Styles for the tabs to ensure they are visible on a dark background
   const tabStyles = {
@@ -17,46 +14,46 @@ function RoundsAdmin({ ongoingRound, setfile }) {
   };
 
   const renderTabContent = () => {
-    switch (activeRound) {
-      case "Not Started":
+    switch (ongoingRound) {
+      case 0:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
             <p>Not Yet Started</p>
           </Box>
         );
-      case "Round One":
+      case 1:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
-            <p>Round one!</p>
+            <Round1/>
           </Box>
         );
-      case "Round Two":
+      case 3:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
             {/* <p>Round two!</p> */}
             <Round2/>
           </Box>
         );
-      case "Round Three":
+      case 5:
         // The Round3 component now provides its own background
         return (
           <Box mt={4}>
             <Round3 />
           </Box>
         );
-      case "Round One Ended":
+      case 2:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
             <p>Round one ended!</p>
           </Box>
         );
-      case "Round Two Ended":
+      case 4:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
             <p>Round two ended!</p>
           </Box>
         );
-      case "Round Three Ended":
+      case 6:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
             <p>Round three ended!</p>
@@ -78,25 +75,25 @@ function RoundsAdmin({ ongoingRound, setfile }) {
         <Tabs
           variant="soft-rounded"
           index={
-            activeRound === "Not Started"
+            ongoingRound === 0
               ? 4
-              : activeRound === "Round One"
+              : ongoingRound === 1
               ? 0
-              : activeRound === "Round One Ended"
+              : ongoingRound === 2
               ? 4
-              : activeRound === "Round Two"
+              : ongoingRound === 3
               ? 1
-              : activeRound === "Round Two Ended"
+              : ongoingRound === 4
               ? 4
-              : activeRound === "Round Three"
+              : ongoingRound === 5
               ? 2
-              : activeRound === "Round Three Ended"
+              : ongoingRound === 6
               ? 4
               : null
           }
         >
           <TabList>
-            {activeRound === "Not Started" ? (
+            {ongoingRound === 0 ? (
               <>
                 <Tab {...tabStyles} isDisabled>
                   Round 1
@@ -108,7 +105,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                   Round 3
                 </Tab>
               </>
-            ) : activeRound === "Round One" ? (
+            ) : ongoingRound === 1 ? (
               <>
                 <Tab {...tabStyles}>Round 1</Tab>
                 <Tab {...tabStyles} isDisabled>
@@ -118,7 +115,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                   Round 3
                 </Tab>
               </>
-            ) : activeRound === "Round Two" ? (
+            ) : ongoingRound === 3 ? (
               <>
                 <Tab {...tabStyles} isDisabled>
                   Round 1
@@ -128,7 +125,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                   Round 3
                 </Tab>
               </>
-            ) : activeRound === "Round Three" ? (
+            ) : ongoingRound === 5 ? (
               <>
                 <Tab {...tabStyles} isDisabled>
                   Round 1
@@ -138,7 +135,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                 </Tab>
                 <Tab {...tabStyles}>Round 3</Tab>
               </>
-            ) : activeRound === "Round One Ended" ? (
+            ) : ongoingRound === 2 ? (
               <>
                 <Tab {...tabStyles} isDisabled>
                   Round 1
@@ -150,7 +147,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                   Round 3
                 </Tab>
               </>
-            ) : activeRound === "Round Two Ended" ? (
+            ) : ongoingRound === 4 ? (
               <>
                 <Tab {...tabStyles} isDisabled>
                   Round 1
@@ -162,7 +159,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                   Round 3
                 </Tab>
               </>
-            ) : activeRound === "Round Three Ended" ? (
+            ) : ongoingRound === 6 ? (
               <>
                 <Tab {...tabStyles} isDisabled>
                   Round 1

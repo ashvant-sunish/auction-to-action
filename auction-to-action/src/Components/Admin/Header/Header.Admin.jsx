@@ -43,9 +43,6 @@ function HeaderAdmin({ file, setfile }) {
         case "rounds":
             CurrentPage = "Rounds";
             break;
-        case "settings":
-            CurrentPage = "Settings";
-            break;
         default:
             break;
     }
