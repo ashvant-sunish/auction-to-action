@@ -111,7 +111,7 @@ function RoundsStartAdmin({ ongoingRound, setOngoingRound }) {
       setTimeout(() => {
         setOngoingRound(0);
         roundNumber(0);
-      }, 10000); // Reset after 10 seconds
+      }, 0); // Reset immediately
     }
   };
 
