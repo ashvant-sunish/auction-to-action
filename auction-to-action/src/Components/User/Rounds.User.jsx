@@ -1,5 +1,7 @@
 import { Box, Tab, TabList, Tabs, Text } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { ChakraProvider } from "@chakra-ui/react";
+import Round2User from "./Rounds/Round2.User";
 import Round3User from "./Rounds/Round3.User";
 
 function RoundsUser() {
@@ -39,10 +41,7 @@ function RoundsUser() {
       case 1:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
-            <Text fontSize="lg" fontWeight="bold" color="teal.200">
-              Round 2
-            </Text>
-            <Text mt={2}>This is the content for Round 2.</Text>
+            <Round2User />
           </Box>
         );
       case 2:

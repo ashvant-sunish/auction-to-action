@@ -9,47 +9,78 @@ import {
   HStack, 
   Grid, 
   GridItem,
-  Flex
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
 } from "@chakra-ui/react";
 
-const TOTAL_BOXES = 8;
+// total boxes
+const TOTAL_BOXES = 25;
 
-const possibleCards = [
-  { name: "Unicorn", rarity: 'legendary', image: "🦄" },
-  { name: "Dragon", rarity: 'legendary', image: "🐉" },
-  { name: "Phoenix", rarity: 'epic', image: "🔥" },
-  { name: "Griffin", rarity: 'epic', image: "🦅" },
-  { name: "Wolf", rarity: 'rare', image: "🐺" },
-  { name: "Tiger", rarity: 'rare', image: "🐅" },
-  { name: "Bear", rarity: 'rare', image: "🐻" },
-  { name: "Fox", rarity: 'common', image: "🦊" },
-  { name: "Rabbit", rarity: 'common', image: "🐰" },
-  { name: "Cat", rarity: 'common', image: "🐱" },
+// (boxContents same as before… not shortened here)
+const boxContents = [
+  { id: 1, content: "Gain 2× your bid amount", type: "cash" },
+  { id: 2, content: "Gain 2× your bid amount", type: "cash" },
+  { id: 3, content: "Gain 1.5× your bid amount", type: "cash" },
+    { id: 4, content: "Gain 1.5× your bid amount", type: "cash" },
+  { id: 5, content: "Nothing", type: "nothing" },
+  { id: 6, content: "Nothing", type: "nothing" },
+  { id: 7, content: "Nothing", type: "nothing" },
+  { id: 8, content: "Nothing", type: "nothing" },
+  { id: 9, content: "Nothing", type: "nothing" },
+  { id: 10, content: "Nothing", type: "nothing" },
+  { id: 11, content: "Nothing", type: "nothing" },
+  { id: 12, content: "Nothing", type: "nothing" },
+  { id: 13, content: "Nothing", type: "nothing" },
+  { id: 14, content: "Gain 6 Technology, 2 Utilities", type: "resources" },
+  { id: 15, content: "Gain 6 Transportation, 2 Office Space", type: "resources" },
+  { id: 16, content: "Gain 3 Property, 3 Machinery & Tools, 2 Electricity Supply", type: "resources" },
+  { id: 17, content: "Gain 5 Skilled Labour, 1 Technology, 2 Construction Material", type: "resources" },
+  { id: 18, content: "Gain 3 Technology, 3 Machinery & Tools, 2 Utilities", type: "resources" },
+  { id: 19, content: "Gain 6 Utilities, 2 Property", type: "resources" },
+  { id: 20, content: "Gain 4 Electricity Supply, 3 Technology, 1 Skilled Labour", type: "resources" },
+  { id: 21, content: "\"Big bids boost booming businesses.\" Say this 5 times without error and get 2× bid amount", type: "challenge" },
+  { id: 22, content: "\"Clever creators craft catchy campaigns.\" Say this 5 times without error and get 5 Property, 3 Skilled Labour", type: "challenge" },
+  { id: 23, content: "\"Smart startups seek smart supporters.\" Say this 5 times without error and get 4 Machinery & Tools, 4 Technology", type: "challenge" },
+  { id: 24, content: "\"Great goals grow grand gains.\" Say this 5 times without error and get 1.5× bid amount", type: "challenge" },
+  { id: 25, content: "\"Winning workers work with wise workflows.\" Say this 5 times without error and get 5 Electricity Supply, 3 Machinery & Tools", type: "challenge" }
 ];
 
-const rarityColors = {
-  common: 'bg-muted',
-  rare: 'bg-blue-500',
-  epic: 'bg-purple-500',
-  legendary: 'bg-gold'
+// colors
+const colors = {
+  primary: {
+    50: '#6BA3BE',
+    100: '#0C969C',
+    150: '#0A7075',
+    200: '#032F30',
+  },
+  dark: '#031716',
+  bg: '#274D60',
+  white: '#FFFFFF',
 };
 
-const rarityBorders = {
-  common: 'border-muted-foreground',
-  rare: 'border-blue-400',
-  epic: 'border-purple-400',
-  legendary: 'border-gold'
+// icons
+const contentIcons = {
+  cash: "💰",
+  nothing: "😶",
+  resources: "📦",
+  challenge: "🎯"
 };
 
-const Card = ({ card }) => {
-  const getRarityColor = (rarity) => {
+// Card layout
+const Card = ({ content }) => {
+  const getContentColor = (type) => {
     const colors = {
-      common: '#9CA3AF',
-      rare: '#3B82F6', 
-      epic: '#8B5CF6',
-      legendary: '#F59E0B'
+      cash: '#F59E0B',
+      nothing: '#9CA3AF',
+      resources: '#3B82F6',
+      challenge: '#8B5CF6'
     };
-    return colors[rarity] || colors.common;
+    return colors[type] || colors.nothing;
   };
 
   return (
@@ -58,73 +89,40 @@ const Card = ({ card }) => {
       h="100%"
       borderRadius="lg"
       border="2px solid"
-      borderColor={getRarityColor(card.rarity)}
-      bg={getRarityColor(card.rarity)}
+      borderColor={getContentColor(content.type)}
+      bg={getContentColor(content.type)}
       boxShadow="xl"
       overflow="hidden"
-      position="relative"
     >
-      <Box
-        h="75%"
-        bg="rgba(255,255,255,0.9)"
-        m={1}
-        borderRadius="md"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text fontSize="2xl">{card.image}</Text>
-      </Box>
-      <Box
-        h="25%"
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        textAlign="center"
-        p={2}
-      >
-        <Text fontWeight="bold" color="white" fontSize="sm">{card.name}</Text>
-        <Text fontSize="xs" color="rgba(255,255,255,0.8)" textTransform="capitalize">{card.rarity}</Text>
-      </Box>
+      <VStack h="100%" spacing={1} p={2} justify="center">
+        <Text fontSize="lg" textAlign="center" fontWeight="bold" color="white">
+          {contentIcons[content.type]} {content.content}
+        </Text>
+        <Text fontWeight="bold" color="white" fontSize="sm">Box {content.id}</Text>
+        <Text fontSize="xs" color="rgba(255,255,255,0.8)" textTransform="capitalize">{content.type}</Text>
+      </VStack>
     </Box>
   );
 };
 
-const MysteryBox = ({ id, isRevealed, onReveal, onUnreveal, card }) => {
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const handleClick = () => {
-    if (isAnimating) return;
-    
-    setIsAnimating(true);
-    setTimeout(() => {
-      if (isRevealed) {
-        onUnreveal(id);
-      } else {
-        onReveal(id);
-      }
-      setIsAnimating(false);
-    }, 300);
-  };
-
+// Mystery Box component
+const MysteryBox = ({ id, isRevealed, onToggle, content }) => {
   return (
     <Box
-      position="relative"
       w="160px"
       h="192px"
       cursor="pointer"
       transition="transform 0.2s"
       _hover={{ transform: 'scale(1.05)' }}
-      onClick={handleClick}
+      onClick={() => onToggle(id)}
     >
       {!isRevealed ? (
         <Box
           w="100%"
           h="100%"
-          bg="#1E293B"
+          bg={colors.primary[200]}
           border="2px solid"
-          borderColor="#334155"
+          borderColor={colors.primary[150]}
           borderRadius="lg"
           display="flex"
           flexDirection="column"
@@ -136,97 +134,55 @@ const MysteryBox = ({ id, isRevealed, onReveal, onUnreveal, card }) => {
             w="80px"
             h="64px"
             mb={2}
-            bg="rgba(51, 65, 85, 0.5)"
+            bg="rgba(10, 112, 117, 0.5)"
             borderRadius="md"
             border="1px solid"
-            borderColor="rgba(51, 65, 85, 0.8)"
+            borderColor="rgba(10, 112, 117, 0.8)"
           />
-          <Text
-            color="#CBD5E1"
-            fontWeight="semibold"
-            textAlign="center"
-            px={2}
-          >
+          <Text color={colors.white} fontWeight="semibold" textAlign="center">
             Mystery Box {id}
           </Text>
         </Box>
       ) : (
-        <Box w="100%" h="100%">
-          <Card card={card} />
-        </Box>
+        <Card content={content} />
       )}
     </Box>
   );
 };
 
+// Main Round2
 export const Round2 = () => {
   const [boxNumber, setBoxNumber] = useState("");
   const [revealedBoxes, setRevealedBoxes] = useState(new Set());
-  const [boxCards, setBoxCards] = useState(new Map());
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedBox, setSelectedBox] = useState(null);
 
-  const generateRandomCard = () => {
-    const weights = { legendary: 5, epic: 15, rare: 30, common: 50 };
-    const totalWeight = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
-    const random = Math.random() * totalWeight;
-    
-    let currentWeight = 0;
-    let selectedRarity = 'common';
-    
-    for (const [rarity, weight] of Object.entries(weights)) {
-      currentWeight += weight;
-      if (random <= currentWeight) {
-        selectedRarity = rarity;
-        break;
+  // toggle reveal/unreveal
+  const toggleBox = (id) => {
+    setRevealedBoxes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id); // unreveal
+      } else {
+        newSet.add(id); // reveal
+        const content = boxContents.find(box => box.id === id);
+        toast({
+          title: `Box ${id} Revealed!`,
+          description: content.content,
+          status: "success",
+          duration: 4000,
+          isClosable: true,
+        });
       }
-    }
-    
-    const cardsOfRarity = possibleCards.filter(card => card.rarity === selectedRarity);
-    return cardsOfRarity[Math.floor(Math.random() * cardsOfRarity.length)];
-  };
-
-  const revealBox = (id) => {
-    if (!revealedBoxes.has(id)) {
-      const card = generateRandomCard();
-      setBoxCards(prev => new Map(prev).set(id, card));
-      setRevealedBoxes(prev => new Set(prev).add(id));
-      
-      toast({
-        title: `Box ${id} Revealed!`,
-        description: `You found a ${card.rarity} ${card.name}! ${card.image}`,
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
-
-  const unrevealBox = (id) => {
-    if (revealedBoxes.has(id)) {
-      setRevealedBoxes(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(id);
-        return newSet;
-      });
-      
-      toast({
-        title: `Box ${id} Hidden`,
-        description: "The box is now hidden again",
-        status: "info",
-        duration: 2000,
-        isClosable: true,
-      });
-    }
+      return newSet;
+    });
   };
 
   const revealBoxByNumber = () => {
     const num = parseInt(boxNumber);
     if (num >= 1 && num <= TOTAL_BOXES) {
-      if (revealedBoxes.has(num)) {
-        unrevealBox(num);
-      } else {
-        revealBox(num);
-      }
+      toggleBox(num);
       setBoxNumber("");
     } else {
       toast({
@@ -241,7 +197,6 @@ export const Round2 = () => {
 
   const resetGame = () => {
     setRevealedBoxes(new Set());
-    setBoxCards(new Map());
     setBoxNumber("");
     toast({
       title: "Game Reset",
@@ -253,84 +208,86 @@ export const Round2 = () => {
   };
 
   return (
-    <Box minH="100vh" bg="#0F172A" color="white" p={8}>
+    <Box minH="100vh" bg={colors.dark} color="white" p={8} overflow="auto">
       <Box maxW="6xl" mx="auto">
+
         {/* Header */}
-        <VStack spacing={12} mb={12}>
-          <HStack spacing={4} mb={6}>
-            <Text fontSize="6xl">🔨</Text>
-            <Text fontSize="6xl" fontWeight="bold" color="#E2E8F0">MYSTERY BOXES</Text>
+        <VStack spacing={6} mb={10}>
+          <HStack spacing={3} align="center">
+            <Text fontSize="4xl">🎁</Text>
+            <Text 
+              fontSize="4xl" 
+              fontWeight="extrabold" 
+              letterSpacing="wide"
+              color={colors.primary[50]}
+            >
+              Mystery Boxes
+            </Text>
           </HStack>
-          
+
           {/* Controls */}
-          <VStack spacing={4} maxW="md" mx="auto">
-            <HStack spacing={2} w="100%">
-              <Input
-                type="number"
-                min="1"
-                max={TOTAL_BOXES}
-                placeholder="Enter Box Number"
-                value={boxNumber}
-                onChange={(e) => setBoxNumber(e.target.value)}
-                fontSize="lg"
-                h={12}
-                bg="#1E293B"
-                color="white"
-                borderColor="#334155"
-                _placeholder={{ color: "#94A3B8" }}
-              />
-            </HStack>
-            
-            <HStack spacing={2}>
-              <Button
-                onClick={revealBoxByNumber}
-                isDisabled={!boxNumber}
-                colorScheme="blue"
-                fontSize="lg"
-                px={8}
-                py={6}
-                h="auto"
-                bg="#3B82F6"
-                _hover={{ bg: "#2563EB" }}
-              >
-                {boxNumber && revealedBoxes.has(parseInt(boxNumber)) ? "Hide Box" : "Reveal Box"}
-              </Button>
-              
-              <Button
-                onClick={resetGame}
-                variant="outline"
-                fontSize="lg"
-                px={6}
-                py={6}
-                h="auto"
-                borderColor="#334155"
-                color="#CBD5E1"
-                _hover={{ bg: "#1E293B" }}
-              >
-                Reset Game
-              </Button>
-            </HStack>
-          </VStack>
+          <HStack spacing={3} maxW="md" mx="auto" w="100%" justify="center">
+            <Input
+              type="number"
+              min="1"
+              max={TOTAL_BOXES}
+              placeholder="Enter Mystery Box Number"
+              value={boxNumber}
+              onChange={(e) => setBoxNumber(e.target.value)}
+              fontSize="md"
+              h={12}
+              bg={colors.primary[200]}
+              color="white"
+              borderColor={colors.primary[150]}
+              _placeholder={{ color: colors.primary[50], fontStyle: "italic" }}
+              _focus={{ borderColor: colors.primary[100], boxShadow: "0 0 0 2px #0C969C" }}
+            />
+            <Button
+              onClick={revealBoxByNumber}
+              isDisabled={!boxNumber}
+              px={6}
+              h={12}
+              fontWeight="bold"
+              bgGradient={`linear(to-r, ${colors.primary[100]}, ${colors.primary[150]})`}
+              _hover={{ bgGradient: `linear(to-r, ${colors.primary[50]}, ${colors.primary[100]})` }}
+              color="white"
+              borderRadius="lg"
+              shadow="md"
+            >
+              Reveal
+            </Button>
+          </HStack>
+
+          <Button
+            onClick={resetGame}
+            variant="outline"
+            borderColor={colors.primary[150]}
+            color={colors.primary[50]}
+            _hover={{ bg: colors.primary[200] }}
+            size="sm"
+            mt={2}
+          >
+            Reset Game
+          </Button>
         </VStack>
 
-        {/* Mystery Boxes Grid */}
-        <Grid templateColumns="repeat(4, 1fr)" gap={6} justifyItems="center">
-          {Array.from({ length: TOTAL_BOXES }, (_, i) => (
-            <GridItem key={i + 1}>
+        {/* Grid of Mystery Boxes */}
+        <Grid templateColumns="repeat(5, 1fr)" gap={6} justifyItems="center" mb={8}>
+          {boxContents.map((content) => (
+            <GridItem key={content.id}>
               <MysteryBox
-                id={i + 1}
-                isRevealed={revealedBoxes.has(i + 1)}
-                onReveal={revealBox}
-                onUnreveal={unrevealBox}
-                card={boxCards.get(i + 1)}
+                id={content.id}
+                isRevealed={revealedBoxes.has(content.id)}
+                onToggle={toggleBox}
+                content={content}
               />
             </GridItem>
           ))}
         </Grid>
 
         {/* Stats */}
-        <Box textAlign="center" mt={12}>
-          <Text fontSize="xl" color="#94A3B8">
+        <Box textAlign="center" mt={8}>
+          <Text fontSize="xl" color={colors.primary[50]}>
             Boxes Revealed: {revealedBoxes.size} / {TOTAL_BOXES}
           </Text>
         </Box>
