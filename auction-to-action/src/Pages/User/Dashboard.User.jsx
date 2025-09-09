@@ -8,13 +8,14 @@ import Sidebar from "../../Components/User/Sidebar";
 import Navbar from "../../Components/User/Navbar";
 import DashboardContent from "../../Components/User/DashboardContent";
 import MyBids from "../../Components/User/MyBids";
-import TeamBids from "../../Components/User/TeamBids";
-import RoundsUser from '../../Components/User/Rounds.User';
+import TradingMarket from "../../Components/User/TeamBids";
+import RoundsUser from "../../Components/User/Rounds.User";
+
 function UserDashboard() {
   const [activeComponent, setActiveComponent] = useState("dashboard");
   const [teamData, setTeamData] = useState(null);
   const [balance, setBalance] = useState(0);
-  const [currentRound, setCurrentRound] = useState("Round 1"); // Add current round state
+  const [gameState, setGameState] = useState(0); // Add gameState
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -27,27 +28,59 @@ function UserDashboard() {
     fetchTeamData();
     fetchCurrentRound(); // Fetch initial round data
     setupRealTimeConnection();
-    
+
     // Cleanup on unmount
     return () => {
       socketService.disconnect();
     };
   }, [navigate]);
 
+  useEffect(() => {
+    if (teamData?.teamNumber) {
+      socketService.joinTeam(teamData.teamNumber);
+    }
+  }, [teamData?.teamNumber]);
+
+  const processRoundData = (roundData) => {
+    const { roundNumber, roundStatus } = roundData;
+    let newGameState = 0;
+    if (roundNumber === 1) {
+      newGameState = roundStatus === "ongoing" ? 1 : 2;
+    } else if (roundNumber === 2) {
+      newGameState = roundStatus === "ongoing" ? 3 : 4;
+    } else if (roundNumber === 3) {
+      newGameState = roundStatus === "ongoing" ? 5 : 6;
+    }
+    setGameState(newGameState);
+  };
+
+  const getRoundDisplayText = (state) => {
+    const displays = {
+      0: "Not Started",
+      1: "Round 1 - Ongoing",
+      2: "Round 1 - Ended",
+      3: "Round 2 - Ongoing",
+      4: "Round 2 - Ended",
+      5: "Round 3 - Ongoing",
+      6: "Round 3 - Ended",
+    };
+    return displays[state] || "Not Started";
+  };
+
   const setupRealTimeConnection = () => {
     // Connect to Socket.IO server using the configured URL
-    console.log('🔌 Connecting to Socket.IO server:', socketServerUrl);
+    console.log("伯 Connecting to Socket.IO server:", socketServerUrl);
     socketService.connect(socketServerUrl);
-    
+
     // Listen for team updates
     socketService.onTeamUpdate((updatedTeam) => {
-      console.log('📡 Real-time team update received:', updatedTeam);
-      
+      console.log("藤 Real-time team update received:", updatedTeam);
+
       // Update team data if it matches current team
       if (teamData && updatedTeam.teamNumber === teamData.teamNumber) {
         setTeamData(updatedTeam);
         setBalance(updatedTeam.balance || updatedTeam.credit || 0);
-        
+
         toast({
           title: "Team data updated",
           description: "Your team information has been updated in real-time",
@@ -60,27 +93,12 @@ function UserDashboard() {
 
     // Listen for round updates
     socketService.onRoundUpdate((roundData) => {
-      console.log('📡 Round update received:', roundData);
-      
-      const { roundNumber, roundStatus } = roundData;
-      
-      // Display round information based on status
-      let displayText = "Not Started";
-      if (roundNumber === 0 || roundStatus === 'not_started') {
-        displayText = "Not Started";
-      } else if (roundStatus === 'ongoing') {
-        displayText = `Round ${roundNumber} - Ongoing`;
-      } else if (roundStatus === 'ended') {
-        displayText = `Round ${roundNumber} - Ended`;
-      } else {
-        displayText = `Round ${roundNumber}`;
-      }
+      console.log("藤 Round update received:", roundData);
+      processRoundData(roundData);
 
-      setCurrentRound(displayText);
-      
       toast({
         title: "Round Update",
-        description: `${displayText}`,
+        description: getRoundDisplayText(gameState),
         status: "info",
         duration: 4000,
         isClosable: true,
@@ -89,8 +107,8 @@ function UserDashboard() {
 
     // Listen for database updates
     socketService.onDatabaseUpdate((data) => {
-      console.log('💾 Database update received:', data);
-      
+      console.log("沈 Database update received:", data);
+
       toast({
         title: "System update",
         description: "Database has been updated",
@@ -99,18 +117,13 @@ function UserDashboard() {
         isClosable: true,
       });
     });
-
-    // Join team room when team data is available
-    if (teamData?.teamNumber) {
-      socketService.joinTeam(teamData.teamNumber);
-    }
   };
 
   const fetchTeamData = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(`${serverUrl}/api/team/dashboard`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setTeamData(response.data);
       setBalance(response.data.balance);
@@ -127,22 +140,7 @@ function UserDashboard() {
     try {
       const response = await axios.get(`${socketServerUrl}/api/round/current`);
       if (response.data.success) {
-        const { roundNumber, roundStatus } = response.data.roundData;
-        
-        // Display round information based on status
-        let displayText = "Not Started";
-        if (roundNumber === 0 || roundStatus === 'not_started') {
-          displayText = "Not Started";
-        } else if (roundStatus === 'ongoing') {
-          displayText = `Round ${roundNumber} - Ongoing`;
-        } else if (roundStatus === 'ended') {
-          displayText = `Round ${roundNumber} - Ended`;
-        } else {
-          displayText = `Round ${roundNumber}`;
-        }
-        
-        setCurrentRound(displayText);
-        console.log('🎯 Current round fetched:', { roundNumber, roundStatus, displayText });
+        processRoundData(response.data.roundData);
       }
     } catch (error) {
       console.error("Error fetching current round:", error);
@@ -156,7 +154,7 @@ function UserDashboard() {
       socketService.leaveTeam(teamData.teamNumber);
     }
     socketService.disconnect();
-    
+
     localStorage.removeItem("token");
     toast({
       title: "Logged out successfully",
@@ -170,22 +168,34 @@ function UserDashboard() {
   const pageTitles = {
     dashboard: "Dashboard",
     "my-bids": "My Bidding History",
-    "team-bids": "Team Bid History",
+    "trading-market": "Trading Market",
     rounds: "Rounds",
   };
 
   const renderContent = () => {
     switch (activeComponent) {
       case "dashboard":
-        return <DashboardContent teamData={teamData} balance={balance} currentRound={currentRound} />;
+        return (
+          <DashboardContent
+            teamData={teamData}
+            balance={balance}
+            currentRound={getRoundDisplayText(gameState)}
+          />
+        );
       case "my-bids":
         return <MyBids />;
-      case "team-bids":
-        return <TeamBids />;
+      case "trading-market":
+        return <TradingMarket />;
       case "rounds":
-        return <RoundsUser />;
+        return <RoundsUser gameState={gameState} />;
       default:
-        return <DashboardContent teamData={teamData} balance={balance} currentRound={currentRound} />;
+        return (
+          <DashboardContent
+            teamData={teamData}
+            balance={balance}
+            currentRound={getRoundDisplayText(gameState)}
+          />
+        );
     }
   };
 
@@ -194,7 +204,7 @@ function UserDashboard() {
       <Sidebar
         activeComponent={activeComponent}
         setActiveComponent={setActiveComponent}
-        currentRound={currentRound}
+        currentRound={getRoundDisplayText(gameState)}
       />
       <Box
         flex="1"
@@ -203,7 +213,11 @@ function UserDashboard() {
         h="100vh"
         overflow="hidden"
       >
-        <Navbar pageTitle={pageTitles[activeComponent]} onLogout={handleLogout} teamData={teamData} />
+        <Navbar
+          pageTitle={pageTitles[activeComponent]}
+          onLogout={handleLogout}
+          teamData={teamData}
+        />
         <Box
           p={6}
           h="calc(100vh - 72px)"
