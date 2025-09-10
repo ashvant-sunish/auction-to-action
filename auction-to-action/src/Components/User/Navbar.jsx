@@ -8,18 +8,32 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Tooltip,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
   Divider,
+  Badge,
 } from "@chakra-ui/react";
-import { MdHome, MdPerson } from "react-icons/md";
+import { MdHome } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
 import { CiLogout } from "react-icons/ci";
 
-const Navbar = ({ pageTitle, onLogout, teamData, }) => {
+const Navbar = ({ pageTitle, onLogout, teamData, currentRound, gameState }) => {
+  // Function to determine badge color based on game state
+  const getBadgeColorScheme = () => {
+    // States 1, 3, 5 are "Ongoing"
+    if ([1, 3, 5].includes(gameState)) {
+      return "green";
+    }
+    // States 2, 4, 6 are "Ended"
+    if ([2, 4, 6].includes(gameState)) {
+      return "red";
+    }
+    // State 0 is "Not Started"
+    return "gray";
+  };
+
   return (
     <Flex
       as="header"
@@ -32,7 +46,7 @@ const Navbar = ({ pageTitle, onLogout, teamData, }) => {
       borderBottomWidth="1px"
       borderColor="gray.200"
     >
-      <Box>
+      <HStack spacing={4}>
         <Breadcrumb separator="/">
           <BreadcrumbItem>
             <BreadcrumbLink href="#">
@@ -45,20 +59,28 @@ const Navbar = ({ pageTitle, onLogout, teamData, }) => {
             </BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
-      </Box>
+        {/* --- CHANGE: Added the Round Status Badge --- */}
+        <Badge
+          colorScheme={getBadgeColorScheme()}
+          variant="subtle"
+          px={3}
+          py={1}
+          borderRadius="full"
+        >
+          {currentRound}
+        </Badge>
+      </HStack>
 
       <HStack spacing={4}>
         <Menu>
           <MenuButton
             as={IconButton}
-            aria-label='Options'
+            aria-label="Options"
             icon={<BsPersonCircle />}
-            variant='none'
+            variant="none"
           />
           <MenuList bg="white" textColor="black">
-            <MenuItem>
-              Logged in as: {teamData?.teamNumber || "Team"}
-            </MenuItem>
+            <MenuItem>Logged in as: {teamData?.teamNumber || "Team"}</MenuItem>
             <Divider />
             <MenuItem onClick={onLogout}>
               <CiLogout /> &nbsp;Log Out

@@ -2,22 +2,27 @@ import React, { useState, useEffect } from "react";
 import { Box, Flex, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import serverUrl, { socketServerUrl } from "../../servercon";
-import socketService from "../../services/socket";
+import serverUrl, { socketServerUrl } from "../../servercon.js";
+import socketService from "../../services/socket.js";
 import Sidebar from "../../Components/User/Sidebar";
 import Navbar from "../../Components/User/Navbar";
 import DashboardContent from "../../Components/User/DashboardContent";
 import MyBids from "../../Components/User/MyBids";
-import TradingMarket from "../../Components/User/TeamBids";
+import TradingMarket from "../../Components/User/TradingMarket";
 import RoundsUser from "../../Components/User/Rounds.User";
 
 function UserDashboard() {
   const [activeComponent, setActiveComponent] = useState("dashboard");
   const [teamData, setTeamData] = useState(null);
   const [balance, setBalance] = useState(0);
-  const [gameState, setGameState] = useState(0); // Add gameState
+  const [gameState, setGameState] = useState(0);
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!isSidebarCollapsed);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -26,10 +31,9 @@ function UserDashboard() {
       return;
     }
     fetchTeamData();
-    fetchCurrentRound(); // Fetch initial round data
+    fetchCurrentRound();
     setupRealTimeConnection();
 
-    // Cleanup on unmount
     return () => {
       socketService.disconnect();
     };
@@ -52,6 +56,7 @@ function UserDashboard() {
       newGameState = roundStatus === "ongoing" ? 5 : 6;
     }
     setGameState(newGameState);
+    return newGameState;
   };
 
   const getRoundDisplayText = (state) => {
@@ -68,19 +73,12 @@ function UserDashboard() {
   };
 
   const setupRealTimeConnection = () => {
-    // Connect to Socket.IO server using the configured URL
-    console.log("伯 Connecting to Socket.IO server:", socketServerUrl);
     socketService.connect(socketServerUrl);
 
-    // Listen for team updates
     socketService.onTeamUpdate((updatedTeam) => {
-      console.log("藤 Real-time team update received:", updatedTeam);
-
-      // Update team data if it matches current team
       if (teamData && updatedTeam.teamNumber === teamData.teamNumber) {
         setTeamData(updatedTeam);
         setBalance(updatedTeam.balance || updatedTeam.credit || 0);
-
         toast({
           title: "Team data updated",
           description: "Your team information has been updated in real-time",
@@ -91,24 +89,18 @@ function UserDashboard() {
       }
     });
 
-    // Listen for round updates
     socketService.onRoundUpdate((roundData) => {
-      console.log("藤 Round update received:", roundData);
-      processRoundData(roundData);
-
+      const newState = processRoundData(roundData);
       toast({
         title: "Round Update",
-        description: getRoundDisplayText(gameState),
+        description: getRoundDisplayText(newState),
         status: "info",
         duration: 4000,
         isClosable: true,
       });
     });
 
-    // Listen for database updates
     socketService.onDatabaseUpdate((data) => {
-      console.log("沈 Database update received:", data);
-
       toast({
         title: "System update",
         description: "Database has been updated",
@@ -144,17 +136,14 @@ function UserDashboard() {
       }
     } catch (error) {
       console.error("Error fetching current round:", error);
-      // Keep default value if fetch fails
     }
   };
 
   const handleLogout = () => {
-    // Disconnect socket and leave team room
     if (teamData?.teamNumber) {
       socketService.leaveTeam(teamData.teamNumber);
     }
     socketService.disconnect();
-
     localStorage.removeItem("token");
     toast({
       title: "Logged out successfully",
@@ -169,19 +158,13 @@ function UserDashboard() {
     dashboard: "Dashboard",
     "my-bids": "My Bidding History",
     "trading-market": "Trading Market",
-    rounds: "Rounds",
+    rounds: "Auction Rounds",
   };
 
   const renderContent = () => {
     switch (activeComponent) {
       case "dashboard":
-        return (
-          <DashboardContent
-            teamData={teamData}
-            balance={balance}
-            currentRound={getRoundDisplayText(gameState)}
-          />
-        );
+        return <DashboardContent teamData={teamData} balance={balance} />;
       case "my-bids":
         return <MyBids />;
       case "trading-market":
@@ -189,13 +172,7 @@ function UserDashboard() {
       case "rounds":
         return <RoundsUser gameState={gameState} />;
       default:
-        return (
-          <DashboardContent
-            teamData={teamData}
-            balance={balance}
-            currentRound={getRoundDisplayText(gameState)}
-          />
-        );
+        return <DashboardContent teamData={teamData} balance={balance} />;
     }
   };
 
@@ -204,19 +181,23 @@ function UserDashboard() {
       <Sidebar
         activeComponent={activeComponent}
         setActiveComponent={setActiveComponent}
-        currentRound={getRoundDisplayText(gameState)}
+        isCollapsed={isSidebarCollapsed}
+        onToggle={toggleSidebar}
       />
       <Box
         flex="1"
-        ml={{ base: 0, md: "260px" }}
+        ml={{ base: 0, md: isSidebarCollapsed ? "80px" : "260px" }}
         bg="gray.100"
         h="100vh"
         overflow="hidden"
+        transition="margin-left 0.2s ease-in-out"
       >
         <Navbar
           pageTitle={pageTitles[activeComponent]}
           onLogout={handleLogout}
           teamData={teamData}
+          currentRound={getRoundDisplayText(gameState)}
+          gameState={gameState}
         />
         <Box
           p={6}

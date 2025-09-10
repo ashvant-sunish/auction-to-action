@@ -7,8 +7,18 @@ import {
   Divider,
   Icon,
   Heading,
+  Flex,
+  IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
-import { MdDashboard, MdHistory, MdGroups } from "react-icons/md";
+import {
+  MdDashboard,
+  MdHistory,
+  MdGroups,
+  MdChevronLeft,
+  MdChevronRight,
+} from "react-icons/md";
+import { RiAuctionLine } from "react-icons/ri";
 
 const CsedLogo = () => (
   <Heading size="md" color="white" letterSpacing="wider">
@@ -16,12 +26,17 @@ const CsedLogo = () => (
   </Heading>
 );
 
-const Sidebar = ({ setActiveComponent, activeComponent, currentRound }) => {
+const Sidebar = ({
+  setActiveComponent,
+  activeComponent,
+  isCollapsed,
+  onToggle,
+}) => {
   const navItems = [
     { name: "Dashboard", icon: MdDashboard, key: "dashboard" },
-    { name: "Rounds", icon: MdHistory, key: "rounds" },
+    { name: "Auction Rounds", icon: RiAuctionLine, key: "rounds" },
     { name: "My Bidding History", icon: MdHistory, key: "my-bids" },
-    { name: "Team Bid History", icon: MdGroups, key: "team-bids" },
+    { name: "Trading Market", icon: MdGroups, key: "trading-market" },
   ];
 
   return (
@@ -31,53 +46,64 @@ const Sidebar = ({ setActiveComponent, activeComponent, currentRound }) => {
       top="0"
       left="0"
       h="full"
-      w="260px"
+      w={isCollapsed ? "80px" : "260px"}
       bg="#0f3b3d"
       color="white"
       p={4}
       display={{ base: "none", md: "block" }}
+      transition="width 0.2s ease-in-out"
     >
       <VStack align="stretch" spacing={4} h="full">
-        <Box
-          border={"1px solid white"}
-          borderRadius={"10px"}
-        >
-          <Box color="white" letterSpacing="wider" p={3} justifyContent={"center"} textAlign={"center"}>
-            {currentRound}
-          </Box>
-        </Box>
+        {/* Header with logo and working toggle button */}
+        <Flex align="center" justify={isCollapsed ? "center" : "space-between"}>
+          {!isCollapsed && <CsedLogo />}
+          <IconButton
+            icon={isCollapsed ? <MdChevronRight /> : <MdChevronLeft />}
+            onClick={onToggle}
+            variant="ghost"
+            color="white"
+            aria-label="Toggle Sidebar"
+            fontSize="24px"
+            _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+          />
+        </Flex>
+
         <Divider borderColor="gray.600" />
-        <VStack align="stretch" spacing={2} mt={8}>
+
+        <VStack align="stretch" spacing={2} mt={4}>
           {navItems.map((item) => (
-            <Link
+            <Tooltip
               key={item.key}
-              onClick={() => setActiveComponent(item.key)}
-              p={3}
-              borderRadius="md"
-              bg={
-                activeComponent === item.key
-                  ? "rgba(255, 255, 255, 0.1)"
-                  : "transparent"
-              }
-              fontWeight={activeComponent === item.key ? "bold" : "normal"}
-              display="flex"
-              alignItems="center"
-              _hover={{ bg: "rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
+              label={item.name}
+              placement="right"
+              isDisabled={!isCollapsed}
+              hasArrow
             >
-              <Icon as={item.icon} mr={3} />
-              <Text>{item.name}</Text>
-            </Link>
+              <Link
+                onClick={() => setActiveComponent(item.key)}
+                p={3}
+                borderRadius="md"
+                bg={
+                  activeComponent === item.key
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "transparent"
+                }
+                fontWeight={activeComponent === item.key ? "bold" : "normal"}
+                display="flex"
+                alignItems="center"
+                justifyContent={isCollapsed ? "center" : "flex-start"}
+                _hover={{ bg: "rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
+              >
+                <Icon as={item.icon} boxSize={6} />
+                {!isCollapsed && (
+                  <Text ml={3} transition="opacity 0.2s ease-in-out">
+                    {item.name}
+                  </Text>
+                )}
+              </Link>
+            </Tooltip>
           ))}
         </VStack>
-        <Box
-          p={2}
-          userSelect="none"
-          mt="auto"
-        >
-          <Box p={4} display="flex" alignItems="center" justifyContent="center">
-            <CsedLogo />
-          </Box>
-        </Box>
       </VStack>
     </Box>
   );

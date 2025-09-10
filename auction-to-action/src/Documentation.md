@@ -246,3 +246,9 @@
 - This component features a collapsible "Available Materials" table, allowing users to select items for trade.
 - The table was enhanced with checkboxes and numeric inputs to specify trade quantities. Inputs are only enabled when an item is selected.
 - A "Submit Trade" button was added to complete the trading action.
+
+# 10/09/2025 - Wednesday - 10:00 PM [ Update 0.0.16 ]
+
+- Created a collapsable sidebar for user
+- Created rounds control between admin and user
+- Moved ongoing rounds to top navbar of user
