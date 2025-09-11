@@ -1,87 +1,269 @@
-import React from "react";
-import {
-  Box,
-  Heading,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-} from "@chakra-ui/react";
+import React, { useState, useEffect } from 'react';
 
-const allBids = [
-  { id: 1, text: "2 × Property, 3 × Skilled Labour" },
-  { id: 2, text: "1 × Property, 2 × Machinery & Tools, 1 × Utilities" },
-  { id: 3, text: "3 × Technology" },
-  {
-    id: 4,
-    text: "2 × Property, 2 × Construction Material, 1 × Skilled Labour",
-  },
-  { id: 5, text: "3 × Machinery & Tools, 2 × Skilled Labour" },
-  { id: 62, text: "1 × Property, 3 × Office Space, 2 × Skilled Labour" },
-  { id: 63, text: "5 × Technology" },
-  {
-    id: 64,
-    text: "3 × Property, 3 × Construction Material, 1 × Skilled Labour",
-  },
-  { id: 65, text: "2 × Property, 3 × Electricity Supply, 2 × Skilled Labour" },
-  { id: 68, text: "3 × Technology, 2 × Utilities" },
-  { id: 71, text: "3 × Property, 2 × Office Space, 1 × Technology" },
-  {
-    id: 72,
-    text: "2 × Construction Material, 4 × Skilled Labour, 2 × Utilities",
-  },
-  { id: 75, text: "3 × Property, 4 × Skilled Labour, 2 × Utilities" },
-];
+const TradingMarket = () => {
+  const [teams, setTeams] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [visibleDetails, setVisibleDetails] = useState(new Set());
 
-const teamBidHistory = [
-  { bidId: 72, member: "Member 3" },
-  { bidId: 65, member: "Member 1" },
-  { bidId: 64, member: "Member 2" },
-  { bidId: 63, member: "Member 4" },
-  { bidId: 62, member: "Member 1" },
-  { bidId: 5, member: "Member 3" },
-  { bidId: 2, member: "Member 2" },
-];
+  const generateTeamData = () => {
+    const products = ['Skilled Labour', 'Machinery', 'Land', 'Raw Materials', 'Finished Goods', 'Transport', 'Capital'];
+    const newTeams = [];
+    for (let i = 1; i <= 50; i++) {
+      const teamProducts = [];
+      const numProducts = Math.floor(Math.random() * 5) + 2;
+      for (let j = 0; j < numProducts; j++) {
+        const randomProduct = products[Math.floor(Math.random() * products.length)];
+        const quantity = Math.floor(Math.random() * 10) + 1;
+        teamProducts.push({ name: randomProduct, quantity });
+      }
+      newTeams.push({
+        id: i,
+        name: `Team ${i}`,
+        materials: teamProducts,
+      });
+    }
+    return newTeams;
+  };
 
-const fullTeamHistory = allBids
-  .map((bid) => {
-    const teamBid = teamBidHistory.find((tb) => tb.bidId === bid.id);
-    return teamBid ? { ...bid, member: teamBid.member } : null;
-  })
-  .filter(Boolean)
-  .sort((a, b) => b.id - a.id);
+  useEffect(() => {
+    setTeams(generateTeamData());
+  }, []);
 
-function TeamBids() {
-  return (
-    <Box>
-      <Heading size="lg" mb={6}>
-        Team Bidding History
-      </Heading>
-      <TableContainer bg="white" p={4} borderRadius="lg" shadow="md">
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Bid No.</Th>
-              <Th>Items</Th>
-              <Th>Bid By</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {fullTeamHistory.map((bid) => (
-              <Tr key={bid.id}>
-                <Td fontWeight="bold">BID {bid.id}</Td>
-                <Td>{bid.text}</Td>
-                <Td>{bid.member}</Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </Box>
+  const filteredTeams = teams.filter(team =>
+    team.materials.some(material =>
+      material.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   );
-}
 
-export default TeamBids;
+  const toggleDetails = (teamId) => {
+    setVisibleDetails(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(teamId)) {
+        newSet.delete(teamId);
+      } else {
+        newSet.add(teamId);
+      }
+      return newSet;
+    });
+  };
+
+  return (
+    <>
+      <style>
+        {`
+          body {
+            font-family: sans-serif;
+          }
+          .main-container {
+            min-height: 100vh;
+            background-color: #FFFFFF;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          .content-container {
+            max-width: 72rem;
+            width: 100%;
+          }
+          .title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            text-align: center;
+            color: #031716;
+            margin-bottom: 2rem;
+          }
+          .search-bar {
+            margin-bottom: 2rem;
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: #F5F5F5;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          }
+          .search-icon {
+            position: absolute;
+            left: 1rem;
+            color: #0A7075;
+          }
+          .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem; /* Adjusted padding for icon */
+            border-radius: 1rem;
+            border: none;
+            background-color: transparent;
+            color: #031716;
+          }
+          .search-input:focus {
+            outline: none;
+          }
+          .search-input::placeholder {
+            color: #6BA3BE;
+          }
+          .teams-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(1, 1fr);
+          }
+          @media (min-width: 768px) {
+            .teams-grid {
+              grid-template-columns: repeat(2, 1fr);
+            }
+          }
+          @media (min-width: 1024px) {
+            .teams-grid {
+              grid-template-columns: repeat(3, 1fr);
+            }
+          }
+          .team-card {
+            background-color: #031716;
+            color: #FFFFFF;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            transition: box-shadow 0.2s ease-in-out;
+            border: 2px solid #0A7075;
+          }
+          .team-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          }
+          .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+          }
+          .team-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #FFFFFF;
+          }
+          .toggle-button {
+            padding: 0.5rem;
+            border-radius: 9999px;
+            background-color: #0C969C;
+            color: #FFFFFF;
+            transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: none;
+            cursor: pointer;
+          }
+          .toggle-button:hover {
+            background-color: #0A7075;
+          }
+          .icon-svg {
+            height: 1.5rem;
+            width: 1.5rem;
+          }
+          .details-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #0A7075;
+          }
+          .details-heading {
+            font-weight: 600;
+            color: #6BA3BE;
+            margin-bottom: 0.5rem;
+          }
+          .materials-list {
+            list-style-type: disc;
+            list-style-position: inside;
+            padding-left: 0;
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+          }
+          .material-item {
+            color: #6BA3BE;
+            line-height: 1.5;
+          }
+          .material-quantity {
+            font-weight: 500;
+            color: #FFFFFF;
+          }
+          .no-teams-message {
+            text-align: center;
+            color: #031716;
+            grid-column: 1 / -1;
+          }
+          @keyframes slide-down {
+            0% {
+              transform: translateY(-10px);
+              opacity: 0;
+            }
+            100% {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+          .animate-slide-down {
+            animation: slide-down 0.3s ease-out forwards;
+          }
+        `}
+      </style>
+      <div className="main-container">
+        <div className="content-container">
+          <h1 className="title">Trading Offers</h1>
+
+          <div className="search-bar">
+            <svg className="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search for a product (e.g., 'Machinery')"
+              className="search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="teams-grid">
+            {filteredTeams.length > 0 ? (
+              filteredTeams.map(team => (
+                <div key={team.id} className="team-card">
+                  <div className="team-header">
+                    <h2 className="team-name">{team.name}</h2>
+                    <button
+                      onClick={() => toggleDetails(team.id)}
+                      className="toggle-button"
+                      aria-expanded={visibleDetails.has(team.id)}
+                    >
+                      {visibleDetails.has(team.id) ? (
+                        <svg className="icon-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                        </svg>
+                      ) : (
+                        <svg className="icon-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  
+                  {visibleDetails.has(team.id) && (
+                    <div className="details-section animate-slide-down">
+                      <p className="details-heading">Materials Owned:</p>
+                      <ul className="materials-list">
+                        {team.materials.map((material, index) => (
+                          <li key={index} className="material-item">
+                            <span className="material-quantity">{material.quantity}x</span> {material.name}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="no-teams-message">No teams found with that material.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default TradingMarket;
