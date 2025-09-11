@@ -12,7 +12,7 @@ import React from "react";
 import serverUrl from "../../../../servercon";
 import { updateRoundRealtime } from "../../../../services/adminSocket";
 
-function RoundsStartAdmin({ ongoingRound, setOngoingRound }) {
+function RoundsStartAdmin({ ongoingRound }) {
   const toast = useToast();
 
   //This Function is for Updating the round number to Real Time database
@@ -97,19 +97,19 @@ function RoundsStartAdmin({ ongoingRound, setOngoingRound }) {
   };
 
   const handleStartRound = (newState) => {
-    setOngoingRound(newState);
+    // State will update automatically via useRoundManager hook when database changes
     roundNumber(newState); // Broadcast round update via Socket.IO
   };
   
   const handleEndRound = (currentState) => {
     const nextState = currentState + 1;
-    setOngoingRound(nextState);
+    // State will update automatically via useRoundManager hook when database changes
     roundNumber(nextState);
     
     // Auto-reset to state 0 after Round 3 ends (state 6)
     if (nextState === 6) {
       setTimeout(() => {
-        setOngoingRound(0);
+        // State will update automatically via useRoundManager hook when database changes
         roundNumber(0);
       }, 0); // Reset immediately
     }

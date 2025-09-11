@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import serverUrl, { socketServerUrl } from "../../servercon.js";
 import socketService from "../../services/socket.js";
+import { useRoundManager } from "../../hooks/useRoundManager.js";
 import Sidebar from "../../Components/User/Sidebar";
 import Navbar from "../../Components/User/Navbar";
 import DashboardContent from "../../Components/User/DashboardContent";
@@ -15,10 +16,12 @@ function UserDashboard() {
   const [activeComponent, setActiveComponent] = useState("dashboard");
   const [teamData, setTeamData] = useState(null);
   const [balance, setBalance] = useState(0);
-  const [gameState, setGameState] = useState(0);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
+  
+  // Use the round manager hook for real-time database connectivity
+  const { currentRound, gameState, isConnected, error } = useRoundManager();
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
@@ -31,13 +34,23 @@ function UserDashboard() {
       return;
     }
     fetchTeamData();
-    fetchCurrentRound();
     setupRealTimeConnection();
+
+    // Show connection status
+    if (error) {
+      toast({
+        title: "Connection Error",
+        description: error,
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
 
     return () => {
       socketService.disconnect();
     };
-  }, [navigate]);
+  }, [navigate, error]); // Add error to dependency array
 
   useEffect(() => {
     if (teamData?.teamNumber) {
@@ -45,20 +58,21 @@ function UserDashboard() {
     }
   }, [teamData?.teamNumber]);
 
-  const processRoundData = (roundData) => {
-    const { roundNumber, roundStatus } = roundData;
-    let newGameState = 0;
-    if (roundNumber === 1) {
-      newGameState = roundStatus === "ongoing" ? 1 : 2;
-    } else if (roundNumber === 2) {
-      newGameState = roundStatus === "ongoing" ? 3 : 4;
-    } else if (roundNumber === 3) {
-      newGameState = roundStatus === "ongoing" ? 5 : 6;
+  // Show toast notifications when round state changes
+  useEffect(() => {
+    if (gameState !== 0) { // Only show if not initial state
+      toast({
+        title: "Round Update",
+        description: getRoundDisplayText(gameState),
+        status: "info",
+        duration: 4000,
+        isClosable: true,
+      });
     }
-    setGameState(newGameState);
-    return newGameState;
-  };
+  }, [gameState, toast]); // React to changes in gameState
 
+  // Remove processRoundData function as it's handled by the hook
+  
   const getRoundDisplayText = (state) => {
     const displays = {
       0: "Not Started",
@@ -75,6 +89,9 @@ function UserDashboard() {
   const setupRealTimeConnection = () => {
     socketService.connect(socketServerUrl);
 
+    // Note: Round updates are handled by useRoundManager hook
+    // This avoids duplicate listeners and ensures database sync
+
     socketService.onTeamUpdate((updatedTeam) => {
       if (teamData && updatedTeam.teamNumber === teamData.teamNumber) {
         setTeamData(updatedTeam);
@@ -89,16 +106,8 @@ function UserDashboard() {
       }
     });
 
-    socketService.onRoundUpdate((roundData) => {
-      const newState = processRoundData(roundData);
-      toast({
-        title: "Round Update",
-        description: getRoundDisplayText(newState),
-        status: "info",
-        duration: 4000,
-        isClosable: true,
-      });
-    });
+    // Note: Round updates are handled by useRoundManager hook
+    // No need for duplicate round update listeners here
 
     socketService.onDatabaseUpdate((data) => {
       toast({
@@ -128,16 +137,7 @@ function UserDashboard() {
     }
   };
 
-  const fetchCurrentRound = async () => {
-    try {
-      const response = await axios.get(`${socketServerUrl}/api/round/current`);
-      if (response.data.success) {
-        processRoundData(response.data.roundData);
-      }
-    } catch (error) {
-      console.error("Error fetching current round:", error);
-    }
-  };
+  // fetchCurrentRound function removed - now handled by useRoundManager hook
 
   const handleLogout = () => {
     if (teamData?.teamNumber) {

@@ -11,20 +11,34 @@ import axios from 'axios';
 import serverUrl, { socketServerUrl } from '../../../servercon';
 import { useNavigate } from 'react-router-dom';
 import socketService from '../../../services/socket';
+import { useRoundManager } from '../../../hooks/useRoundManager';
 
 function AdminDashboard() {
-  const [ongoingRound, setOngoingRound] = React.useState(0); // Initialize with state 0
   const [TotalAdmins, setTotalAdmins] = React.useState(78);
   const [TotalTeams, setTotalTeams] = React.useState(50);
   const navigate = useNavigate();
   const toast = useToast();
+  
+  // Use the round manager hook for real-time database connectivity
+  const { currentRound, gameState, isConnected, error } = useRoundManager();
+  const ongoingRound = gameState; // Use gameState from hook
 
   // Authentication check and data fetching
   useEffect(() => {
     checkAuthentication();
     fetchDashboardData();
-    fetchCurrentRoundState();
     setupSocketConnection();
+    
+    // Show connection status
+    if (error) {
+      toast({
+        title: "Connection Error",
+        description: error,
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
     
     // Cleanup socket connection on unmount
     return () => {
@@ -32,39 +46,16 @@ function AdminDashboard() {
       socketService.removeAllListeners('teamUpdated');
       socketService.removeAllListeners('databaseUpdate');
     };
-  }, []);
+  }, [error]); // Add error to dependency array
 
   const setupSocketConnection = () => {
     try {
       // Connect to WebSocket server
       socketService.connect();
       
-      // Listen for round updates in real-time
-      socketService.onRoundUpdate((data) => {
-        console.log('🎯 Real-time round update received:', data);
-        
-        if (data && typeof data.roundNumber !== 'undefined' && data.roundStatus) {
-          // Convert database values to our state system (0-6)
-          let gameState = 0;
-          
-          if (data.roundNumber === 0 || !data.roundNumber || data.roundStatus === 'not_started') {
-            gameState = 0; // Not yet started
-          } else if (data.roundNumber === 1) {
-            gameState = data.roundStatus === 'ongoing' ? 1 : 2; // Round 1 ongoing or ended
-          } else if (data.roundNumber === 2) {
-            gameState = data.roundStatus === 'ongoing' ? 3 : 4; // Round 2 ongoing or ended  
-          } else if (data.roundNumber === 3) {
-            gameState = data.roundStatus === 'ongoing' ? 5 : 6; // Round 3 ongoing or ended
-          }
-          
-          setOngoingRound(gameState);
-          
-          // Only update state silently for admin dashboard
-          // Toast notification is handled by the component that triggered the action
-          console.log('🎯 Admin dashboard round state updated silently:', gameState);
-        }
-      });
-
+      // Note: Round updates are handled by useRoundManager hook
+      // This avoids duplicate listeners and ensures database sync
+      
       // Listen for team updates (for refreshing team count)
       socketService.onTeamUpdate((data) => {
         console.log('👥 Real-time team update received:', data);
@@ -129,39 +120,11 @@ function AdminDashboard() {
     }
   };
 
-  const fetchCurrentRoundState = async () => {
-    try {
-      const response = await axios.get(`${socketServerUrl}/api/round/current`);
-      if (response.data.success) {
-        const { roundNumber, roundStatus } = response.data.roundData;
-        
-        // Convert database values to our state system (0-6)
-        let gameState = 0;
-        
-        if (roundNumber === 0 || !roundNumber || roundStatus === 'not_started') {
-          gameState = 0; // Not yet started
-        } else if (roundNumber === 1) {
-          gameState = roundStatus === 'ongoing' ? 1 : 2; // Round 1 ongoing or ended
-        } else if (roundNumber === 2) {
-          gameState = roundStatus === 'ongoing' ? 3 : 4; // Round 2 ongoing or ended  
-        } else if (roundNumber === 3) {
-          gameState = roundStatus === 'ongoing' ? 5 : 6; // Round 3 ongoing or ended
-        }
-        
-        setOngoingRound(gameState);
-        console.log('🎯 Admin dashboard round state fetched:', gameState, { roundNumber, roundStatus });
-      }
-    } catch (error) {
-      console.error("Error fetching current round state:", error);
-      // Keep default state 0 if fetch fails
-    }
-  };
-
   const [file, setfile] = useState('dashboard');
-  let content = <DashboardContentAdmin ongoingRound={ongoingRound} setOngoingRound={setOngoingRound} TotalAdmins={TotalAdmins} TotalTeams={TotalTeams} setfile={setfile} />;
+  let content = <DashboardContentAdmin ongoingRound={ongoingRound} TotalAdmins={TotalAdmins} TotalTeams={TotalTeams} setfile={setfile} />;
   switch (file) {
     case 'dashboard':
-      content = <DashboardContentAdmin ongoingRound={ongoingRound} setOngoingRound={setOngoingRound} TotalAdmins={TotalAdmins} TotalTeams={TotalTeams} setfile={setfile} />;
+      content = <DashboardContentAdmin ongoingRound={ongoingRound} TotalAdmins={TotalAdmins} TotalTeams={TotalTeams} setfile={setfile} />;
       break;
     case 'bidhistory':
       content = <BidHistoryAdmin />;
@@ -177,7 +140,7 @@ function AdminDashboard() {
       break;
 
     default:
-      content = <DashboardContentAdmin ongoingRound={ongoingRound} setOngoingRound={setOngoingRound} TotalAdmins={TotalAdmins} TotalTeams={TotalTeams} setfile={setfile} />;
+      content = <DashboardContentAdmin ongoingRound={ongoingRound} TotalAdmins={TotalAdmins} TotalTeams={TotalTeams} setfile={setfile} />;
       break;
   }
 

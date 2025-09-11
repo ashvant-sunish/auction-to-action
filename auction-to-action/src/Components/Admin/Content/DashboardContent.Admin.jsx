@@ -8,7 +8,6 @@ import RoundLinksAdmin from "./DashboardCards.Admin.Jsx/RoundLinks.Admin";
 
 function DashboardContentAdmin({
   ongoingRound,
-  setOngoingRound,
   TotalAdmins,
   TotalTeams,
   setfile,
@@ -31,7 +30,6 @@ function DashboardContentAdmin({
       </Flex>
       <RoundsStartAdmin
         ongoingRound={ongoingRound}
-        setOngoingRound={setOngoingRound}
       />
       <RoundLinksAdmin setfile={setfile} />
     </Box>

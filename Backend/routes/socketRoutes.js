@@ -1,19 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { protectAdmin } = require('../middleware/authMiddleware');
-
-// Round state storage (in production, you'd use a database)
-let currentRoundState = {
-  roundNumber: 0,
-  roundStatus: 'not_started',
-  timestamp: new Date().toISOString()
-};
+const GameState = require('../models/GameState');
 
 /**
  * Update round with real-time broadcasting
  * POST /admin/updateRound
  */
-router.post('/admin/updateRound', protectAdmin, (req, res) => {
+router.post('/admin/updateRound', protectAdmin, async (req, res) => {
   try {
     const { roundNumber, roundStatus, timestamp } = req.body;
     
@@ -25,8 +19,19 @@ router.post('/admin/updateRound', protectAdmin, (req, res) => {
       });
     }
 
-    // Update current round state
-    currentRoundState = {
+    // Get or create game state document
+    let gameState = await GameState.findOne({ singleton: 'main' });
+    if (!gameState) {
+      gameState = new GameState({ singleton: 'main' });
+    }
+
+    // Update game state in database
+    gameState.currentRound = roundNumber;
+    gameState.isAuctionLive = roundStatus === 'ongoing';
+    await gameState.save();
+
+    // Create current round state for broadcasting
+    const currentRoundState = {
       roundNumber,
       roundStatus,
       timestamp: timestamp || new Date().toISOString()
@@ -60,8 +65,27 @@ router.post('/admin/updateRound', protectAdmin, (req, res) => {
  * Get current round state
  * GET /api/round/current
  */
-router.get('/api/round/current', (req, res) => {
+router.get('/api/round/current', async (req, res) => {
   try {
+    // Get game state from database
+    const gameState = await GameState.findOne({ singleton: 'main' });
+    
+    let currentRoundState;
+    if (gameState) {
+      currentRoundState = {
+        roundNumber: gameState.currentRound,
+        roundStatus: gameState.isAuctionLive ? 'ongoing' : 'ended',
+        timestamp: gameState.updatedAt || new Date().toISOString()
+      };
+    } else {
+      // Default state if no game state exists
+      currentRoundState = {
+        roundNumber: 0,
+        roundStatus: 'not_started',
+        timestamp: new Date().toISOString()
+      };
+    }
+
     res.json({
       success: true,
       roundData: currentRoundState
