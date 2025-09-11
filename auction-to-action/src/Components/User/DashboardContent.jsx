@@ -36,88 +36,34 @@ import { Round2 } from './../Admin/Content/Rounds/Round2';
 import { RiAuctionLine } from "react-icons/ri";
 
 const AvailableMaterialsTable = ({
-  transactions,
+  resources,
   isFullScreen,
   toggleFullScreen,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const aggregatedMaterials = useMemo(() => {
-    const sampleHistory = [
-      { material: "2 × Property, 3 × Skilled Labour", amount: "5,000" },
-      {
-        material: "1 × Property, 2 × Machinery & Tools, 1 × Utilities",
-        amount: "4,000",
-      },
-      { material: "3 × Technology", amount: "5,250" },
-    ];
+  const resourcesArray = useMemo(() => {
+    // Convert resources object/Map to array format
+    if (!resources || typeof resources !== 'object') {
+      return [];
+    }
 
-    const history =
-      transactions?.length > 0
-        ? transactions.map((transaction) => ({
-          material: transaction.itemId?.name || "Unknown Item",
-          amount: transaction.price?.toString() || "0",
-        }))
-        : sampleHistory;
+    // Handle both Map and plain object
+    const entries = resources instanceof Map 
+      ? Array.from(resources.entries())
+      : Object.entries(resources);
 
-    const materialsMap = new Map();
+    return entries
+      .filter(([name, quantity]) => quantity > 0) // Only show resources with quantity > 0
+      .map(([name, quantity]) => ({
+        name,
+        count: quantity,
+        totalAmount: quantity * 1000 // Estimated value per unit
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [resources]);
 
-    history.forEach((item) => {
-      const materials = item.material.split(",").map((m) => m.trim());
-      materials.forEach((material) => {
-        const parts = material.split("×").map((p) => p.trim());
-        if (parts.length === 2) {
-          const count = parseInt(parts[0], 10);
-          const name = parts[1];
-          const amount =
-            (parseInt(item.amount.replace(/,/g, ""), 10) / materials.length) *
-            count;
-
-          if (!isNaN(count)) {
-            if (materialsMap.has(name)) {
-              const existing = materialsMap.get(name);
-              materialsMap.set(name, {
-                count: existing.count + count,
-                totalAmount: existing.totalAmount + amount,
-              });
-            } else {
-              materialsMap.set(name, {
-                count: count,
-                totalAmount: amount,
-              });
-            }
-          }
-        } else {
-          // Handle single items
-          const name = material;
-          const amount = parseInt(item.amount.replace(/,/g, ""), 10);
-          if (materialsMap.has(name)) {
-            const existing = materialsMap.get(name);
-            materialsMap.set(name, {
-              count: existing.count + 1,
-              totalAmount: existing.totalAmount + amount,
-            });
-          } else {
-            materialsMap.set(name, {
-              count: 1,
-              totalAmount: amount,
-            });
-          }
-        }
-      });
-    });
-
-    const sortedMaterials = Array.from(materialsMap.entries()).sort((a, b) =>
-      a[0].localeCompare(b[0])
-    );
-
-    return sortedMaterials.map(([name, data]) => ({
-      name,
-      ...data,
-    }));
-  }, [transactions]);
-
-  const filteredHistory = aggregatedMaterials.filter((item) =>
+  const filteredHistory = resourcesArray.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -136,7 +82,7 @@ const AvailableMaterialsTable = ({
       <HStack justify="space-between" align="center" mb={4}>
         <HStack>
           <Heading size="md" color="gray.700" fontWeight="600">
-            Inventory
+            Resources Inventory
           </Heading>
         </HStack>
         <HStack>
@@ -167,7 +113,7 @@ const AvailableMaterialsTable = ({
           <Icon as={FaSearch} color="gray.400" />
         </InputLeftElement>
         <Input
-          placeholder="Search materials..."
+          placeholder="Search resources..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           size="md"
@@ -217,7 +163,7 @@ const AvailableMaterialsTable = ({
                 borderColor="gray.200"
                 py={4}
               >
-                Material
+                Resource Type
               </Th>
               <Th
                 isNumeric
@@ -228,7 +174,7 @@ const AvailableMaterialsTable = ({
                 borderColor="gray.200"
                 py={4}
               >
-                Total Items
+                Quantity
               </Th>
               <Th
                 isNumeric
@@ -283,9 +229,9 @@ const AvailableMaterialsTable = ({
         {filteredHistory.length === 0 && (
           <Box textAlign="center" py={8} color="gray.500">
             <Icon as={FaSearch} boxSize={8} mb={2} />
-            <Text fontSize="sm">No materials found</Text>
+            <Text fontSize="sm">No resources found</Text>
             <Text fontSize="xs" color="gray.400">
-              Try adjusting your search terms
+              {searchTerm ? "Try adjusting your search terms" : "No resources in inventory yet"}
             </Text>
           </Box>
         )}
@@ -294,72 +240,19 @@ const AvailableMaterialsTable = ({
   );
 };
 
-function DashboardContent({ teamData, balance, currentRound }) {
-  // 
-  let bidnumber = "56";
 
-  const [budget, setBudget] = useState("₹0");
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(false);
+function DashboardContent({ teamData, currentRound }) {
+  // Use teamData directly for credit, debit, and resources
   const [isMaterialsFullScreen, setMaterialsFullScreen] = useState(false);
-  const navigate = useNavigate();
-  const toast = useToast();
+  const toggleMaterialsFullScreen = () => setMaterialsFullScreen(!isMaterialsFullScreen);
 
-  const toggleMaterialsFullScreen = () =>
-    setMaterialsFullScreen(!isMaterialsFullScreen);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/");
-        return;
-      }
-
-      try {
-        const response = await fetch(`${serverUrl}/api/team/dashboard`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) {
-          if (response.status === 401) {
-            localStorage.removeItem("token");
-            navigate("/");
-          }
-          throw new Error("Failed to fetch");
-        }
-        const data = await response.json();
-        setBudget(`₹${data.budget?.toLocaleString() || 0}`);
-      } catch (error) {
-        toast({
-          title: "Error fetching data",
-          description: error.message,
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [navigate, toast]);
-
-  const calculateDebit = () => {
-    const totalDebit = transactions.reduce(
-      (sum, transaction) => sum + (transaction.price || 0),
-      0
-    );
-    return `₹${totalDebit.toLocaleString()}`;
-  };
-
-  if (loading) {
-    return (
-      <Flex h="100%" align="center" justify="center">
-        <Spinner size="xl" />
-      </Flex>
-    );
-  }
+  // Fallbacks if teamData is not loaded
+  const credit = teamData?.credit ?? 0;
+  const debit = teamData?.debit ?? 0;
+  const resources = teamData?.resources ?? {};
+  
+  // Calculate number of different resource types (entries) that have quantity > 0
+  const resourceEntryCount = Object.entries(resources).filter(([name, quantity]) => quantity > 0).length;
 
   return (
     <>
@@ -396,10 +289,10 @@ function DashboardContent({ teamData, balance, currentRound }) {
                 </Box>
                 <Box>
                   <Text color="gray.500" fontSize="sm">
-                    Current Balance
+                    Credit
                   </Text>
                   <Text fontWeight="bold" fontSize="2xl">
-                    {balance ? `₹${balance.toLocaleString()}` : "₹0"}
+                    ₹{credit.toLocaleString()}
                   </Text>
                 </Box>
               </Flex>
@@ -429,10 +322,10 @@ function DashboardContent({ teamData, balance, currentRound }) {
                 </Box>
                 <Box>
                   <Text color="gray.500" fontSize="sm">
-                    Spent
+                    Debit
                   </Text>
                   <Text fontWeight="bold" fontSize="2xl">
-                    {calculateDebit()}
+                    ₹{debit.toLocaleString()}
                   </Text>
                 </Box>
               </Flex>
@@ -462,10 +355,10 @@ function DashboardContent({ teamData, balance, currentRound }) {
                 </Box>
                 <Box>
                   <Text color="gray.500" fontSize="sm">
-                    Bid Number
+                    Resource Types
                   </Text>
                   <Text fontWeight="bold" fontSize="2xl">
-                    {bidnumber}
+                    {resourceEntryCount}
                   </Text>
                 </Box>
               </Flex>
@@ -474,7 +367,7 @@ function DashboardContent({ teamData, balance, currentRound }) {
         </Flex>
         <Box w="100%" flex="1" minH="0">
           <AvailableMaterialsTable
-            transactions={transactions}
+            resources={resources}
             isFullScreen={isMaterialsFullScreen}
             toggleFullScreen={toggleMaterialsFullScreen}
           />
@@ -490,7 +383,7 @@ function DashboardContent({ teamData, balance, currentRound }) {
         <ModalContent>
           <ModalBody p={6} h="100vh" display="flex" flexDirection="column">
             <AvailableMaterialsTable
-              transactions={transactions}
+              resources={resources}
               isFullScreen={isMaterialsFullScreen}
               toggleFullScreen={toggleMaterialsFullScreen}
             />

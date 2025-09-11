@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import HeaderAdmin from '../../../Components/Admin/Header/Header.Admin';
 import NavbarAdmin from '../../../Components/Admin/Navbar/Navbar.Admin';
-import { Box } from '@chakra-ui/react';
+import { Box, useToast } from '@chakra-ui/react';
 import DashboardContentAdmin from '../../../Components/Admin/Content/DashboardContent.Admin';
 import AdminManagementAdmin from '../../../Components/Admin/Content/AdminManagement.Admin';
 import TeamsManagementAdmin from '../../../Components/Admin/Content/TeamsManagement.Admin';
@@ -10,19 +10,81 @@ import RoundsAdmin from '../../../Components/Admin/Content/Rounds.Admin';
 import axios from 'axios';
 import serverUrl, { socketServerUrl } from '../../../servercon';
 import { useNavigate } from 'react-router-dom';
+import socketService from '../../../services/socket';
 
 function AdminDashboard() {
   const [ongoingRound, setOngoingRound] = React.useState(0); // Initialize with state 0
   const [TotalAdmins, setTotalAdmins] = React.useState(78);
   const [TotalTeams, setTotalTeams] = React.useState(50);
   const navigate = useNavigate();
+  const toast = useToast();
 
   // Authentication check and data fetching
   useEffect(() => {
     checkAuthentication();
     fetchDashboardData();
-    fetchCurrentRoundState(); // Fetch current round state from database
+    fetchCurrentRoundState();
+    setupSocketConnection();
+    
+    // Cleanup socket connection on unmount
+    return () => {
+      socketService.removeAllListeners('roundUpdated');
+      socketService.removeAllListeners('teamUpdated');
+      socketService.removeAllListeners('databaseUpdate');
+    };
   }, []);
+
+  const setupSocketConnection = () => {
+    try {
+      // Connect to WebSocket server
+      socketService.connect();
+      
+      // Listen for round updates in real-time
+      socketService.onRoundUpdate((data) => {
+        console.log('🎯 Real-time round update received:', data);
+        
+        if (data && typeof data.roundNumber !== 'undefined' && data.roundStatus) {
+          // Convert database values to our state system (0-6)
+          let gameState = 0;
+          
+          if (data.roundNumber === 0 || !data.roundNumber || data.roundStatus === 'not_started') {
+            gameState = 0; // Not yet started
+          } else if (data.roundNumber === 1) {
+            gameState = data.roundStatus === 'ongoing' ? 1 : 2; // Round 1 ongoing or ended
+          } else if (data.roundNumber === 2) {
+            gameState = data.roundStatus === 'ongoing' ? 3 : 4; // Round 2 ongoing or ended  
+          } else if (data.roundNumber === 3) {
+            gameState = data.roundStatus === 'ongoing' ? 5 : 6; // Round 3 ongoing or ended
+          }
+          
+          setOngoingRound(gameState);
+          
+          // Only update state silently for admin dashboard
+          // Toast notification is handled by the component that triggered the action
+          console.log('🎯 Admin dashboard round state updated silently:', gameState);
+        }
+      });
+
+      // Listen for team updates (for refreshing team count)
+      socketService.onTeamUpdate((data) => {
+        console.log('👥 Real-time team update received:', data);
+        // Refresh dashboard data when teams are updated
+        fetchDashboardData();
+      });
+
+      // Listen for general database updates
+      socketService.onDatabaseUpdate((data) => {
+        console.log('💾 Real-time database update received:', data);
+        if (data.type === 'team' || data.type === 'admin') {
+          fetchDashboardData();
+        }
+      });
+
+      console.log('✅ Socket connections established for admin dashboard');
+    } catch (error) {
+      console.error('❌ Error setting up socket connection:', error);
+    }
+  };
 
   const checkAuthentication = () => {
     const token = localStorage.getItem('adminToken');
@@ -48,11 +110,11 @@ function AdminDashboard() {
       });
 
       // Update state with real data while keeping fallback values
-      if (teamsResponse.data && teamsResponse.data.teams) {
-        setTotalTeams(teamsResponse.data.teams.length);
-      } else if (teamsResponse.data && Array.isArray(teamsResponse.data)) {
+      if (teamsResponse.data && Array.isArray(teamsResponse.data)) {
         setTotalTeams(teamsResponse.data.length);
       }
+      
+      // Update admin count with real data
       if (adminsResponse.data && Array.isArray(adminsResponse.data)) {
         setTotalAdmins(adminsResponse.data.length);
       }

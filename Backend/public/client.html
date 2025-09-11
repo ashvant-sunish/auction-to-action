@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.io Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body>
+    <h1>Socket.io Live Database Test</h1>
+    <div id="messages"></div>
+
+    <script>
+        const socket = io("http://localhost:5001");
+
+        // Confirm connection
+        socket.on("connect", () => {
+            document.getElementById("messages").innerHTML += "<p>✅ Connected to server!</p>";
+        });
+
+        // Listen for database updates
+        socket.on("databaseUpdate", (data) => {
+            document.getElementById("messages").innerHTML += `<p>📢 Update: ${JSON.stringify(data)}</p>`;
+        });
+
+        socket.on("disconnect", () => {
+            document.getElementById("messages").innerHTML += "<p>❌ Disconnected from server</p>";
+        });
+    </script>
+</body>
+
+</html>

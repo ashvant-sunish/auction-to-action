@@ -1,12 +1,13 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import axios from 'axios'
+import serverUrl from '../../../../servercon'
 
 import {
     Box, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td, Tfoot, Button,
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
     Text, VStack, HStack, Badge, useDisclosure, Input, FormControl, FormLabel, Select,
     AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
-    Flex,
-    Spacer
+    Flex, Spacer, useToast, Spinner, Alert, AlertIcon, Textarea
 } from '@chakra-ui/react';
 
 
@@ -14,24 +15,81 @@ function RoundThreeBidHistory() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
-    const [selectedBid, setSelectedBid] = useState(null);
-    const [editingBid, setEditingBid] = useState(null);
+    const [selectedTrade, setSelectedTrade] = useState(null);
+    const [editingTrade, setEditingTrade] = useState(null);
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [updating, setUpdating] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [teams, setTeams] = useState([]); // For dropdown options
     const cancelRef = useRef();
+    const toast = useToast();
 
-    const [data, setData] = useState([
-            { id: 1, team_one: "Team Alpha", team_two: "Team Delta", team_one_itemstraded: "4x Property",team_one_moneytraded: "4000", team_two_itemstraded: "20x Goods", team_two_moneytraded: "0"  },
-            { id: 2, team_one: "Team Beta", team_two: "Team Epsilon", team_one_itemstraded: "10x Items", team_one_moneytraded: "2000", team_two_itemstraded: "40x Property", team_two_moneytraded: "0" },
-            { id: 3, team_one: "Team Gamma", team_two: "Team Zeta", team_one_itemstraded: "15x Goods", team_one_moneytraded: "0", team_two_itemstraded: "0", team_two_moneytraded: "20000" },
-    ]);
+    // Fetch trade history data
+    const fetchTradeHistory = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                throw new Error('Admin token not found');
+            }
+            
+            const response = await axios.get(`${serverUrl}/api/admin/trade-history`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            console.log('Trade history data:', response.data);
+            setData(response.data);
+        } catch (error) {
+            console.error('Error fetching trade history:', error);
+            setError(error.response?.data?.message || 'Failed to fetch trade history');
+            toast({
+                title: 'Error',
+                description: 'Failed to fetch trade history',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch teams for dropdown
+    const fetchTeams = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+            
+            const response = await axios.get(`${serverUrl}/api/admin/teams`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            setTeams(response.data);
+        } catch (error) {
+            console.error('Error fetching teams:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTradeHistory();
+        fetchTeams();
+    }, []);
 
     const handleView = (id) => {
-        const bid = data.find(item => item.id === id);
-        setSelectedBid(bid);
+        const trade = data.find(item => item._id === id);
+        setSelectedTrade(trade);
         onOpen();
     };
 
     const handleEdit = () => {
-        setEditingBid({ ...selectedBid });
+        setEditingTrade({ ...selectedTrade });
         onClose(); // Close view modal
         onEditOpen(); // Open edit modal
     };
@@ -41,49 +99,165 @@ function RoundThreeBidHistory() {
         onDeleteOpen(); // Open delete confirmation
     };
 
-    const confirmDelete = () => {
-        setData(data.filter(item => item.id !== selectedBid.id));
-        onDeleteClose();
-        setSelectedBid(null);
+    const confirmDelete = async () => {
+        try {
+            setDeleting(true);
+            const token = localStorage.getItem('adminToken');
+            
+            await axios.delete(`${serverUrl}/api/admin/trade-history/${selectedTrade._id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            toast({
+                title: 'Success',
+                description: 'Trade history deleted successfully',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
+
+            onDeleteClose();
+            setSelectedTrade(null);
+            fetchTradeHistory(); // Refresh data
+        } catch (error) {
+            console.error('Error deleting trade:', error);
+            toast({
+                title: 'Error',
+                description: error.response?.data?.message || 'Failed to delete trade history',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        } finally {
+            setDeleting(false);
+        }
     };
 
-    const saveEdit = () => {
-        setData(data.map(item =>
-            item.id === editingBid.id ? editingBid : item
-        ));
-        onEditClose();
-        setEditingBid(null);
+    const saveEdit = async () => {
+        try {
+            setUpdating(true);
+            const token = localStorage.getItem('adminToken');
+            
+            await axios.put(`${serverUrl}/api/admin/trade-history/${editingTrade._id}`, editingTrade, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            toast({
+                title: 'Success',
+                description: 'Trade history updated successfully',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
+
+            onEditClose();
+            setEditingTrade(null);
+            fetchTradeHistory(); // Refresh data
+        } catch (error) {
+            console.error('Error updating trade:', error);
+            toast({
+                title: 'Error',
+                description: error.response?.data?.message || 'Failed to update trade history',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        } finally {
+            setUpdating(false);
+        }
     };
 
     const handleEditChange = (field, value) => {
-        setEditingBid(prev => ({
+        setEditingTrade(prev => ({
             ...prev,
             [field]: value
         }));
     };
 
+    const handleNestedEditChange = (section, field, value) => {
+        setEditingTrade(prev => ({
+            ...prev,
+            [section]: {
+                ...prev[section],
+                [field]: value
+            }
+        }));
+    };
+
+    const handleTradeDetailsChange = (field, value) => {
+        setEditingTrade(prev => ({
+            ...prev,
+            tradeDetails: {
+                ...prev.tradeDetails,
+                [field]: value
+            }
+        }));
+    };
+
+    const formatTradeItems = (items) => {
+        if (!items || items.length === 0) return 'None';
+        return items.join(', ');
+    };
+
+    const handleArrayChange = (field, value) => {
+        // Convert comma-separated string to array
+        const array = value.split(',').map(item => item.trim()).filter(item => item.length > 0);
+        handleTradeDetailsChange(field, array);
+    };
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+                <Spinner size="lg" />
+                <Text ml={3}>Loading trade history...</Text>
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Alert status="error">
+                <AlertIcon />
+                {error}
+                <Button ml={3} onClick={fetchTradeHistory}>Retry</Button>
+            </Alert>
+        );
+    }
 
     return (
         <Box>
             <TableContainer>
                 <Table variant='striped' colorScheme='teal'>
-                    <TableCaption>Real-time Bid History</TableCaption>
+                    <TableCaption>Real-time Trade History - Round 3</TableCaption>
                     <Thead>
                         <Tr>
                             <Th>Sl No</Th>
-                            <Th>Trade Team One</Th>
-                            <Th>Trade Team Two</Th>
+                            <Th>Team One</Th>
+                            <Th>Team Two</Th>
                             <Th>Action</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {data.map((bid) => (
-                            <Tr key={bid.id}>
-                                <Td>{bid.id}</Td>
-                                <Td>{bid.team_one}</Td>
-                                <Td>{bid.team_two}</Td>
+                        {data.map((trade, index) => (
+                            <Tr key={trade._id}>
+                                <Td>{index + 1}</Td>
                                 <Td>
-                                    <Button colorScheme='teal' size='sm' onClick={() => handleView(bid.id)}>View</Button>
+                                    <Badge colorScheme="green">
+                                        {trade.teamOne?.name} ({trade.teamOne?.code})
+                                    </Badge>
+                                </Td>
+                                <Td>
+                                    <Badge colorScheme="blue">
+                                        {trade.teamTwo?.name} ({trade.teamTwo?.code})
+                                    </Badge>
+                                </Td>
+                                <Td>
+                                    <Button colorScheme='teal' size='sm' onClick={() => handleView(trade._id)}>View</Button>
                                 </Td>
                             </Tr>
                         ))}
@@ -91,26 +265,31 @@ function RoundThreeBidHistory() {
                     <Tfoot>
                         <Tr>
                             <Th>Sl No</Th>
-                            <Th>Trade Team One</Th>
-                            <Th>Trade Team Two</Th>
+                            <Th>Team One</Th>
+                            <Th>Team Two</Th>
                             <Th>Action</Th>
                         </Tr>
                     </Tfoot>
                 </Table>
             </TableContainer>
 
-            {/* Modal for Bid Details */}
-            <Modal isOpen={isOpen} onClose={onClose} size="lg">
+            {/* Modal for Trade Details */}
+            <Modal isOpen={isOpen} onClose={onClose} size="xl">
                 <ModalOverlay />
                 <ModalContent>
-                    <ModalHeader>Bid Details</ModalHeader>
+                    <ModalHeader>Trade Details</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        {selectedBid && (
+                        {selectedTrade && (
                             <VStack spacing={6}>
                                 <HStack alignSelf="start" w="full">
                                     <Text fontWeight="bold">Trade ID:</Text>
-                                    <Badge colorScheme="blue">{selectedBid.id}</Badge>
+                                    <Badge colorScheme="blue">{selectedTrade._id}</Badge>
+                                </HStack>
+                                
+                                <HStack alignSelf="start" w="full">
+                                    <Text fontWeight="bold">Date:</Text>
+                                    <Text>{new Date(selectedTrade.createdAt).toLocaleDateString()} at {new Date(selectedTrade.createdAt).toLocaleTimeString()}</Text>
                                 </HStack>
                                 
                                 {/* Trade Visual Layout */}
@@ -119,19 +298,23 @@ function RoundThreeBidHistory() {
                                         {/* Team One */}
                                         <Box textAlign="center" flex="1">
                                             <Badge colorScheme="green" fontSize="md" p={2} borderRadius="md">
-                                                {selectedBid.team_one}
+                                                {selectedTrade.teamOne?.name}
                                             </Badge>
+                                            <Text mt={1} fontSize="xs" color="gray.500">({selectedTrade.teamOne?.code})</Text>
                                             <Text mt={2} fontSize="sm" color="gray.600">Giving</Text>
-                                            <Text mt={2} fontSize="sm"><strong>Item:</strong> {selectedBid.team_one_itemstraded}</Text>
-                                            <Text mt={2} fontSize="sm"><strong>Money:</strong> {selectedBid.team_one_moneytraded}</Text>
+                                            <Box mt={2} p={2} bg="green.50" borderRadius="md">
+                                                <Text fontSize="sm"><strong>Items:</strong></Text>
+                                                <Text fontSize="sm">{formatTradeItems(selectedTrade.tradeDetails?.teamOneGivesItems)}</Text>
+                                                <Text fontSize="sm" mt={1}><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamOneGivesMoney || 0}</Text>
+                                            </Box>
                                         </Box>
 
                                         {/* Trade Arrow and Details */}
                                         <Box flex="1" textAlign="center" mx={4}>
                                             <VStack spacing={2}>
-                                                <Text fontSize="2xl">⇄</Text>
+                                                <Text fontSize="3xl">⇄</Text>
                                                 <Box bg="yellow.100" p={3} borderRadius="md" border="2px dashed" borderColor="yellow.400">
-                                                    <Text fontWeight="bold" color="yellow.800">Trade Details</Text>
+                                                    <Text fontWeight="bold" color="yellow.800">Trade Exchange</Text>
                                                 </Box>
                                             </VStack>
                                         </Box>
@@ -139,30 +322,32 @@ function RoundThreeBidHistory() {
                                         {/* Team Two */}
                                         <Box textAlign="center" flex="1">
                                             <Badge colorScheme="blue" fontSize="md" p={2} borderRadius="md">
-                                                {selectedBid.team_two}
+                                                {selectedTrade.teamTwo?.name}
                                             </Badge>
-                                            <Text mt={2} fontSize="sm" color="gray.600">Returning</Text>
-                                            <Text mt={2} fontSize="sm"><strong>Item:</strong> {selectedBid.team_two_itemstraded}</Text>
-                                            <Text mt={2} fontSize="sm"><strong>Money:</strong> {selectedBid.team_two_moneytraded}</Text>
-
+                                            <Text mt={1} fontSize="xs" color="gray.500">({selectedTrade.teamTwo?.code})</Text>
+                                            <Text mt={2} fontSize="sm" color="gray.600">Giving</Text>
+                                            <Box mt={2} p={2} bg="blue.50" borderRadius="md">
+                                                <Text fontSize="sm"><strong>Items:</strong></Text>
+                                                <Text fontSize="sm">{formatTradeItems(selectedTrade.tradeDetails?.teamTwoGivesItems)}</Text>
+                                                <Text fontSize="sm" mt={1}><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamTwoGivesMoney || 0}</Text>
+                                            </Box>
                                         </Box>
                                     </Flex>
                                 </Box>
 
-                                {/* Additional Details */}
+                                {/* Trade Summary */}
                                 <Box w="full" p={3} bg="blue.50" borderRadius="md">
                                     <Text fontWeight="bold" color="blue.800" mb={2}>Trade Summary</Text>
-                                    <HStack justify="space-between">
+                                    <VStack spacing={2} align="start">
                                         <Text fontSize="sm">
-                                            <strong>{selectedBid.team_one}</strong> receives {selectedBid.team_two_itemstraded}
-                                            {' + ' + selectedBid.team_two_moneytraded + ' rs'}
+                                            <strong>{selectedTrade.teamOne?.name}</strong> receives: {formatTradeItems(selectedTrade.tradeDetails?.teamTwoGivesItems)}
+                                            {selectedTrade.tradeDetails?.teamTwoGivesMoney > 0 && ` + ₹${selectedTrade.tradeDetails.teamTwoGivesMoney}`}
                                         </Text>
-                                        <Text fontSize="lg">→</Text>
                                         <Text fontSize="sm">
-                                            <strong>{selectedBid.team_two}</strong> receives {selectedBid.team_one_itemstraded}
-                                            {' + ' + selectedBid.team_one_moneytraded + ' rs'}
+                                            <strong>{selectedTrade.teamTwo?.name}</strong> receives: {formatTradeItems(selectedTrade.tradeDetails?.teamOneGivesItems)}
+                                            {selectedTrade.tradeDetails?.teamOneGivesMoney > 0 && ` + ₹${selectedTrade.tradeDetails.teamOneGivesMoney}`}
                                         </Text>
-                                    </HStack>
+                                    </VStack>
                                 </Box>
                             </VStack>
                         )}
@@ -182,106 +367,135 @@ function RoundThreeBidHistory() {
             </Modal>
 
             {/* Edit Modal */}
-            <Modal isOpen={isEditOpen} onClose={onEditClose} size="lg">
+            <Modal isOpen={isEditOpen} onClose={onEditClose} size="xl">
                 <ModalOverlay />
                 <ModalContent>
-                    <ModalHeader>Edit Bid</ModalHeader>
+                    <ModalHeader>Edit Trade</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        {editingBid && (
+                        {editingTrade && (
                             <VStack spacing={6}>
                                 {/* Teams Selection */}
                                 <Flex w="full" gap={4}>
                                     <FormControl flex="1">
-                                        <FormLabel>Team One (Giving)</FormLabel>
+                                        <FormLabel>Team One</FormLabel>
                                         <Select
-                                            value={editingBid.team_one || ''}
-                                            onChange={(e) => handleEditChange('team_one', e.target.value)}
+                                            value={editingTrade.teamOne?.code || ''}
+                                            onChange={(e) => {
+                                                const selectedTeam = teams.find(team => team.teamCode === e.target.value);
+                                                if (selectedTeam) {
+                                                    handleNestedEditChange('teamOne', 'name', selectedTeam.teamName);
+                                                    handleNestedEditChange('teamOne', 'code', selectedTeam.teamCode);
+                                                }
+                                            }}
                                         >
                                             <option value="">Select Team</option>
-                                            <option value="Team Alpha">Team Alpha</option>
-                                            <option value="Team Beta">Team Beta</option>
-                                            <option value="Team Gamma">Team Gamma</option>
-                                            <option value="Team Delta">Team Delta</option>
+                                            {teams.map(team => (
+                                                <option key={team._id} value={team.teamCode}>
+                                                    {team.teamName} ({team.teamCode})
+                                                </option>
+                                            ))}
                                         </Select>
                                     </FormControl>
                                     <FormControl flex="1">
-                                        <FormLabel>Team Two (Receiving)</FormLabel>
+                                        <FormLabel>Team Two</FormLabel>
                                         <Select
-                                            value={editingBid.team_two || ''}
-                                            onChange={(e) => handleEditChange('team_two', e.target.value)}
+                                            value={editingTrade.teamTwo?.code || ''}
+                                            onChange={(e) => {
+                                                const selectedTeam = teams.find(team => team.teamCode === e.target.value);
+                                                if (selectedTeam) {
+                                                    handleNestedEditChange('teamTwo', 'name', selectedTeam.teamName);
+                                                    handleNestedEditChange('teamTwo', 'code', selectedTeam.teamCode);
+                                                }
+                                            }}
                                         >
                                             <option value="">Select Team</option>
-                                            <option value="Team Alpha">Team Alpha</option>
-                                            <option value="Team Beta">Team Beta</option>
-                                            <option value="Team Gamma">Team Gamma</option>
-                                            <option value="Team Delta">Team Delta</option>
+                                            {teams.map(team => (
+                                                <option key={team._id} value={team.teamCode}>
+                                                    {team.teamName} ({team.teamCode})
+                                                </option>
+                                            ))}
                                         </Select>
                                     </FormControl>
                                 </Flex>
 
-                                {/* Trade Type */}
-                                <FormControl>
-                                    <FormLabel>Trade Type</FormLabel>
-                                    <Select
-                                        value={editingBid.trade_type || ''}
-                                        onChange={(e) => handleEditChange('trade_type', e.target.value)}
-                                    >
-                                        <option value="">Select Trade Type</option>
-                                        <option value="player_for_money">Player for Money</option>
-                                        <option value="player_for_player">Player for Player</option>
-                                        <option value="money_only">Money Only</option>
-                                        <option value="mixed_trade">Mixed Trade</option>
-                                    </Select>
-                                </FormControl>
-
-                                {/* Trade Details */}
-                                <Box w="full" p={4} bg="gray.50" borderRadius="lg">
-                                    <Text fontWeight="bold" mb={3} color="gray.700">Trade Details</Text>
+                                {/* Trade Details for Team One */}
+                                <Box w="full" p={4} bg="green.50" borderRadius="lg">
+                                    <Text fontWeight="bold" mb={3} color="green.700">
+                                        {editingTrade.teamOne?.name || 'Team One'} Gives:
+                                    </Text>
                                     <Flex gap={4}>
-                                        <FormControl flex="1">
-                                            <FormLabel>Item/Player Being Traded</FormLabel>
-                                            <Input
-                                                value={editingBid.item_traded || ''}
-                                                onChange={(e) => handleEditChange('item_traded', e.target.value)}
-                                                placeholder="e.g., Player Smith"
+                                        <FormControl flex="2">
+                                            <FormLabel>Items (comma-separated)</FormLabel>
+                                            <Textarea
+                                                value={editingTrade.tradeDetails?.teamOneGivesItems?.join(', ') || ''}
+                                                onChange={(e) => handleArrayChange('teamOneGivesItems', e.target.value)}
+                                                placeholder="e.g., Property A, Goods B, Resource C"
+                                                rows={2}
                                             />
                                         </FormControl>
                                         <FormControl flex="1">
-                                            <FormLabel>Money Amount</FormLabel>
+                                            <FormLabel>Money Amount (₹)</FormLabel>
                                             <Input
-                                                value={editingBid.money_traded || ''}
-                                                onChange={(e) => handleEditChange('money_traded', e.target.value)}
-                                                placeholder="e.g., 50rs"
+                                                type="number"
+                                                value={editingTrade.tradeDetails?.teamOneGivesMoney || 0}
+                                                onChange={(e) => handleTradeDetailsChange('teamOneGivesMoney', parseInt(e.target.value) || 0)}
+                                                placeholder="0"
                                             />
                                         </FormControl>
                                     </Flex>
-                                    <FormControl mt={3}>
-                                        <FormLabel>Item/Player Received (if applicable)</FormLabel>
-                                        <Input
-                                            value={editingBid.item_received || ''}
-                                            onChange={(e) => handleEditChange('item_received', e.target.value)}
-                                            placeholder="e.g., Player Wilson (for player-to-player trades)"
-                                        />
-                                    </FormControl>
+                                </Box>
+
+                                {/* Trade Details for Team Two */}
+                                <Box w="full" p={4} bg="blue.50" borderRadius="lg">
+                                    <Text fontWeight="bold" mb={3} color="blue.700">
+                                        {editingTrade.teamTwo?.name || 'Team Two'} Gives:
+                                    </Text>
+                                    <Flex gap={4}>
+                                        <FormControl flex="2">
+                                            <FormLabel>Items (comma-separated)</FormLabel>
+                                            <Textarea
+                                                value={editingTrade.tradeDetails?.teamTwoGivesItems?.join(', ') || ''}
+                                                onChange={(e) => handleArrayChange('teamTwoGivesItems', e.target.value)}
+                                                placeholder="e.g., Property X, Goods Y, Resource Z"
+                                                rows={2}
+                                            />
+                                        </FormControl>
+                                        <FormControl flex="1">
+                                            <FormLabel>Money Amount (₹)</FormLabel>
+                                            <Input
+                                                type="number"
+                                                value={editingTrade.tradeDetails?.teamTwoGivesMoney || 0}
+                                                onChange={(e) => handleTradeDetailsChange('teamTwoGivesMoney', parseInt(e.target.value) || 0)}
+                                                placeholder="0"
+                                            />
+                                        </FormControl>
+                                    </Flex>
                                 </Box>
 
                                 {/* Preview */}
-                                <Box w="full" p={3} bg="blue.50" borderRadius="md">
-                                    <Text fontWeight="bold" color="blue.800" mb={2}>Trade Preview</Text>
-                                    <Text fontSize="sm" color="blue.600">
-                                        <strong>{editingBid.team_one || 'Team One'}</strong> → 
-                                        {editingBid.item_traded && ` ${editingBid.item_traded}`}
-                                        {editingBid.money_traded && editingBid.money_traded !== "0rs" && ` + ${editingBid.money_traded}`} → 
-                                        <strong> {editingBid.team_two || 'Team Two'}</strong>
-                                        {editingBid.item_received && ` (receives ${editingBid.item_received})`}
-                                    </Text>
+                                <Box w="full" p={3} bg="yellow.50" borderRadius="md" border="1px solid" borderColor="yellow.200">
+                                    <Text fontWeight="bold" color="yellow.800" mb={2}>Trade Preview</Text>
+                                    <VStack spacing={1} align="start">
+                                        <Text fontSize="sm" color="yellow.700">
+                                            <strong>{editingTrade.teamOne?.name || 'Team One'}</strong> gives: {formatTradeItems(editingTrade.tradeDetails?.teamOneGivesItems)} + ₹{editingTrade.tradeDetails?.teamOneGivesMoney || 0}
+                                        </Text>
+                                        <Text fontSize="sm" color="yellow.700">
+                                            <strong>{editingTrade.teamTwo?.name || 'Team Two'}</strong> gives: {formatTradeItems(editingTrade.tradeDetails?.teamTwoGivesItems)} + ₹{editingTrade.tradeDetails?.teamTwoGivesMoney || 0}
+                                        </Text>
+                                    </VStack>
                                 </Box>
                             </VStack>
                         )}
                     </ModalBody>
                     <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={saveEdit}>
+                        <Button 
+                            colorScheme="blue" 
+                            mr={3} 
+                            onClick={saveEdit}
+                            isLoading={updating}
+                            loadingText="Saving..."
+                        >
                             Save Changes
                         </Button>
                         <Button variant="ghost" onClick={onEditClose}>
@@ -300,15 +514,15 @@ function RoundThreeBidHistory() {
                 <AlertDialogOverlay>
                     <AlertDialogContent>
                         <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                            Delete Bid
+                            Delete Trade
                         </AlertDialogHeader>
                         <AlertDialogBody>
-                            Are you sure you want to delete this bid? This action cannot be undone.
-                            {selectedBid && (
+                            Are you sure you want to delete this trade? This action cannot be undone.
+                            {selectedTrade && (
                                 <Box mt={2} p={2} bg="gray.100" borderRadius="md">
-                                    <Text><strong>Trade:</strong> {selectedBid.team_one} ↔ {selectedBid.team_two}</Text>
-                                    <Text><strong>Item:</strong> {selectedBid.item_traded}</Text>
-                                    <Text><strong>Money:</strong> {selectedBid.money_traded}</Text>
+                                    <Text><strong>Trade:</strong> {selectedTrade.teamOne?.name} ↔ {selectedTrade.teamTwo?.name}</Text>
+                                    <Text><strong>Items:</strong> {formatTradeItems(selectedTrade.tradeDetails?.teamOneGivesItems)} ↔ {formatTradeItems(selectedTrade.tradeDetails?.teamTwoGivesItems)}</Text>
+                                    <Text><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamOneGivesMoney || 0} ↔ ₹{selectedTrade.tradeDetails?.teamTwoGivesMoney || 0}</Text>
                                 </Box>
                             )}
                         </AlertDialogBody>
@@ -316,7 +530,13 @@ function RoundThreeBidHistory() {
                             <Button ref={cancelRef} onClick={onDeleteClose}>
                                 Cancel
                             </Button>
-                            <Button colorScheme="red" onClick={confirmDelete} ml={3}>
+                            <Button 
+                                colorScheme="red" 
+                                onClick={confirmDelete} 
+                                ml={3}
+                                isLoading={deleting}
+                                loadingText="Deleting..."
+                            >
                                 Delete
                             </Button>
                         </AlertDialogFooter>

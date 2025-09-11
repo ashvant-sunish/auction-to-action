@@ -1,60 +1,22 @@
 const Team = require('../models/Team');
-const Item = require('../models/Item');
-const Transaction = require('../models/Transaction');
-const jwt = require('jsonwebtoken');
-
-/**
- * Handles Team Login.
- * Expects { teamNumber, teamCredential } in the request body.
- */
-exports.loginTeam = async (req, res) => {
-  try {
-    const { teamNumber, teamCredential } = req.body;
-    const team = await Team.findOne({ teamNumber, teamCredential });
-
-    if (!team) {
-      return res.status(401).json({ message: 'Invalid Team Number or Credential.' });
-    }
-    
-    // Set the team as active upon login
-    team.isActive = true;
-    await team.save();
-
-    // Create a JWT token for the session
-    const token = jwt.sign(
-      { teamId: team._id, teamNumber: team.teamNumber, role: 'participant' },
-      process.env.JWT_SECRET, // Make sure JWT_SECRET is in your .env file
-      { expiresIn: '8h' }
-    );
-
-    res.status(200).json({ message: 'Login successful!', token });
-  } catch (error) {
-    console.error("Error during team login:", error);
-    res.status(500).json({ message: 'Server error during login.' });
-  }
-};
+const GameItem = require('../models/GameItem');
+const BidHistory = require('../models/BidHistory');
+const TradeHistory = require('../models/TradeHistory');
 
 /**
  * Gets all dashboard data for the logged-in team.
- * Used for the main dashboard view with financial stats.
+ * Used for the main dashboard view with financial stats and resources.
  */
 exports.getDashboardData = async (req, res) => {
   try {
-    const teamId = req.user.teamId;
-    const team = await Team.findById(teamId).populate('inventory');
+    // req.user is populated by the authMiddleware with the decoded JWT payload
+    const team = await Team.findById(req.user.teamId).select('-password');
 
     if (!team) {
       return res.status(404).json({ message: 'Team not found' });
     }
 
-    res.status(200).json({
-      teamNumber: team.teamNumber,
-      credit: team.credit,
-      debit: team.debit,
-      balance: team.balance,
-      inventory: team.inventory,
-      isActive: team.isActive
-    });
+    res.status(200).json(team);
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
     res.status(500).json({ message: 'Server error while fetching dashboard data.' });
@@ -62,17 +24,21 @@ exports.getDashboardData = async (req, res) => {
 };
 
 /**
- * Gets the personal transaction history for the logged-in team.
- * Used for the "My Bids" page.
+ * Gets the personal transaction history (bids and trades) for the logged-in team.
  */
 exports.getTransactionHistory = async (req, res) => {
     try {
-        const teamId = req.user.teamId;
-        const transactions = await Transaction.find({ teamId: teamId })
-          .populate("itemId", "name description") // Populates the item's details
-          .sort({ timestamp: -1 }); // Show newest first
+        const teamCode = req.user.teamCode;
 
-        res.status(200).json(transactions);
+        // Find all bids made by this team
+        const bids = await BidHistory.find({ teamCode: teamCode }).sort({ createdAt: -1 });
+
+        // Find all trades this team was a part of
+        const trades = await TradeHistory.find({
+          $or: [{ 'teamOne.code': teamCode }, { 'teamTwo.code': teamCode }]
+        }).sort({ createdAt: -1 });
+
+        res.status(200).json({ bids, trades });
     } catch (error) {
         console.error("Error fetching team transaction history:", error);
         res.status(500).json({ message: 'Server error while fetching transaction history.' });
@@ -80,12 +46,11 @@ exports.getTransactionHistory = async (req, res) => {
 };
 
 /**
- * Gets a list of all available items for auction.
- * Used for the "Available Materials" table on the dashboard.
+ * Gets a list of all available items for auction that have not been won yet.
  */
 exports.getAvailableItems = async (req, res) => {
     try {
-        const items = await Item.find({});
+        const items = await GameItem.find({ isBidOn: false }).sort({ round: 1, itemCode: 1 });
         res.status(200).json(items);
     } catch (error) {
         console.error("Error fetching available items:", error);
@@ -93,21 +58,3 @@ exports.getAvailableItems = async (req, res) => {
     }
 };
 
-/**
- * Gets all winning bids from all teams for the public history page.
- * Hides the winning amount for privacy.
- */
-exports.getAllTeamBids = async (req, res) => {
-    try {
-        const bids = await Transaction.find({ type: 'Bid' })
-            .populate('teamId', 'teamNumber')
-            .populate('itemId', 'name description')
-            .select('-amount') // Hides the winning bid amount from other teams
-            .sort({ timestamp: -1 });
-            
-        res.status(200).json(bids);
-    } catch (error) {
-        console.error("Error fetching all team bids:", error);
-        res.status(500).json({ message: 'Server error while fetching all bids.' });
-    }
-};

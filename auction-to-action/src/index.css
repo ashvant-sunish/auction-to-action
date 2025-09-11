@@ -13,4 +13,20 @@ body {
   padding: 0;
 }
 
+/* Pulse animation for live indicators */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
 /* Add your global styles here */

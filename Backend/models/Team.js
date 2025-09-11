@@ -1,33 +1,54 @@
 const mongoose = require('mongoose');
 
 const teamSchema = new mongoose.Schema({
-  teamNumber: { type: Number, unique: true, required: true },
-  teamCredential: { type: String, unique: true, required: true },
-  isActive: { type: Boolean, default: false },
-
-  // --- MODIFIED: Replaced 'budget' with credit/debit system ---
-  credit: { type: Number, default: 20000 },
-  debit: { type: Number, default: 0 },
-
+  // Custom, human-readable code like "TEAM01"
+  teamCode: { 
+    type: String, 
+    unique: true, 
+    required: true, 
+    trim: true 
+  },
+  teamName: { 
+    type: String, 
+    required: true 
+  },
+  // The password will always be stored as a secure hash
+  password: { 
+    type: String, 
+    required: true 
+  },
+  
+  // Financials
+  credit: { 
+    type: Number, 
+    default: 20000 
+  },
+  debit: { 
+    type: Number, 
+    default: 0 
+  },
+  
+  // This stores the unique codes of the BIDs the team has won (e.g., "r1i001")
   inventory: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Item' 
-  }],
+    type: String 
+  }], 
+  
+  // This tracks the actual raw resources gained from their inventory items
   resources: {
     type: Map,
     of: Number,
     default: {}
   }
 }, {
-  // Options to enable virtuals in JSON output
+  // Options to enable virtuals (like 'balance') in the JSON output
   toJSON: { virtuals: true },
-  toObject: { virtuals: true }
+  toObject: { virtuals: true },
+  timestamps: true
 });
 
-// --- NEW: A virtual 'balance' property for easy calculations ---
-// This is not stored in the database but calculated on the fly.
+// A "virtual" property that is calculated on the fly and not stored in the database.
 teamSchema.virtual('balance').get(function() {
   return this.credit - this.debit;
 });
 
-module.exports = mongoose.model('Team', teamSchema, 'teamData');
+module.exports = mongoose.model('Team', teamSchema);

@@ -73,8 +73,8 @@ function LoginComponentUser() {
       const response = await axios.post(
         `${serverUrl}/api/team/login`,
         {
-          teamNumber: formData.teamNumber,
-          teamCredential: formData.teamCredential,
+          teamCode: formData.teamNumber,
+          password: formData.teamCredential,
         }
       );
 

@@ -19,7 +19,7 @@ function TeamTableAdmin() {
     const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [editingTeam, setEditingTeam] = useState(null);
-    const [newTeam, setNewTeam] = useState({ team_number: '', team_credential: '', credits: '', is_active: true });
+    const [newTeam, setNewTeam] = useState({ teamCode: '', teamName: '', password: '', credit: 20000 });
     const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
     const [isLoading, setIsLoading] = useState(true);
     const [teams, setTeams] = useState([]); // This will hold current display data
@@ -37,6 +37,13 @@ function TeamTableAdmin() {
             const token = localStorage.getItem('adminToken');
             
             if (!token) {
+                toast({
+                    title: "Authentication Required",
+                    description: "Please log in as admin to access teams",
+                    status: "warning",
+                    duration: 3000,
+                    isClosable: true,
+                });
                 setIsLoading(false);
                 return;
             }
@@ -45,19 +52,27 @@ function TeamTableAdmin() {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            // Handle different possible response structures
-            let teamsArray = [];
-            if (Array.isArray(response.data)) {
-                // Response is directly an array of teams
-                teamsArray = response.data;
-            } else if (response.data && response.data.teams && Array.isArray(response.data.teams)) {
-                // Response has teams property
-                teamsArray = response.data.teams;
-            }
-
+            // Backend returns array of teams directly
+            const teamsArray = Array.isArray(response.data) ? response.data : [];
+            console.log('📊 Fetched teams:', teamsArray);
             setTeams(teamsArray);
+            
+            toast({
+                title: "Teams Loaded",
+                description: `Successfully loaded ${teamsArray.length} teams`,
+                status: "success",
+                duration: 2000,
+                isClosable: true,
+            });
         } catch (error) {
             console.error('Error fetching teams:', error);
+            toast({
+                title: "Error Loading Teams",
+                description: error.response?.data?.message || "Failed to load teams",
+                status: "error",
+                duration: 4000,
+                isClosable: true,
+            });
             setTeams([]);
         } finally {
             setIsLoading(false);
@@ -72,14 +87,16 @@ function TeamTableAdmin() {
         console.log('🔍 Found team:', team);
         
         if (team) {
-            // Convert to display format for modal
+            // Use actual backend field names
             const displayTeam = {
-                id: team._id || team.id,
-                team_number: team.teamNumber,
-                team_credential: team.teamCredential,
-                credits: team.credit,
-                is_active: team.isActive,
+                _id: team._id,
+                teamCode: team.teamCode,
+                teamName: team.teamName,
+                credit: team.credit,
                 debit: team.debit || 0,
+                balance: team.balance || (team.credit - (team.debit || 0)),
+                inventory: team.inventory || [],
+                resources: team.resources || {},
                 original: team
             };
             console.log('🔍 Display team for modal:', displayTeam);
@@ -87,6 +104,13 @@ function TeamTableAdmin() {
             onOpen();
         } else {
             console.log('❌ Team not found for ID:', teamId);
+            toast({
+                title: "Team Not Found",
+                description: "Could not find the selected team",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
         }
     };
 
@@ -108,9 +132,24 @@ function TeamTableAdmin() {
                 await axios.delete(`${serverUrl}/api/admin/teams/${selectedTeam._id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                
+                toast({
+                    title: "Team Deleted",
+                    description: `Team ${selectedTeam.teamCode} deleted successfully`,
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
             }
         } catch (error) {
             console.error('Error deleting team:', error);
+            toast({
+                title: "Delete Failed",
+                description: error.response?.data?.message || "Failed to delete team",
+                status: "error",
+                duration: 4000,
+                isClosable: true,
+            });
         }
         
         // Refresh data from backend
@@ -124,18 +163,37 @@ function TeamTableAdmin() {
             const token = localStorage.getItem('adminToken');
             if (token && editingTeam._id) {
                 const updateData = {
-                    team_number: editingTeam.team_number,
-                    team_credential: editingTeam.team_credential,
-                    credits: editingTeam.credits,
-                    is_active: editingTeam.is_active
+                    teamName: editingTeam.teamName,
+                    credit: Number(editingTeam.credit),
+                    debit: Number(editingTeam.debit || 0)
                 };
+                
+                // Only include password if it was changed
+                if (editingTeam.newPassword && editingTeam.newPassword.trim()) {
+                    updateData.password = editingTeam.newPassword;
+                }
                 
                 await axios.put(`${serverUrl}/api/admin/teams/${editingTeam._id}`, updateData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                
+                toast({
+                    title: "Team Updated",
+                    description: `Team ${editingTeam.teamCode} updated successfully`,
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
             }
         } catch (error) {
             console.error('Error updating team:', error);
+            toast({
+                title: "Update Failed",
+                description: error.response?.data?.message || "Failed to update team",
+                status: "error",
+                duration: 4000,
+                isClosable: true,
+            });
         }
         
         // Refresh data from backend
@@ -160,26 +218,53 @@ function TeamTableAdmin() {
 
     const handleAddTeam = async () => {
         try {
+            // Validate required fields
+            if (!newTeam.teamCode || !newTeam.teamName || !newTeam.password) {
+                toast({
+                    title: "Missing Required Fields",
+                    description: "Team Code, Team Name, and Password are required",
+                    status: "warning",
+                    duration: 4000,
+                    isClosable: true,
+                });
+                return;
+            }
+
             const token = localStorage.getItem('adminToken');
             if (token) {
                 const addData = {
-                    team_number: newTeam.team_number,
-                    team_credential: newTeam.team_credential,
-                    credits: newTeam.credits,
-                    is_active: newTeam.is_active || true
+                    teamCode: newTeam.teamCode,
+                    teamName: newTeam.teamName,
+                    password: newTeam.password,
+                    initialBalance: Number(newTeam.credit) || 20000
                 };
                 
                 await axios.post(`${serverUrl}/api/admin/teams`, addData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                
+                toast({
+                    title: "Team Added",
+                    description: `Team ${newTeam.teamCode} created successfully`,
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
             }
         } catch (error) {
             console.error('Error adding team:', error);
+            toast({
+                title: "Add Team Failed",
+                description: error.response?.data?.message || "Failed to create team",
+                status: "error",
+                duration: 4000,
+                isClosable: true,
+            });
         }
         
         // Refresh data from backend
         await fetchTeamsData();
-        setNewTeam({ team_number: '', team_credential: '', credits: '', is_active: true });
+        setNewTeam({ teamCode: '', teamName: '', password: '', credit: 20000 });
         onAddClose();
     };
 
@@ -190,21 +275,24 @@ function TeamTableAdmin() {
 
     // Create display data with proper sorting
     const displayTeams = teams.map((team, index) => {
-        const displayTeam = {
-            id: team._id || team.id || (index + 1),
-            team_number: team.teamNumber || (index + 1),
-            team_credential: team.teamCredential || `REG${String(index + 1).padStart(3, '0')}`,
-            credits: team.credit || '0',
-            is_active: team.isActive || false,
+        return {
+            _id: team._id,
+            teamCode: team.teamCode,
+            teamName: team.teamName,
+            credit: team.credit,
+            debit: team.debit || 0,
+            balance: team.balance || (team.credit - (team.debit || 0)),
+            inventory: team.inventory || [],
+            resources: team.resources || {},
             original: team // Keep reference to original for operations
         };
-        return displayTeam;
     });
 
     const sortedData = [...displayTeams].sort((a, b) => {
-        const aNum = a.team_number;
-        const bNum = b.team_number;
-        return sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
+        // Sort by team code
+        const aCode = a.teamCode || '';
+        const bCode = b.teamCode || '';
+        return sortOrder === 'asc' ? aCode.localeCompare(bCode) : bCode.localeCompare(aCode);
     });
 
     return (
@@ -247,20 +335,21 @@ function TeamTableAdmin() {
                                 onClick={toggleSortOrder}
                             >
                                 <HStack spacing={1}>
-                                    <Text>Team No</Text>
+                                    <Text>Team Code</Text>
                                     {sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />}
                                 </HStack>
                             </Th>
-                            <Th>Team Credential</Th>
+                            <Th>Team Name</Th>
                             <Th>Credits</Th>
-                            <Th>Status</Th>
+                            <Th>Debit</Th>
+                            <Th>Balance</Th>
                             <Th>Action</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
                         {sortedData.length === 0 ? (
                             <Tr>
-                                <Td colSpan="5" textAlign="center" py={8}>
+                                <Td colSpan="6" textAlign="center" py={8}>
                                     <Text color="gray.500" fontSize="lg">
                                         No teams found. Click "Add New Team" to create one.
                                     </Text>
@@ -268,17 +357,16 @@ function TeamTableAdmin() {
                             </Tr>
                         ) : (
                             sortedData.map((team) => (
-                                <Tr key={team.id}>
-                                    <Td>{team.team_number}</Td>
-                                    <Td>{team.team_credential}</Td>
-                                    <Td>{team.credits}</Td>
-                                    <Td>
-                                        <Badge colorScheme={team.is_active ? 'green' : 'red'}>
-                                            {team.is_active ? 'Active' : 'Inactive'}
-                                        </Badge>
+                                <Tr key={team._id}>
+                                    <Td fontWeight="semibold">{team.teamCode}</Td>
+                                    <Td>{team.teamName}</Td>
+                                    <Td color="green.600" fontWeight="semibold">{team.credit.toLocaleString()}</Td>
+                                    <Td color="red.600" fontWeight="semibold">{team.debit.toLocaleString()}</Td>
+                                    <Td color={team.balance >= 0 ? "green.600" : "red.600"} fontWeight="bold">
+                                        {team.balance.toLocaleString()}
                                     </Td>
                                     <Td>
-                                        <Button colorScheme='teal' size='sm' onClick={() => handleView(team.id)}>View</Button>
+                                        <Button colorScheme='teal' size='sm' onClick={() => handleView(team._id)}>View</Button>
                                     </Td>
                                 </Tr>
                             ))
@@ -288,8 +376,9 @@ function TeamTableAdmin() {
                         <Tr>
                             <Th>Team Code</Th>
                             <Th>Team Name</Th>
-                            <Th>Credits Given</Th>
-                            <Th>Password</Th>
+                            <Th>Credits</Th>
+                            <Th>Debit</Th>
+                            <Th>Balance</Th>
                             <Th>Action</Th>
                         </Tr>
                     </Tfoot>
@@ -307,29 +396,55 @@ function TeamTableAdmin() {
                         {selectedTeam && (
                             <VStack align="start" spacing={4}>
                                 <HStack>
-                                    <Text fontWeight="bold">Team Number:</Text>
-                                    <Badge colorScheme="blue">{selectedTeam.team_number}</Badge>
+                                    <Text fontWeight="bold">Team Code:</Text>
+                                    <Badge colorScheme="blue">{selectedTeam.teamCode}</Badge>
                                 </HStack>
                                 <HStack>
-                                    <Text fontWeight="bold">Team Credential:</Text>
-                                    <Text>{selectedTeam.team_credential}</Text>
+                                    <Text fontWeight="bold">Team Name:</Text>
+                                    <Text>{selectedTeam.teamName}</Text>
                                 </HStack>
                                 <HStack>
                                     <Text fontWeight="bold">Credits:</Text>
-                                    <Text color="green.500" fontWeight="semibold">{selectedTeam.credits}</Text>
+                                    <Text color="green.500" fontWeight="semibold">{selectedTeam.credit.toLocaleString()}</Text>
                                 </HStack>
                                 <HStack>
                                     <Text fontWeight="bold">Debit:</Text>
-                                    <Text color="red.500" fontWeight="semibold">{selectedTeam.debit}</Text>
+                                    <Text color="red.500" fontWeight="semibold">{selectedTeam.debit.toLocaleString()}</Text>
                                 </HStack>
                                 <HStack>
-                                    <Text fontWeight="bold">Status:</Text>
-                                    <Badge colorScheme={selectedTeam.is_active ? 'green' : 'red'}>
-                                        {selectedTeam.is_active ? 'Active' : 'Inactive'}
-                                    </Badge>
+                                    <Text fontWeight="bold">Balance:</Text>
+                                    <Text color={selectedTeam.balance >= 0 ? "green.500" : "red.500"} fontWeight="bold">
+                                        {selectedTeam.balance.toLocaleString()}
+                                    </Text>
                                 </HStack>
-                                
-                                {/* Available Operations Section */}
+                                <Box>
+                                    <Text fontWeight="bold" mb={2}>Inventory Items:</Text>
+                                    {selectedTeam.inventory?.length > 0 ? (
+                                        <VStack align="start" spacing={1}>
+                                            {selectedTeam.inventory.map((item, index) => (
+                                                <Badge key={index} colorScheme="purple" variant="outline">
+                                                    {item}
+                                                </Badge>
+                                            ))}
+                                        </VStack>
+                                    ) : (
+                                        <Text color="gray.500" fontSize="sm">No items in inventory</Text>
+                                    )}
+                                </Box>
+                                <Box>
+                                    <Text fontWeight="bold" mb={2}>Resources:</Text>
+                                    {Object.keys(selectedTeam.resources).length > 0 ? (
+                                        <VStack align="start" spacing={1}>
+                                            {Object.entries(selectedTeam.resources).map(([resource, quantity]) => (
+                                                <Text key={resource} fontSize="sm">
+                                                    <Text as="span" fontWeight="medium">{resource}:</Text> {quantity}
+                                                </Text>
+                                            ))}
+                                        </VStack>
+                                    ) : (
+                                        <Text color="gray.500" fontSize="sm">No resources collected</Text>
+                                    )}
+                                </Box>
                             </VStack>
                         )}
                     </ModalBody>
@@ -367,34 +482,48 @@ function TeamTableAdmin() {
                         {editingTeam && (
                             <VStack spacing={4}>
                                 <FormControl>
-                                    <FormLabel>Team Number</FormLabel>
+                                    <FormLabel>Team Code</FormLabel>
                                     <Input
-                                        type="number"
-                                        value={editingTeam.team_number}
-                                        onChange={(e) => handleEditChange('team_number', e.target.value)}
+                                        value={editingTeam.teamCode}
+                                        isReadOnly
+                                        bg="gray.100"
+                                        _placeholder={{ color: "gray.500" }}
+                                        placeholder="Team Code cannot be changed"
                                     />
                                 </FormControl>
                                 <FormControl>
-                                    <FormLabel>Team Credential</FormLabel>
+                                    <FormLabel>Team Name</FormLabel>
                                     <Input
-                                        value={editingTeam.team_credential}
-                                        onChange={(e) => handleEditChange('team_credential', e.target.value)}
+                                        value={editingTeam.teamName}
+                                        onChange={(e) => handleEditChange('teamName', e.target.value)}
+                                        placeholder="Enter team name"
                                     />
                                 </FormControl>
                                 <FormControl>
                                     <FormLabel>Credits</FormLabel>
                                     <Input
                                         type="number"
-                                        value={editingTeam.credits}
-                                        onChange={(e) => handleEditChange('credits', e.target.value)}
+                                        value={editingTeam.credit}
+                                        onChange={(e) => handleEditChange('credit', e.target.value)}
+                                        placeholder="Enter credit amount"
                                     />
                                 </FormControl>
                                 <FormControl>
-                                    <FormLabel>Status</FormLabel>
+                                    <FormLabel>Debit</FormLabel>
                                     <Input
-                                        value={editingTeam.is_active ? 'Active' : 'Inactive'}
-                                        onChange={(e) => handleEditChange('is_active', e.target.value === 'Active')}
-                                        placeholder="Active or Inactive"
+                                        type="number"
+                                        value={editingTeam.debit}
+                                        onChange={(e) => handleEditChange('debit', e.target.value)}
+                                        placeholder="Enter debit amount"
+                                    />
+                                </FormControl>
+                                <FormControl>
+                                    <FormLabel>New Password (leave blank to keep current)</FormLabel>
+                                    <Input
+                                        type="password"
+                                        value={editingTeam.newPassword || ''}
+                                        onChange={(e) => handleEditChange('newPassword', e.target.value)}
+                                        placeholder="Enter new password (optional)"
                                     />
                                 </FormControl>
                             </VStack>
@@ -426,9 +555,10 @@ function TeamTableAdmin() {
                             Are you sure you want to delete this team? This action cannot be undone.
                             {selectedTeam && (
                                 <Box mt={2} p={2} bg="gray.100" borderRadius="md">
-                                    <Text><strong>Team Name:</strong> {selectedTeam.team_name}</Text>
-                                    <Text><strong>Credits Given:</strong> {selectedTeam.credits}</Text>
-                                    <Text><strong>Team Credential:</strong> {selectedTeam.team_credential}</Text>
+                                    <Text><strong>Team Code:</strong> {selectedTeam.teamCode}</Text>
+                                    <Text><strong>Team Name:</strong> {selectedTeam.teamName}</Text>
+                                    <Text><strong>Credits:</strong> {selectedTeam.credit.toLocaleString()}</Text>
+                                    <Text><strong>Balance:</strong> {selectedTeam.balance.toLocaleString()}</Text>
                                 </Box>
                             )}
                         </AlertDialogBody>
@@ -453,27 +583,37 @@ function TeamTableAdmin() {
                     <ModalBody>
                         <VStack spacing={4} align="stretch">
                             <Box>
-                                <Text mb={1} fontWeight="medium">Team Number</Text>
+                                <Text mb={1} fontWeight="medium">Team Code *</Text>
                                 <Input
-                                    placeholder="Enter team number"
-                                    value={newTeam.team_number}
-                                    onChange={(e) => handleNewTeamChange('team_number', e.target.value)}
+                                    placeholder="Enter team code (e.g., TEAM01)"
+                                    value={newTeam.teamCode}
+                                    onChange={(e) => handleNewTeamChange('teamCode', e.target.value)}
                                 />
                             </Box>
                             <Box>
-                                <Text mb={1} fontWeight="medium">Credits</Text>
+                                <Text mb={1} fontWeight="medium">Team Name *</Text>
                                 <Input
-                                    placeholder="Enter credits"
-                                    value={newTeam.credits}
-                                    onChange={(e) => handleNewTeamChange('credits', e.target.value)}
+                                    placeholder="Enter team name"
+                                    value={newTeam.teamName}
+                                    onChange={(e) => handleNewTeamChange('teamName', e.target.value)}
                                 />
                             </Box>
                             <Box>
-                                <Text mb={1} fontWeight="medium">Team Credential</Text>
+                                <Text mb={1} fontWeight="medium">Password *</Text>
                                 <Input
-                                    placeholder="Enter team credential"
-                                    value={newTeam.team_credential}
-                                    onChange={(e) => handleNewTeamChange('team_credential', e.target.value)}
+                                    type="password"
+                                    placeholder="Enter team password"
+                                    value={newTeam.password}
+                                    onChange={(e) => handleNewTeamChange('password', e.target.value)}
+                                />
+                            </Box>
+                            <Box>
+                                <Text mb={1} fontWeight="medium">Initial Credits</Text>
+                                <Input
+                                    type="number"
+                                    placeholder="Enter initial credits (default: 20000)"
+                                    value={newTeam.credit}
+                                    onChange={(e) => handleNewTeamChange('credit', e.target.value)}
                                 />
                             </Box>
                         </VStack>

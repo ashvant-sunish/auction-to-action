@@ -11,11 +11,14 @@ import { socketServerUrl } from '../servercon';
  */
 export const updateRoundRealtime = async (roundNumber, roundStatus = 'ongoing') => {
   try {
+    const token = localStorage.getItem('adminToken');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
     const response = await axios.post(`${socketServerUrl}/admin/updateRound`, {
       roundNumber,
       roundStatus,
       timestamp: new Date().toISOString()
-    });
+    }, { headers });
 
     console.log('✅ Round updated with real-time broadcast:', response.data);
     return response.data;
@@ -42,6 +45,9 @@ export const updateTeamRealtime = async (teamNumber, {
   broadcastScope = 'all'
 }) => {
   try {
+    const token = localStorage.getItem('adminToken');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
     const response = await axios.post(`${socketServerUrl}/admin/updateTeam`, {
       teamNumber,
       creditChange,
@@ -49,7 +55,7 @@ export const updateTeamRealtime = async (teamNumber, {
       addItem,
       removeItem,
       broadcastScope
-    });
+    }, { headers });
 
     console.log('✅ Team updated with real-time broadcast:', response.data);
     return response.data;
@@ -73,13 +79,16 @@ export const executeTradeRealtime = async (teamA, teamB, {
   broadcastScope = 'all'
 }) => {
   try {
+    const token = localStorage.getItem('adminToken');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
     const response = await axios.post(`${socketServerUrl}/admin/trade`, {
       teamA,
       teamB,
       itemFromA,
       creditFromB,
       broadcastScope
-    });
+    }, { headers });
 
     console.log('✅ Trade executed with real-time broadcast:', response.data);
     return response.data;

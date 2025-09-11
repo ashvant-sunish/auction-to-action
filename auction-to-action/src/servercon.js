@@ -1,5 +1,5 @@
-const serverUrl = "http://localhost:5001";
+const serverUrl = "http://localhost:5000";
 
 export default serverUrl;
 
-export const socketServerUrl = 'http://localhost:5001';
+export const socketServerUrl = 'http://localhost:5000';

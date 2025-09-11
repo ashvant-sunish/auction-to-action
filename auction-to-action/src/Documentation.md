@@ -252,3 +252,11 @@
 - Created a collapsable sidebar for user
 - Created rounds control between admin and user
 - Moved ongoing rounds to top navbar of user
+
+
+# 11/09/2025 [ Update 0.0.17 ]
+
+  - New Backend codes 
+  - Improvement in Admin UI 
+  - Integration between admin and server 
+  - Integration between User and server
