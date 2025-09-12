@@ -36,7 +36,13 @@ export default function Spin3DCards({
   const [currentSelectedBid, setCurrentSelectedBid] = useState(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [wheelStopped, setWheelStopped] = useState(false);
-  
+  const [showForm, setShowForm] = useState(false);
+  const [teamData, setTeamData] = useState({
+  teamCode: "",
+  teamName: "",
+  bidAmount: "",
+  spinBid: ""
+});
   // Calculate dynamic card width based on remaining items
   const getDynamicCardWidth = () => {
     const remainingCards = availableItems.length;
@@ -69,6 +75,7 @@ export default function Spin3DCards({
 
     setIsSelecting(true);
     setSpinning(false);
+    setShowForm(false); // Make sure form is hidden when a new selection starts
 
     // Pick random bid
     const selection = pickRandomBid(availableItems);
@@ -90,16 +97,39 @@ export default function Spin3DCards({
     // Don't auto-remove - wait for user to manually close
     // The user can now see the card and decide to either close or keep it
   };
-
-  // Function to close current selection and resume spinning
-  const closeSelection = () => {
+  
+  const handleConfirmSelection = () => {
     if (!currentSelectedBid) return;
 
-    // Remove from available items and add to selected items
+    // Set the team data with the spin bid won
+    setTeamData({
+      teamCode: "",
+      teamName: "",
+      bidAmount: "",
+      spinBid: `#${currentSelectedBid.bidNo} - ${currentSelectedBid.title}`
+    });
+
+    // Show the form
+    setShowForm(true);
+  };
+
+  const handleSaveAndResume = () => {
+    // Ensure a bid is selected and form is visible
+    if (!currentSelectedBid || !showForm) return;
+
+    // Remove from available items
     const selectedIndex = availableItems.findIndex(item => item.id === currentSelectedBid.id);
     const newAvailableItems = removeBidFromArray(availableItems, selectedIndex);
     setAvailableItems(newAvailableItems);
-    setSelectedItems(prev => [...prev, currentSelectedBid]);
+    
+    // Add to selected items with the new team data
+    setSelectedItems(prev => [...prev, {
+      ...currentSelectedBid,
+      teamCode: teamData.teamCode,
+      teamName: teamData.teamName,
+      bidAmount: teamData.bidAmount,
+      spinBid: teamData.spinBid
+    }]);
 
     // Call callback if provided
     if (onBidSelected) {
@@ -107,9 +137,11 @@ export default function Spin3DCards({
     }
 
     // Reset states
+    setTeamData({ teamCode: "", teamName: "", bidAmount: "", spinBid: "" });
     setCurrentSelectedBid(null);
     setIsSelecting(false);
     setWheelStopped(false);
+    setShowForm(false);
     
     // Resume spinning if there are items left
     if (newAvailableItems.length > 0) {
@@ -396,9 +428,9 @@ export default function Spin3DCards({
         <button 
           className="btn" 
           onClick={selectRandomBid}
-          disabled={isSelecting || availableItems.length === 0}
+          disabled={isSelecting || availableItems.length === 0 || showForm} // Disable button if form is showing
           style={{ 
-            background: isSelecting ? '#666' : '#e53e3e',
+            background: isSelecting || showForm ? '#666' : '#e53e3e',
             fontSize: '18px',
             padding: '15px 30px',
             fontWeight: 'bold',
@@ -412,10 +444,10 @@ export default function Spin3DCards({
           {isSelecting ? 'Selecting...' : 'Select Random Bid'}
         </button>
 
-        {/* Show confirm button when a bid is selected */}
-        {currentSelectedBid && (
+        {/* Show confirm button when a bid is selected and form is not showing */}
+        {currentSelectedBid && !showForm && (
           <button 
-            onClick={closeSelection}
+            onClick={handleConfirmSelection}
             style={{
               background: '#28a745',
               color: 'white',
@@ -433,6 +465,108 @@ export default function Spin3DCards({
           </button>
         )}
       </div>
+
+      {/* Team Details Form */}
+      {showForm && (
+        <div style={{ 
+          marginTop: 20, 
+          padding: 20, 
+          background: '#1f2937', 
+          borderRadius: 12, 
+          color: 'white', 
+          maxWidth: 400, 
+          marginInline: 'auto'
+        }}>
+          <h3 style={{ marginBottom: 15 }}>Enter Team Details</h3>
+
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ color: 'white' }}>Team Code</label>
+            <input 
+              type="text" 
+              value={teamData.teamCode}
+              onChange={(e) => setTeamData({ ...teamData, teamCode: e.target.value })}
+              style={{ 
+                width: '100%', 
+                padding: 8, 
+                borderRadius: 6, 
+                border: '1px solid #ccc', 
+                marginTop: 5, 
+                background: '#374151', 
+                color: 'white' 
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ color: 'white' }}>Team Name</label>
+            <input 
+              type="text" 
+              value={teamData.teamName}
+              onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
+              style={{ 
+                width: '100%', 
+                padding: 8, 
+                borderRadius: 6, 
+                border: '1px solid #ccc', 
+                marginTop: 5, 
+                background: '#374151', 
+                color: 'white' 
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ color: 'white' }}>Bid Amount</label>
+            <input 
+              type="number" 
+              value={teamData.bidAmount || ""}
+              onChange={(e) => setTeamData({ ...teamData, bidAmount: e.target.value })}
+              style={{ 
+                width: '100%', 
+                padding: 8, 
+                borderRadius: 6, 
+                border: '1px solid #ccc', 
+                marginTop: 5, 
+                background: '#374151', 
+                color: 'white' 
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ color: 'white' }}>Spin Bid Won</label>
+            <input 
+              type="text" 
+              value={teamData.spinBid}
+              disabled
+              style={{ 
+                width: '100%', 
+                padding: 8, 
+                borderRadius: 6, 
+                border: '1px solid #ccc', 
+                marginTop: 5, 
+                background: '#374151', 
+                color: 'white' 
+              }}
+            />
+          </div>
+
+          <button 
+            onClick={handleSaveAndResume}
+            style={{
+              background: '#10b981',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: 8,
+              color: 'white',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >
+            Save & Resume
+          </button>
+        </div>
+      )}
 
       {/* Selected Items History */}
       {selectedItems.length > 0 && (
@@ -453,6 +587,12 @@ export default function Spin3DCards({
               >
                 <strong style={{ color: 'black' }}>#{item.bidNo}</strong>
                 <div style={{ fontSize: '12px', color: '#666' }}>{item.title}</div>
+                <div style={{ fontSize: '12px', color: '#333' }}>
+                {item.teamName} ({item.teamCode})
+                </div>
+                <div style={{ fontSize: '12px', color: 'green', fontWeight: 'bold' }}>
+                  ₹{item.bidAmount}
+                </div>      
               </div>
             ))}
           </div>

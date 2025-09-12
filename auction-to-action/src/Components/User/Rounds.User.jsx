@@ -1,24 +1,24 @@
 import { Box, Tab, TabList, Tabs, Text } from "@chakra-ui/react";
 import React from "react";
 import Round3User from "./Rounds/Round3.User.jsx";
-import Round2 from "./Rounds/Round2.User.jsx";
+import Round2User from "./Rounds/Round2.User.jsx";
+import Round1User from "./Rounds/Round1.User.jsx";
+
 // Placeholder components for Round 1 and 2
-const Round1User = () => (
+const User1 = () => (
   <Box>
     <Text fontSize="lg" fontWeight="bold" color="teal.200">
       Round 1
     </Text>
-    <Text mt={2}>
-      Round 1 content will be displayed here when the round is active.
-    </Text>
+    <Round1User />
   </Box>
 );
-const Round2User = () => (
+const User2 = () => (
   <Box>
     <Text fontSize="lg" fontWeight="bold" color="teal.200">
       Round 2
     </Text>
-    <Round2 />
+    <Round2User />
   </Box>
 );
 
