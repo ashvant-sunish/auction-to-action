@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const adminRoutes = require('./routes/adminRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const socketRoutes = require('./routes/socketRoutes');
+const tradeRoutes = require('./routes/tradeRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -36,7 +37,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // API Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/team', teamRoutes);
-app.use('/', socketRoutes); // Add socket routes
+app.use('/api/trade', tradeRoutes);
 app.use('/', socketRoutes); // Socket routes for real-time updates
 
 // Welcome Route

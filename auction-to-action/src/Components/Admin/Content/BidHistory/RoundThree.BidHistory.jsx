@@ -36,14 +36,20 @@ function RoundThreeBidHistory() {
                 throw new Error('Admin token not found');
             }
             
-            const response = await axios.get(`${serverUrl}/api/admin/trade-history`, {
+            const response = await axios.get(`${serverUrl}/api/trade/all`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             
             console.log('Trade history data:', response.data);
-            setData(response.data);
+            // Extract trades from response.data.trades if the API returns { success: true, trades: [...] }
+            const tradesData = response.data.trades || response.data;
+            console.log('Processed trades data:', tradesData);
+            if (tradesData.length > 0) {
+                console.log('Sample trade structure:', JSON.stringify(tradesData[0], null, 2));
+            }
+            setData(tradesData);
         } catch (error) {
             console.error('Error fetching trade history:', error);
             setError(error.response?.data?.message || 'Failed to fetch trade history');
@@ -248,12 +254,12 @@ function RoundThreeBidHistory() {
                                 <Td>{index + 1}</Td>
                                 <Td>
                                     <Badge colorScheme="green">
-                                        {trade.teamOne?.name} ({trade.teamOne?.code})
+                                        {trade.teamOne?.teamName} ({trade.teamOne?.teamCode})
                                     </Badge>
                                 </Td>
                                 <Td>
                                     <Badge colorScheme="blue">
-                                        {trade.teamTwo?.name} ({trade.teamTwo?.code})
+                                        {trade.teamTwo?.teamName} ({trade.teamTwo?.teamCode})
                                     </Badge>
                                 </Td>
                                 <Td>
@@ -284,7 +290,7 @@ function RoundThreeBidHistory() {
                             <VStack spacing={6}>
                                 <HStack alignSelf="start" w="full">
                                     <Text fontWeight="bold">Trade ID:</Text>
-                                    <Badge colorScheme="blue">{selectedTrade._id}</Badge>
+                                    <Badge colorScheme="blue">{selectedTrade.tradeId}</Badge>
                                 </HStack>
                                 
                                 <HStack alignSelf="start" w="full">
@@ -298,14 +304,22 @@ function RoundThreeBidHistory() {
                                         {/* Team One */}
                                         <Box textAlign="center" flex="1">
                                             <Badge colorScheme="green" fontSize="md" p={2} borderRadius="md">
-                                                {selectedTrade.teamOne?.name}
+                                                {selectedTrade.teamOne?.teamName}
                                             </Badge>
-                                            <Text mt={1} fontSize="xs" color="gray.500">({selectedTrade.teamOne?.code})</Text>
+                                            <Text mt={1} fontSize="xs" color="gray.500">({selectedTrade.teamOne?.teamCode})</Text>
                                             <Text mt={2} fontSize="sm" color="gray.600">Giving</Text>
                                             <Box mt={2} p={2} bg="green.50" borderRadius="md">
                                                 <Text fontSize="sm"><strong>Items:</strong></Text>
-                                                <Text fontSize="sm">{formatTradeItems(selectedTrade.tradeDetails?.teamOneGivesItems)}</Text>
-                                                <Text fontSize="sm" mt={1}><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamOneGivesMoney || 0}</Text>
+                                                {selectedTrade.tradeDetails?.teamOneGives?.items && selectedTrade.tradeDetails.teamOneGives.items.length > 0 ? (
+                                                    selectedTrade.tradeDetails.teamOneGives.items.map((item, index) => (
+                                                        <Text key={index} fontSize="sm">
+                                                            • {item.name} (Quantity: {item.quantity})
+                                                        </Text>
+                                                    ))
+                                                ) : (
+                                                    <Text fontSize="sm" color="gray.500">No items</Text>
+                                                )}
+                                                <Text fontSize="sm" mt={1}><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamOneGives?.money || 0}</Text>
                                             </Box>
                                         </Box>
 
@@ -322,14 +336,22 @@ function RoundThreeBidHistory() {
                                         {/* Team Two */}
                                         <Box textAlign="center" flex="1">
                                             <Badge colorScheme="blue" fontSize="md" p={2} borderRadius="md">
-                                                {selectedTrade.teamTwo?.name}
+                                                {selectedTrade.teamTwo?.teamName}
                                             </Badge>
-                                            <Text mt={1} fontSize="xs" color="gray.500">({selectedTrade.teamTwo?.code})</Text>
+                                            <Text mt={1} fontSize="xs" color="gray.500">({selectedTrade.teamTwo?.teamCode})</Text>
                                             <Text mt={2} fontSize="sm" color="gray.600">Giving</Text>
                                             <Box mt={2} p={2} bg="blue.50" borderRadius="md">
                                                 <Text fontSize="sm"><strong>Items:</strong></Text>
-                                                <Text fontSize="sm">{formatTradeItems(selectedTrade.tradeDetails?.teamTwoGivesItems)}</Text>
-                                                <Text fontSize="sm" mt={1}><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamTwoGivesMoney || 0}</Text>
+                                                {selectedTrade.tradeDetails?.teamTwoGives?.items && selectedTrade.tradeDetails.teamTwoGives.items.length > 0 ? (
+                                                    selectedTrade.tradeDetails.teamTwoGives.items.map((item, index) => (
+                                                        <Text key={index} fontSize="sm">
+                                                            • {item.name} (Quantity: {item.quantity})
+                                                        </Text>
+                                                    ))
+                                                ) : (
+                                                    <Text fontSize="sm" color="gray.500">No items</Text>
+                                                )}
+                                                <Text fontSize="sm" mt={1}><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamTwoGives?.money || 0}</Text>
                                             </Box>
                                         </Box>
                                     </Flex>
@@ -337,16 +359,53 @@ function RoundThreeBidHistory() {
 
                                 {/* Trade Summary */}
                                 <Box w="full" p={3} bg="blue.50" borderRadius="md">
-                                    <Text fontWeight="bold" color="blue.800" mb={2}>Trade Summary</Text>
-                                    <VStack spacing={2} align="start">
-                                        <Text fontSize="sm">
-                                            <strong>{selectedTrade.teamOne?.name}</strong> receives: {formatTradeItems(selectedTrade.tradeDetails?.teamTwoGivesItems)}
-                                            {selectedTrade.tradeDetails?.teamTwoGivesMoney > 0 && ` + ₹${selectedTrade.tradeDetails.teamTwoGivesMoney}`}
-                                        </Text>
-                                        <Text fontSize="sm">
-                                            <strong>{selectedTrade.teamTwo?.name}</strong> receives: {formatTradeItems(selectedTrade.tradeDetails?.teamOneGivesItems)}
-                                            {selectedTrade.tradeDetails?.teamOneGivesMoney > 0 && ` + ₹${selectedTrade.tradeDetails.teamOneGivesMoney}`}
-                                        </Text>
+                                    <Text fontWeight="bold" color="blue.800" mb={3}>Trade Summary</Text>
+                                    <VStack spacing={4} align="start">
+                                        {/* Team One Receives */}
+                                        <Box w="full">
+                                            <Text fontSize="sm" fontWeight="semibold" color="blue.700">
+                                                {selectedTrade.teamOne?.teamName} receives:
+                                            </Text>
+                                            <Box ml={4} mt={1}>
+                                                {selectedTrade.tradeDetails?.teamTwoGives?.items && selectedTrade.tradeDetails.teamTwoGives.items.length > 0 ? (
+                                                    selectedTrade.tradeDetails.teamTwoGives.items.map((item, index) => (
+                                                        <Text key={index} fontSize="sm" color="green.600">
+                                                            • {item.name} (Quantity: {item.quantity})
+                                                        </Text>
+                                                    ))
+                                                ) : (
+                                                    <Text fontSize="sm" color="gray.500">• No items</Text>
+                                                )}
+                                                {selectedTrade.tradeDetails?.teamTwoGives?.money > 0 && (
+                                                    <Text fontSize="sm" color="green.600">
+                                                        • Money: ₹{selectedTrade.tradeDetails.teamTwoGives.money}
+                                                    </Text>
+                                                )}
+                                            </Box>
+                                        </Box>
+                                        
+                                        {/* Team Two Receives */}
+                                        <Box w="full">
+                                            <Text fontSize="sm" fontWeight="semibold" color="blue.700">
+                                                {selectedTrade.teamTwo?.teamName} receives:
+                                            </Text>
+                                            <Box ml={4} mt={1}>
+                                                {selectedTrade.tradeDetails?.teamOneGives?.items && selectedTrade.tradeDetails.teamOneGives.items.length > 0 ? (
+                                                    selectedTrade.tradeDetails.teamOneGives.items.map((item, index) => (
+                                                        <Text key={index} fontSize="sm" color="green.600">
+                                                            • {item.name} (Quantity: {item.quantity})
+                                                        </Text>
+                                                    ))
+                                                ) : (
+                                                    <Text fontSize="sm" color="gray.500">• No items</Text>
+                                                )}
+                                                {selectedTrade.tradeDetails?.teamOneGives?.money > 0 && (
+                                                    <Text fontSize="sm" color="green.600">
+                                                        • Money: ₹{selectedTrade.tradeDetails.teamOneGives.money}
+                                                    </Text>
+                                                )}
+                                            </Box>
+                                        </Box>
                                     </VStack>
                                 </Box>
                             </VStack>
@@ -520,9 +579,9 @@ function RoundThreeBidHistory() {
                             Are you sure you want to delete this trade? This action cannot be undone.
                             {selectedTrade && (
                                 <Box mt={2} p={2} bg="gray.100" borderRadius="md">
-                                    <Text><strong>Trade:</strong> {selectedTrade.teamOne?.name} ↔ {selectedTrade.teamTwo?.name}</Text>
-                                    <Text><strong>Items:</strong> {formatTradeItems(selectedTrade.tradeDetails?.teamOneGivesItems)} ↔ {formatTradeItems(selectedTrade.tradeDetails?.teamTwoGivesItems)}</Text>
-                                    <Text><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamOneGivesMoney || 0} ↔ ₹{selectedTrade.tradeDetails?.teamTwoGivesMoney || 0}</Text>
+                                    <Text><strong>Trade:</strong> {selectedTrade.teamOne?.teamName} ↔ {selectedTrade.teamTwo?.teamName}</Text>
+                                    <Text><strong>Items:</strong> {formatTradeItems(selectedTrade.tradeDetails?.teamOneGives?.items)} ↔ {formatTradeItems(selectedTrade.tradeDetails?.teamTwoGives?.items)}</Text>
+                                    <Text><strong>Money:</strong> ₹{selectedTrade.tradeDetails?.teamOneGives?.money || 0} ↔ ₹{selectedTrade.tradeDetails?.teamTwoGives?.money || 0}</Text>
                                 </Box>
                             )}
                         </AlertDialogBody>
@@ -547,5 +606,23 @@ function RoundThreeBidHistory() {
         </Box>
     )
 }
+
+// Helper function to format trade items
+const formatTradeItems = (items) => {
+    if (!items || !Array.isArray(items) || items.length === 0) {
+        return 'No items';
+    }
+    
+    return items.map(item => {
+        // Handle both old and new item formats
+        if (typeof item === 'object' && item.name && item.quantity) {
+            return `${item.name} (${item.quantity})`;
+        } else if (typeof item === 'string') {
+            return item;
+        } else {
+            return 'Unknown item';
+        }
+    }).join(', ');
+};
 
 export default RoundThreeBidHistory
