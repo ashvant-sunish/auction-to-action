@@ -1,27 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { Box, Flex, useToast } from "@chakra-ui/react";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Box,
+  Flex,
+  useToast,
+  VStack,
+  Heading,
+  Text,
+  Icon,
+} from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import serverUrl, { socketServerUrl } from "../../servercon.js";
-import socketService from "../../services/socket.js";
-import { useRoundManager } from "../../hooks/useRoundManager.js";
-import Sidebar from "../../Components/User/Sidebar";
-import Navbar from "../../Components/User/Navbar";
-import DashboardContent from "../../Components/User/DashboardContent";
-import MyBids from "../../Components/User/MyBids";
-import TradingMarket from "../../Components/User/TradingMarket";
-import RoundsUser from "../../Components/User/Rounds.User";
+import serverUrl, { socketServerUrl } from "../../servercon";
+import socketService from "../../services/socket";
+import Sidebar from "../../Components/User/Sidebar.jsx";
+import Navbar from "../../Components/User/Navbar.jsx";
+import DashboardContent from "../../Components/User/DashboardContent.jsx";
+import MyBids from "../../Components/User/MyBids.jsx";
+import TradingMarket from "../../Components/User/TradingMarket.jsx";
+import RoundsUser from "../../Components/User/Rounds.User.jsx";
+import EnterpriseConstruction from "../../Components/User/EnterpriseConstruction.jsx";
+import { FaLock } from "react-icons/fa";
 
 function UserDashboard() {
   const [activeComponent, setActiveComponent] = useState("dashboard");
   const [teamData, setTeamData] = useState(null);
   const [balance, setBalance] = useState(0);
+  const [gameState, setGameState] = useState(0);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
-  
-  // Use the round manager hook for real-time database connectivity
-  const { currentRound, gameState, isConnected, error } = useRoundManager();
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
@@ -34,23 +41,13 @@ function UserDashboard() {
       return;
     }
     fetchTeamData();
+    fetchCurrentRound();
     setupRealTimeConnection();
-
-    // Show connection status
-    if (error) {
-      toast({
-        title: "Connection Error",
-        description: error,
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
 
     return () => {
       socketService.disconnect();
     };
-  }, [navigate, error]); // Add error to dependency array
+  }, [navigate]);
 
   useEffect(() => {
     if (teamData?.teamNumber) {
@@ -58,21 +55,20 @@ function UserDashboard() {
     }
   }, [teamData?.teamNumber]);
 
-  // Show toast notifications when round state changes
-  useEffect(() => {
-    if (gameState !== 0) { // Only show if not initial state
-      toast({
-        title: "Round Update",
-        description: getRoundDisplayText(gameState),
-        status: "info",
-        duration: 4000,
-        isClosable: true,
-      });
+  const processRoundData = (roundData) => {
+    const { roundNumber, roundStatus } = roundData;
+    let newGameState = 0;
+    if (roundNumber === 1) {
+      newGameState = roundStatus === "ongoing" ? 1 : 2;
+    } else if (roundNumber === 2) {
+      newGameState = roundStatus === "ongoing" ? 3 : 4;
+    } else if (roundNumber === 3) {
+      newGameState = roundStatus === "ongoing" ? 5 : 6;
     }
-  }, [gameState, toast]); // React to changes in gameState
+    setGameState(newGameState);
+    return newGameState;
+  };
 
-  // Remove processRoundData function as it's handled by the hook
-  
   const getRoundDisplayText = (state) => {
     const displays = {
       0: "Not Started",
@@ -89,9 +85,6 @@ function UserDashboard() {
   const setupRealTimeConnection = () => {
     socketService.connect(socketServerUrl);
 
-    // Note: Round updates are handled by useRoundManager hook
-    // This avoids duplicate listeners and ensures database sync
-
     socketService.onTeamUpdate((updatedTeam) => {
       if (teamData && updatedTeam.teamNumber === teamData.teamNumber) {
         setTeamData(updatedTeam);
@@ -106,8 +99,16 @@ function UserDashboard() {
       }
     });
 
-    // Note: Round updates are handled by useRoundManager hook
-    // No need for duplicate round update listeners here
+    socketService.onRoundUpdate((roundData) => {
+      const newState = processRoundData(roundData);
+      toast({
+        title: "Round Update",
+        description: getRoundDisplayText(newState),
+        status: "info",
+        duration: 4000,
+        isClosable: true,
+      });
+    });
 
     socketService.onDatabaseUpdate((data) => {
       toast({
@@ -137,7 +138,16 @@ function UserDashboard() {
     }
   };
 
-  // fetchCurrentRound function removed - now handled by useRoundManager hook
+  const fetchCurrentRound = async () => {
+    try {
+      const response = await axios.get(`${socketServerUrl}/api/round/current`);
+      if (response.data.success) {
+        processRoundData(response.data.roundData);
+      }
+    } catch (error) {
+      console.error("Error fetching current round:", error);
+    }
+  };
 
   const handleLogout = () => {
     if (teamData?.teamNumber) {
@@ -159,6 +169,7 @@ function UserDashboard() {
     "my-bids": "My Bidding History",
     "trading-market": "Trading Market",
     rounds: "Auction Rounds",
+    "enterprise-construction": "Enterprise Construction",
   };
 
   const renderContent = () => {
@@ -171,6 +182,8 @@ function UserDashboard() {
         return <TradingMarket />;
       case "rounds":
         return <RoundsUser gameState={gameState} />;
+      case "enterprise-construction":
+        return <EnterpriseConstruction gameState={gameState} />;
       default:
         return <DashboardContent teamData={teamData} balance={balance} />;
     }
@@ -183,6 +196,7 @@ function UserDashboard() {
         setActiveComponent={setActiveComponent}
         isCollapsed={isSidebarCollapsed}
         onToggle={toggleSidebar}
+        gameState={gameState}
       />
       <Box
         flex="1"
