@@ -1,3 +1,4 @@
+//sidebar
 import React from "react";
 import {
   Box,
@@ -19,6 +20,7 @@ import {
   MdChevronRight,
 } from "react-icons/md";
 import { RiAuctionLine } from "react-icons/ri";
+import { FaHardHat } from "react-icons/fa";
 
 const CsedLogo = () => (
   <Heading size="md" color="white" letterSpacing="wider">
@@ -31,12 +33,18 @@ const Sidebar = ({
   activeComponent,
   isCollapsed,
   onToggle,
+  gameState,
 }) => {
   const navItems = [
     { name: "Dashboard", icon: MdDashboard, key: "dashboard" },
     { name: "Auction Rounds", icon: RiAuctionLine, key: "rounds" },
     { name: "My Bidding History", icon: MdHistory, key: "my-bids" },
     { name: "Trading Market", icon: MdGroups, key: "trading-market" },
+    {
+      name: "Enterprise Construction",
+      icon: FaHardHat,
+      key: "enterprise-construction",
+    },
   ];
 
   return (
