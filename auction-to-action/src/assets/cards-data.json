@@ -1,0 +1,169 @@
+[
+  {
+    "id": 1,
+    "title": "Eco-Furniture Workshop",
+    "worth": "45000",
+    "requirements": [
+      "Property (2)",
+      "Skilled Labour (2)",
+      "Construction Material (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise1.png"
+  },
+  {
+    "id": 2,
+    "title": "Solar Lighting Solutions Assembly Unit",
+    "worth": "60000",
+    "requirements": [
+      "Property (2)",
+      "Technology (2)",
+      "Electricity Supply (1)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise2.png"
+  },
+  {
+    "id": 3,
+    "title": "Nutrient-Rich Food Products Unit",
+    "worth": "55000",
+    "requirements": [
+      "Property (2)",
+      "Machinery & Tools (2)",
+      "Utilities (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise3.png"
+  },
+  {
+    "id": 4,
+    "title": "Community Water Purification & Bottling Center",
+    "worth": "50000",
+    "requirements": [
+      "Property (2)",
+      "Machinery & Tools (2)",
+      "Electricity Supply (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise4.png"
+  },
+  {
+    "id": 5,
+    "title": "Recycled Glass Products Studio",
+    "worth": "65000",
+    "requirements": [
+      "Property (2)",
+      "Construction Material (2)",
+      "Electricity Supply (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise5.png"
+  },
+  {
+    "id": 6,
+    "title": "Women-Led Stitching & Tailoring Unit",
+    "worth": "40000",
+    "requirements": [
+      "Property (2)",
+      "Skilled Labour (2)",
+      "Machinery & Tools (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise6.png"
+  },
+  {
+    "id": 7,
+    "title": "Community Bicycle Repair & Rental Hub",
+    "worth": "45000",
+    "requirements": [
+      "Property (2)",
+      "Machinery & Tools (2)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise7.png"
+  },
+  {
+    "id": 8,
+    "title": "Rural Handicrafts & Artisan Collective",
+    "worth": "35000",
+    "requirements": [
+      "Property (2)",
+      "Skilled Labour (2)",
+      "Utilities (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise8.png"
+  },
+  {
+    "id": 9,
+    "title": "Urban Recycling Booth",
+    "worth": "30000",
+    "requirements": [
+      "Property (2)",
+      "Machinery & Tools (1)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise9.png"
+  },
+  {
+    "id": 10,
+    "title": "Youth Career Guidance Center",
+    "worth": "40000",
+    "requirements": [
+      "Property (2)",
+      "Office Space (2)",
+      "Technology (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise10.png"
+  },
+  {
+    "id": 11,
+    "title": "Agro-Tech Support Center",
+    "worth": "60000",
+    "requirements": [
+      "Property (2)",
+      "Technology (2)",
+      "Utilities (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise11.png"
+  },
+  {
+    "id": 12,
+    "title": "Rainwater Reserve Vault",
+    "worth": "55000",
+    "requirements": [
+      "Property (2)",
+      "Construction Material (2)",
+      "Utilities (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise12.png"
+  },
+  {
+    "id": 13,
+    "title": "SunSpot Energy Center",
+    "worth": "75000",
+    "requirements": [
+      "Property (2)",
+      "Technology (2)",
+      "Electricity Supply (1)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise13.png"
+  },
+  {
+    "id": 14,
+    "title": "UrbanRoots Garden Center",
+    "worth": "65000",
+    "requirements": [
+      "Property (2)",
+      "Skilled Labour (2)",
+      "Utilities (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise14.png"
+  },
+  {
+    "id": 15,
+    "title": "WeCare Health Studio",
+    "worth": "50000",
+    "requirements": [
+      "Property (2)",
+      "Office Space (2)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise15.png"
+  }
+]

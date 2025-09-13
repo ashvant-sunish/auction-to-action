@@ -1,0 +1,68 @@
+BACKEND CHANGES DOCUMENTATION
+============================
+
+Date: Current Session
+Purpose: Admin Login Integration and Team Authentication Fixes
+
+CHANGES MADE:
+============
+
+1. File: Backend/controllers/authController.js
+   - Location: loginTeam function (line ~70)
+   - Change: Updated password comparison to use bcrypt.compare()
+   - Reason: Team passwords are hashed in the database using bcrypt, but the login was comparing plain text
+   - Impact: Fixes team login functionality for all teams with hashed passwords
+   - Code Change: 
+     OLD: if (team && team.password === password)
+     NEW: if (team && (await bcrypt.compare(password, team.password)))
+
+2. File: Backend/controllers/adminController.js
+   - Location: getBidHistory function (line ~230)
+   - Change: Added round filtering support via query parameters
+   - Reason: Frontend needs to filter bid history by specific rounds (Round 1, Round 2, etc.)
+   - Impact: Allows admin dashboard to show round-specific bid history
+   - Code Change:
+     OLD: const history = await BidHistory.find({}).sort({ createdAt: -1 });
+     NEW: Added round query parameter filtering with parseInt(round) validation
+
+3. File: Backend/controllers/adminController.js
+   - Location: New functions updateBidHistory and deleteBidHistory
+   - Change: Added CRUD operations for bid history management
+   - Reason: Admin dashboard needs to edit and delete bid history entries
+   - Impact: Enables full CRUD functionality for bid history in admin panel
+   - Code Change: Added PUT /api/admin/bid-history/:id and DELETE /api/admin/bid-history/:id endpoints
+
+4. File: Backend/routes/adminRoutes.js
+   - Location: History routes section
+   - Change: Added PUT and DELETE routes for bid history
+   - Reason: Support update and delete operations from frontend
+   - Impact: Complete CRUD API for bid history management
+   - Code Change: Added router.put('/bid-history/:id') and router.delete('/bid-history/:id')
+
+VERIFICATION:
+============
+- Team login now works with hashed passwords (pattern: REG### discovered via seed.js)
+- Admin login uses 'adminToken' consistently across frontend
+- All API calls in admin dashboard and team management use proper authentication headers
+
+NO OTHER BACKEND CHANGES WERE REQUIRED:
+======================================
+- Admin login endpoint was already working correctly
+- Token generation and validation were already proper
+- All other authentication flows were already implemented correctly
+
+FRONTEND CHANGES (for reference):
+================================
+- All admin components now use 'adminToken' consistently
+- LoginComponent.Admin.jsx stores token as 'adminToken'
+- Dashboard.Admin.jsx uses 'adminToken' for API calls
+- TeamTable.Admin.jsx uses 'adminToken' for CRUD operations
+- adminSocket.js service updated to include admin token in all API calls
+- All authentication headers use Bearer token format
+
+TESTING RECOMMENDATIONS:
+========================
+1. Test admin login with valid credentials
+2. Test team login with pattern REG### (e.g., REG001, REG002, etc.)
+3. Verify all admin dashboard features work with authentication
+4. Confirm real-time updates work with proper token validation
