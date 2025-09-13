@@ -38,7 +38,14 @@ const teamSchema = new mongoose.Schema({
     type: Map,
     of: Number,
     default: {}
+  },
+
+  // --- NEW FIELD ---
+  isActive: {
+    type: Boolean,
+    default: false   // Team starts as inactive until login
   }
+
 }, {
   // Options to enable virtuals (like 'balance') in the JSON output
   toJSON: { virtuals: true },
