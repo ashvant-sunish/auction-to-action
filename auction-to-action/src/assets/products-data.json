@@ -1,0 +1,57 @@
+[
+  {
+    "id": 101,
+    "title": "Sustainable Wooden Chairs",
+    "worth": "4000",
+    "requiredEnterpriseId": 1,
+    "requirements": [
+      "Construction Material (1)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product1.png"
+  },
+  {
+    "id": 102,
+    "title": "Purified Drinking Water Packs",
+    "worth": "3000",
+    "requiredEnterpriseId": 4,
+    "requirements": [
+      "Machinery & Tools (1)",
+      "Electricity Supply (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product2.png"
+  },
+  {
+    "id": 103,
+    "title": "Handmade Cloth Bags",
+    "worth": "4000",
+    "requiredEnterpriseId": 6,
+    "requirements": [
+      "Machinery & Tools (1)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product3.png"
+  },
+  {
+    "id": 104,
+    "title": "Recycled Paper Stationery",
+    "worth": "3500",
+    "requiredEnterpriseId": 9,
+    "requirements": [
+      "Machinery & Tools (1)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product4.png"
+  },
+  {
+    "id": 105,
+    "title": "Affordable Seed Kits",
+    "worth": "4500",
+    "requiredEnterpriseId": 11,
+    "requirements": [
+      "Technology (1)",
+      "Utilities (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product5.png"
+  }
+]
