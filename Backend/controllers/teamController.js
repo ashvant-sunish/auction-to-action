@@ -35,7 +35,7 @@ exports.getTransactionHistory = async (req, res) => {
 
         // Find all trades this team was a part of
         const trades = await TradeHistory.find({
-          $or: [{ 'teamOne.code': teamCode }, { 'teamTwo.code': teamCode }]
+          $or: [{ 'teamOne.teamCode': teamCode }, { 'teamTwo.teamCode': teamCode }]
         }).sort({ createdAt: -1 });
 
         res.status(200).json({ bids, trades });
