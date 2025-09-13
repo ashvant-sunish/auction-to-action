@@ -531,7 +531,6 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
             else if (idx === 3) isLocked = needsLock4;
             else if (idx === 4) isLocked = needsLock5;
 
-            // ...existing code...
             const isActive = activeCard === card.id;
             const isHovered = hoveredCard === card.id;
             const isExpanded = isActive || (!activeCard && isHovered);
@@ -565,27 +564,28 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
                   }
                 }}
               >
-                {isLocked && isExpanded && (
+                {isExpanded && (
                   <>
-                    <div className="lock-overlay">🔒</div>
-                    <div className="unavailable-notice">
-                      Requires Enterprise: {enterpriseName}
+                    {isLocked && (
+                      <>
+                        <div className="lock-overlay">🔒</div>
+                        <div className="unavailable-notice">
+                          Requires Enterprise: {enterpriseName}
+                        </div>
+                      </>
+                    )}
+                    <div className="card-content">
+                      <h3 className="card-title">{card.title}</h3>
+                      <p className="card-worth">
+                        Worth: ₹{Number(card.worth || 0).toLocaleString()}
+                      </p>
+                      <ul className="card-requirements">
+                        {(card.requirements || []).slice(0, 4).map((r, i) => (
+                          <li key={i}>{r}</li>
+                        ))}
+                      </ul>
                     </div>
                   </>
-                )}
-
-                {isExpanded && !isLocked && (
-                  <div className="card-content">
-                    <h3 className="card-title">{card.title}</h3>
-                    <p className="card-worth">
-                      Worth: ₹{Number(card.worth || 0).toLocaleString()}
-                    </p>
-                    <ul className="card-requirements">
-                      {(card.requirements || []).slice(0, 4).map((r, i) => (
-                        <li key={i}>{r}</li>
-                      ))}
-                    </ul>
-                  </div>
                 )}
               </div>
             );
