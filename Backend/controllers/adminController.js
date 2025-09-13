@@ -65,29 +65,6 @@ exports.deleteAdmin = async (req, res) => {
 // --- TEAM MANAGEMENT (CRUD by Admin) ---
 
 exports.getAllTeams = async (req, res) => {
-<<<<<<< HEAD
-    try {
-        const { teamCode } = req.query;
-        
-        let query = {};
-        if (teamCode) {
-            // Exact match for team code (case-insensitive)
-            query.teamCode = { $regex: new RegExp(`^${teamCode}$`, 'i') };
-        }
-        
-        const teams = await Team.find(query).select('-password');
-        
-        // Debug log
-        console.log(`Team lookup for code: ${teamCode}, found ${teams.length} teams`);
-        if (teams.length > 0) {
-            console.log('Found teams:', teams.map(t => ({ code: t.teamCode, name: t.teamName })));
-        }
-        
-        res.status(200).json(teams);
-    } catch (error) {
-        console.error('Error fetching teams:', error);
-        res.status(500).json({ message: 'Server error fetching teams.' });
-=======
   try {
     const { teamCode } = req.query;
 
@@ -95,7 +72,6 @@ exports.getAllTeams = async (req, res) => {
     if (teamCode) {
       // Exact match for team code (case-insensitive)
       query.teamCode = { $regex: new RegExp(`^${teamCode}$`, 'i') };
->>>>>>> dcad12332d45d9b295c4d27e644b1fdb75a16b4f
     }
 
     const teams = await Team.find(query).select('-password');
