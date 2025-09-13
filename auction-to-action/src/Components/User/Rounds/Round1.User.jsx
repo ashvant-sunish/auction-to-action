@@ -28,7 +28,7 @@ export default function Spin3DCards({
   cardHeight = 260,
   initialSpeed = 0.008,
   friction = 0.995,
-  onBidSelected = null, // Callback function to handle selected bid
+  onBidSelected = null,
 }) {
   // State management
   const [availableItems, setAvailableItems] = useState(initialItems);
