@@ -1,11 +1,42 @@
-# Backend Changes Documentation - Round 3 Trading System
+# Backend Changes Documentation - Auction System with Round 1 Spinning Wheel Integration
 
 ## Overview
-Implemented complete Round 3 trading data entry system with database connectivity and real-time updates for multi-computer auction management.
+Enhanced auction system with Round 3 trading, superadmin role management, and real-time Round 1 spinning wheel integration with database connectivity.
 
 ---
 
-## 🔧 **Backend Changes Made**
+## 🎯 **Latest Changes: Round 1 Spinning Wheel Integration**
+
+### 1. **Enhanced Admin Routes** (`Backend/routes/adminRoutes.js`)
+**New Routes Added:**
+```javascript
+// Round 1 Spinning Wheel Integration
+router.get('/game-items/round/:round', protectAdmin, adminController.getGameItemsByRound);
+router.post('/game-items/select', protectAdmin, adminController.selectGameItem);
+router.get('/game-state', protectAdmin, adminController.getGameState);
+```
+
+### 2. **Enhanced Admin Controller** (`Backend/controllers/adminController.js`)
+**New Functions:**
+- `getGameItemsByRound()` - Fetches available and selected game items by round
+- `selectGameItem()` - Processes spinning wheel selections and updates game state
+- `getGameState()` - Returns current live auction state
+
+**Features:**
+- Real-time database integration for spinning wheel
+- Automatic bid history creation when items are selected
+- Socket.io events for live updates to all clients
+- Game state management for live auction tracking
+
+### 3. **Database Models Integration**
+**Used Existing Models:**
+- `GameItem` - For Round 1 bid items (available/selected status)
+- `BidHistory` - For recording winning bids from spinning wheel
+- `GameState` - For real-time auction state management
+
+---
+
+## 🔧 **Previous Backend Changes**
 
 ### 1. **Enhanced TradeHistory Model** (`Backend/models/TradeHistory.js`)
 **Changes:**

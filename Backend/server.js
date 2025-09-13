@@ -10,6 +10,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const socketRoutes = require('./routes/socketRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
+const wheelRoutes = require('./routes/wheelRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -28,6 +29,7 @@ app.use(express.json());
 
 // Make the io instance available to all routes
 app.set('socketio', io);
+app.set('io', io); // Also set as 'io' for the wheel routes
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
@@ -38,6 +40,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/admin', adminRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/trade', tradeRoutes);
+app.use('/api/wheel', wheelRoutes); // Wheel selection routes
 app.use('/', socketRoutes); // Socket routes for real-time updates
 
 // Welcome Route
