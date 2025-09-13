@@ -32,8 +32,9 @@ import { FaSearch } from "react-icons/fa";
 import { FiMaximize, FiMinimize } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import serverUrl from "../../servercon";
-import { Round2 } from './../Admin/Content/Rounds/Round2';
+import { Round2 } from "./../Admin/Content/Rounds/Round2";
 import { RiAuctionLine } from "react-icons/ri";
+import { IoIosInformationCircleOutline } from "react-icons/io";
 
 const AvailableMaterialsTable = ({
   resources,
@@ -44,21 +45,22 @@ const AvailableMaterialsTable = ({
 
   const resourcesArray = useMemo(() => {
     // Convert resources object/Map to array format
-    if (!resources || typeof resources !== 'object') {
+    if (!resources || typeof resources !== "object") {
       return [];
     }
 
     // Handle both Map and plain object
-    const entries = resources instanceof Map 
-      ? Array.from(resources.entries())
-      : Object.entries(resources);
+    const entries =
+      resources instanceof Map
+        ? Array.from(resources.entries())
+        : Object.entries(resources);
 
     return entries
       .filter(([name, quantity]) => quantity > 0) // Only show resources with quantity > 0
       .map(([name, quantity]) => ({
         name,
         count: quantity,
-        totalAmount: quantity * 1000 // Estimated value per unit
+        totalAmount: quantity * 1000, // Estimated value per unit
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [resources]);
@@ -231,7 +233,9 @@ const AvailableMaterialsTable = ({
             <Icon as={FaSearch} boxSize={8} mb={2} />
             <Text fontSize="sm">No resources found</Text>
             <Text fontSize="xs" color="gray.400">
-              {searchTerm ? "Try adjusting your search terms" : "No resources in inventory yet"}
+              {searchTerm
+                ? "Try adjusting your search terms"
+                : "No resources in inventory yet"}
             </Text>
           </Box>
         )}
@@ -240,19 +244,157 @@ const AvailableMaterialsTable = ({
   );
 };
 
-
-function DashboardContent({ teamData, currentRound }) {
-  // Use teamData directly for credit, debit, and resources
+function DashboardContent({ teamData, currentRound, gameState }) {
   const [isMaterialsFullScreen, setMaterialsFullScreen] = useState(false);
-  const toggleMaterialsFullScreen = () => setMaterialsFullScreen(!isMaterialsFullScreen);
 
-  // Fallbacks if teamData is not loaded
+  // Sample data for the live auction card
+  const sampleLiveAuction = {
+    bidCount: 42,
+    itemName: "Rare Metal",
+  };
+
+  const toggleMaterialsFullScreen = () =>
+    setMaterialsFullScreen(!isMaterialsFullScreen);
+
   const credit = teamData?.credit ?? 0;
   const debit = teamData?.debit ?? 0;
   const resources = teamData?.resources ?? {};
-  
-  // Calculate number of different resource types (entries) that have quantity > 0
-  const resourceEntryCount = Object.entries(resources).filter(([name, quantity]) => quantity > 0).length;
+
+  const getRoundDisplayText = (state) => {
+    const displays = {
+      0: "Not Started",
+      1: "Round 1 - Ongoing",
+      2: "Round 1 - Ended",
+      3: "Round 2 - Ongoing",
+      4: "Round 2 - Ended",
+      5: "Round 3 - Ongoing",
+      6: "Round 3 - Ended",
+    };
+    return displays[state] || "Not Started";
+  };
+
+  let dynamicCard;
+
+  if (gameState === 1 || gameState === 3) {
+    // Live Bids card for ongoing Round 1 and Round 2
+    dynamicCard = (
+      <Box
+        flex="1" // Added flex="1" to make it take up available space
+        minW="200px" // Added minW to maintain responsiveness
+        p={4}
+        shadow="md"
+        borderWidth="1px"
+        borderRadius="lg"
+        bg="white"
+        mb={4}
+      >
+        <Flex>
+          <Box
+            pl={4}
+            pr={4}
+            mr={4}
+            bg="blue.100"
+            borderRadius="full"
+            justifyContent={"center"}
+            alignItems="center"
+            display="flex"
+          >
+            <Icon as={FaGavel} color="blue.500" w={8} h={10} />
+          </Box>
+          <Box>
+            <Text color="gray.500" fontSize="sm">
+              Live Bids
+            </Text>
+            <Text fontWeight="bold" fontSize="2xl">
+              {sampleLiveAuction.bidCount}
+            </Text>
+            <Text color="gray.600" fontSize="sm">
+              for {sampleLiveAuction.itemName}
+            </Text>
+          </Box>
+        </Flex>
+      </Box>
+    );
+  } else if (gameState === 5) {
+    // Enterprise Amount card for ongoing Round 3
+    dynamicCard = (
+      <Box
+        flex="1"
+        minW="200px"
+        p={4}
+        shadow="md"
+        borderWidth="1px"
+        borderRadius="lg"
+        bg="white"
+        mb={4}
+      >
+        <Flex>
+          <Box
+            pl={4}
+            pr={4}
+            mr={4}
+            bg="purple.100"
+            borderRadius="full"
+            justifyContent={"center"}
+            alignItems="center"
+            display="flex"
+          >
+            <Icon as={FaRupeeSign} color="purple.500" w={8} h={10} />
+          </Box>
+          <Box>
+            <Text color="gray.500" fontSize="sm">
+              Enterprise Amount
+            </Text>
+            <Text fontWeight="bold" fontSize="2xl">
+              ₹12,50,000
+            </Text>
+          </Box>
+        </Flex>
+      </Box>
+    );
+  } else {
+    // Default card for all other states
+    dynamicCard = (
+      <Box
+        flex="1"
+        minW="200px"
+        p={4}
+        shadow="md"
+        borderWidth="1px"
+        borderRadius="lg"
+        bg="white"
+        mb={4}
+      >
+        <Flex>
+          <Box
+            pl={4}
+            pr={4}
+            mr={4}
+            bg="gray.100"
+            borderRadius="full"
+            justifyContent={"center"}
+            alignItems="center"
+            display="flex"
+          >
+            <Icon
+              as={IoIosInformationCircleOutline}
+              color="gray.500"
+              w={8}
+              h={10}
+            />
+          </Box>
+          <Box>
+            <Text color="gray.500" fontSize="sm">
+              Round Status
+            </Text>
+            <Text fontWeight="bold" fontSize="2xl">
+              {getRoundDisplayText(currentRound)}
+            </Text>
+          </Box>
+        </Flex>
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -331,39 +473,7 @@ function DashboardContent({ teamData, currentRound }) {
               </Flex>
             </Box>
           </Box>
-          <Box flex="1" minW="200px">
-            <Box
-              p={4}
-              shadow="md"
-              borderWidth="1px"
-              borderRadius="lg"
-              bg="white"
-              mb={4}
-            >
-              <Flex>
-                <Box
-                  pl={4}
-                  pr={4}
-                  mr={4}
-                  bg="blue.100"
-                  borderRadius="full"
-                  justifyContent={"center"}
-                  alignItems="center"
-                  display="flex"
-                >
-                  <Icon as={RiAuctionLine} color="blue.500" w={8} h={10} />
-                </Box>
-                <Box>
-                  <Text color="gray.500" fontSize="sm">
-                    Resource Types
-                  </Text>
-                  <Text fontWeight="bold" fontSize="2xl">
-                    {resourceEntryCount}
-                  </Text>
-                </Box>
-              </Flex>
-            </Box>
-          </Box>
+          {dynamicCard}
         </Flex>
         <Box w="100%" flex="1" minH="0">
           <AvailableMaterialsTable

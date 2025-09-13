@@ -175,7 +175,7 @@ function UserDashboard() {
   const renderContent = () => {
     switch (activeComponent) {
       case "dashboard":
-        return <DashboardContent teamData={teamData} balance={balance} />;
+        return <DashboardContent teamData={teamData} balance={balance} gameState={gameState}  />;
       case "my-bids":
         return <MyBids />;
       case "trading-market":
