@@ -1,10 +1,10 @@
-// Round2User.jsx
 import React, { useState } from "react";
 import {
   Box,
   Button,
   Text,
   VStack,
+  HStack,
   Center,
 } from "@chakra-ui/react";
 import { css, keyframes } from "@emotion/react";
@@ -56,20 +56,42 @@ const glowPulse = keyframes`
 `;
 
 const Round2User = () => {
+  // New state to manage the bid history
+  const [bidHistory, setBidHistory] = useState([]);
   const [isRevealed, setIsRevealed] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
+
+  // Example data for a revealed bid. In a real app, this would come from an API or game logic.
+  const sampleRevealedBid = {
+    id: bidHistory.length + 1,
+    text: "Gain 6 Transportation, 2 Office Space",
+    amount: "1789"
+  };
 
   const handleReveal = () => {
     setIsShaking(true);
     setTimeout(() => {
+      // Add the new bid to the history
+      setBidHistory([...bidHistory, sampleRevealedBid]);
       setIsRevealed(true);
       setIsShaking(false);
     }, 1000);
   };
 
+  // New function to handle the undo action
+const handleUndo = () => {
+  if (bidHistory.length > 0) {
+    setBidHistory(bidHistory.slice(0, -1));
+  }
+  setIsRevealed(false); // Go back to box state
+};
+
+
   const handleReset = () => {
+    // Clear both the revealed state and the bid history
     setIsRevealed(false);
     setIsShaking(false);
+    setBidHistory([]);
   };
 
   return (
@@ -197,7 +219,7 @@ const Round2User = () => {
                 inset={0}
                 opacity={0.1}
                 bg={`radial-gradient(circle at 20% 80%, ${colors.primary[50]} 0%, transparent 50%),
-                     radial-gradient(circle at 80% 20%, ${colors.primary[100]} 0%, transparent 50%)`}
+                       radial-gradient(circle at 80% 20%, ${colors.primary[100]} 0%, transparent 50%)`}
               />
 
               {/* Card content */}
@@ -211,7 +233,7 @@ const Round2User = () => {
                     textShadow={`2px 2px 4px ${colors.dark}`}
                     letterSpacing="wider"
                   >
-                    Gain 6 Transportation, 2 Office Space
+                    {bidHistory.length > 0 ? bidHistory[bidHistory.length - 1].text : ""}
                   </Text>
                   
                   {/* Decorative elements */}
@@ -242,36 +264,9 @@ const Round2User = () => {
               ))}
             </Box>
           )}
+          
 
-          {/* Action Button */}
-          <Button
-            size="lg"
-            bg={colors.primary[100]}
-            color={colors.white}
-            _hover={{
-              bg: colors.primary[50],
-              transform: "translateY(-2px)",
-              boxShadow: `0 8px 20px ${colors.primary[100]}44`,
-            }}
-            _active={{
-              transform: "translateY(0)",
-            }}
-            borderRadius="15px"
-            px={8}
-            py={6}
-            fontSize="lg"
-            fontWeight="bold"
-            transition="all 0.2s"
-            onClick={isRevealed ? handleReset : handleReveal}
-            disabled={isShaking}
-            boxShadow={`0 4px 15px ${colors.dark}88`}
-          >
-            {isShaking
-              ? "Opening..."
-              : isRevealed
-              ? "Create New Mystery"
-              : "Open Mystery Box"}
-          </Button>
+
         </VStack>
       </Center>
     </Box>

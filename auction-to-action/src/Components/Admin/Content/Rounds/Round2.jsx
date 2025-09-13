@@ -7,26 +7,29 @@ import {
   Text, 
   VStack, 
   HStack, 
-  Grid, 
-  GridItem,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  useDisclosure
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  Tag,
+  Select,
+  Divider,
 } from "@chakra-ui/react";
 
 // total boxes
 const TOTAL_BOXES = 25;
 
-// (boxContents same as before… not shortened here)
+// contents
 const boxContents = [
   { id: 1, content: "Gain 2× your bid amount", type: "cash" },
   { id: 2, content: "Gain 2× your bid amount", type: "cash" },
   { id: 3, content: "Gain 1.5× your bid amount", type: "cash" },
-    { id: 4, content: "Gain 1.5× your bid amount", type: "cash" },
+  { id: 4, content: "Gain 1.5× your bid amount", type: "cash" },
   { id: 5, content: "Nothing", type: "nothing" },
   { id: 6, content: "Nothing", type: "nothing" },
   { id: 7, content: "Nothing", type: "nothing" },
@@ -43,11 +46,11 @@ const boxContents = [
   { id: 18, content: "Gain 3 Technology, 3 Machinery & Tools, 2 Utilities", type: "resources" },
   { id: 19, content: "Gain 6 Utilities, 2 Property", type: "resources" },
   { id: 20, content: "Gain 4 Electricity Supply, 3 Technology, 1 Skilled Labour", type: "resources" },
-  { id: 21, content: "\"Big bids boost booming businesses.\" Say this 5 times without error and get 2× bid amount", type: "challenge" },
-  { id: 22, content: "\"Clever creators craft catchy campaigns.\" Say this 5 times without error and get 5 Property, 3 Skilled Labour", type: "challenge" },
-  { id: 23, content: "\"Smart startups seek smart supporters.\" Say this 5 times without error and get 4 Machinery & Tools, 4 Technology", type: "challenge" },
-  { id: 24, content: "\"Great goals grow grand gains.\" Say this 5 times without error and get 1.5× bid amount", type: "challenge" },
-  { id: 25, content: "\"Winning workers work with wise workflows.\" Say this 5 times without error and get 5 Electricity Supply, 3 Machinery & Tools", type: "challenge" }
+  { id: 21, content: "Say phrase 5 times to get 2× bid amount", type: "challenge" },
+  { id: 22, content: "Say phrase 5 times to get 5 Property, 3 Skilled Labour", type: "challenge" },
+  { id: 23, content: "Say phrase 5 times to get 4 Machinery & Tools, 4 Technology", type: "challenge" },
+  { id: 24, content: "Say phrase 5 times to get 1.5× bid amount", type: "challenge" },
+  { id: 25, content: "Say phrase 5 times to get 5 Electricity Supply, 3 Machinery & Tools", type: "challenge" },
 ];
 
 // colors
@@ -71,123 +74,62 @@ const contentIcons = {
   challenge: "🎯"
 };
 
-// Card layout
-const Card = ({ content }) => {
-  const getContentColor = (type) => {
-    const colors = {
-      cash: '#F59E0B',
-      nothing: '#9CA3AF',
-      resources: '#3B82F6',
-      challenge: '#8B5CF6'
-    };
-    return colors[type] || colors.nothing;
-  };
-
-  return (
-    <Box
-      w="100%"
-      h="100%"
-      borderRadius="lg"
-      border="2px solid"
-      borderColor={getContentColor(content.type)}
-      bg={getContentColor(content.type)}
-      boxShadow="xl"
-      overflow="hidden"
-    >
-      <VStack h="100%" spacing={1} p={2} justify="center">
-        <Text fontSize="lg" textAlign="center" fontWeight="bold" color="white">
-          {contentIcons[content.type]} {content.content}
-        </Text>
-        <Text fontWeight="bold" color="white" fontSize="sm">Box {content.id}</Text>
-        <Text fontSize="xs" color="rgba(255,255,255,0.8)" textTransform="capitalize">{content.type}</Text>
-      </VStack>
-    </Box>
-  );
-};
-
-// Mystery Box component
-const MysteryBox = ({ id, isRevealed, onToggle, content }) => {
-  return (
-    <Box
-      w="160px"
-      h="192px"
-      cursor="pointer"
-      transition="transform 0.2s"
-      _hover={{ transform: 'scale(1.05)' }}
-      onClick={() => onToggle(id)}
-    >
-      {!isRevealed ? (
-        <Box
-          w="100%"
-          h="100%"
-          bg={colors.primary[200]}
-          border="2px solid"
-          borderColor={colors.primary[150]}
-          borderRadius="lg"
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          boxShadow="lg"
-        >
-          <Box
-            w="80px"
-            h="64px"
-            mb={2}
-            bg="rgba(10, 112, 117, 0.5)"
-            borderRadius="md"
-            border="1px solid"
-            borderColor="rgba(10, 112, 117, 0.8)"
-          />
-          <Text color={colors.white} fontWeight="semibold" textAlign="center">
-            Mystery Box {id}
-          </Text>
-        </Box>
-      ) : (
-        <Card content={content} />
-      )}
-    </Box>
-  );
-};
-
-// Main Round2
 export const Round2 = () => {
-  const [boxNumber, setBoxNumber] = useState("");
+  const [selectedBoxNumber, setSelectedBoxNumber] = useState("1");
   const [revealedBoxes, setRevealedBoxes] = useState(new Set());
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedBox, setSelectedBox] = useState(null);
 
-  // toggle reveal/unreveal
-  const toggleBox = (id) => {
-    setRevealedBoxes(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id); // unreveal
-      } else {
-        newSet.add(id); // reveal
-        const content = boxContents.find(box => box.id === id);
-        toast({
-          title: `Box ${id} Revealed!`,
-          description: content.content,
-          status: "success",
-          duration: 4000,
-          isClosable: true,
-        });
-      }
-      return newSet;
-    });
+  const [teamCode, setTeamCode] = useState("");
+  const [teamName, setTeamName] = useState("");
+  const [bidAmount, setBidAmount] = useState("");
+  const [revealedHistory, setRevealedHistory] = useState([]);
+
+  const handleModalSubmit = () => {
+    const newEntry = {
+      boxId: selectedBox.id,
+      teamCode,
+      teamName,
+      bidAmount,
+      content: selectedBox.content,
+      type: selectedBox.type,
+    };
+    setRevealedHistory(prev => [...prev, newEntry]);
+    setTeamCode("");
+    setTeamName("");
+    setBidAmount("");
+    onClose();
   };
 
-  const revealBoxByNumber = () => {
-    const num = parseInt(boxNumber);
+  const revealBox = () => {
+    const num = parseInt(selectedBoxNumber);
     if (num >= 1 && num <= TOTAL_BOXES) {
-      toggleBox(num);
-      setBoxNumber("");
+      if (revealedBoxes.has(num)) {
+        toast({
+          title: "Box already revealed",
+          description: `Mystery Box ${num} has already been revealed.`,
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+      const content = boxContents.find(box => box.id === num);
+      setSelectedBox(content);
+      onOpen();
+      toast({
+        title: `Box ${num} Revealed!`,
+        description: content.content,
+        status: "success",
+        duration: 4000,
+        isClosable: true,
+      });
+      setRevealedBoxes(prev => new Set(prev).add(num));
     } else {
       toast({
         title: "Invalid Box Number",
-        description: `Please enter a number between 1 and ${TOTAL_BOXES}`,
+        description: `Please select between 1 and ${TOTAL_BOXES}`,
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -195,12 +137,45 @@ export const Round2 = () => {
     }
   };
 
+  const undoLastAction = () => {
+    if (revealedHistory.length === 0) {
+      toast({
+        title: "Nothing to undo",
+        description: "No boxes have been revealed yet.",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const lastRevealed = revealedHistory[revealedHistory.length - 1];
+    
+    // Remove the last entry from the history array
+    const newHistory = revealedHistory.slice(0, -1);
+    setRevealedHistory(newHistory);
+
+    // Remove the box from the set of revealed boxes
+    const newRevealedBoxes = new Set(revealedBoxes);
+    newRevealedBoxes.delete(lastRevealed.boxId);
+    setRevealedBoxes(newRevealedBoxes);
+
+    toast({
+      title: "Undo Successful",
+      description: `Action for Box ${lastRevealed.boxId} has been undone.`,
+      status: "info",
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
   const resetGame = () => {
     setRevealedBoxes(new Set());
-    setBoxNumber("");
+    setRevealedHistory([]);
+    setSelectedBoxNumber("1");
     toast({
       title: "Game Reset",
-      description: "All mystery boxes have been sealed again!",
+      description: "All boxes sealed again!",
       status: "info",
       duration: 3000,
       isClosable: true,
@@ -208,90 +183,134 @@ export const Round2 = () => {
   };
 
   return (
-    <Box minH="100vh" bg={colors.dark} color="white" p={8} overflow="auto">
+    <Box minH="100vh" bgGradient={`linear(to-b, ${colors.dark}, ${colors.bg})`} color={colors.white} p={8} overflow="auto">
       <Box maxW="6xl" mx="auto">
-
-        {/* Header */}
         <VStack spacing={6} mb={10}>
           <HStack spacing={3} align="center">
             <Text fontSize="4xl">🎁</Text>
-            <Text 
-              fontSize="4xl" 
-              fontWeight="extrabold" 
-              letterSpacing="wide"
-              color={colors.primary[50]}
-            >
-              Mystery Boxes
-            </Text>
+            <Text fontSize="5xl" fontWeight="extrabold" letterSpacing="wide" color={colors.primary[50]}>Mystery Boxes</Text>
           </HStack>
 
-          {/* Controls */}
           <HStack spacing={3} maxW="md" mx="auto" w="100%" justify="center">
-            <Input
-              type="number"
-              min="1"
-              max={TOTAL_BOXES}
-              placeholder="Enter Mystery Box Number"
-              value={boxNumber}
-              onChange={(e) => setBoxNumber(e.target.value)}
+            <Select
+              placeholder="Select box number"
+              value={selectedBoxNumber}
+              onChange={(e) => setSelectedBoxNumber(e.target.value)}
               fontSize="md"
               h={12}
               bg={colors.primary[200]}
               color="white"
               borderColor={colors.primary[150]}
-              _placeholder={{ color: colors.primary[50], fontStyle: "italic" }}
               _focus={{ borderColor: colors.primary[100], boxShadow: "0 0 0 2px #0C969C" }}
-            />
+            >
+              {[...Array(TOTAL_BOXES)].map((_, i) => (
+                <option key={i + 1} value={i + 1} style={{ background: colors.dark, color: 'white' }}>
+                  Box {i + 1}
+                </option>
+              ))}
+            </Select>
             <Button
-              onClick={revealBoxByNumber}
-              isDisabled={!boxNumber}
+              onClick={revealBox}
+              isDisabled={!selectedBoxNumber}
               px={6}
               h={12}
               fontWeight="bold"
               bgGradient={`linear(to-r, ${colors.primary[100]}, ${colors.primary[150]})`}
-              _hover={{ bgGradient: `linear(to-r, ${colors.primary[50]}, ${colors.primary[100]})` }}
+              _hover={{ bgGradient: `linear(to-r, ${colors.primary[50]}, ${colors.primary[100]})`, transform: "scale(1.05)" }}
+              transition="all 0.2s"
               color="white"
-              borderRadius="lg"
-              shadow="md"
+              borderRadius="xl"
+              shadow="lg"
             >
               Reveal
             </Button>
           </HStack>
 
-          <Button
-            onClick={resetGame}
-            variant="outline"
-            borderColor={colors.primary[150]}
-            color={colors.primary[50]}
-            _hover={{ bg: colors.primary[200] }}
-            size="sm"
-            mt={2}
-          >
-            Reset Game
-          </Button>
+          <HStack spacing={4}>
+            <Button
+              onClick={undoLastAction}
+              isDisabled={revealedHistory.length === 0}
+              variant="outline"
+              borderColor={colors.primary[150]}
+              color={colors.primary[50]}
+              _hover={{ bg: colors.primary[200], transform: "scale(1.05)" }}
+              size="sm"
+            >
+              Undo
+            </Button>
+            <Button
+              onClick={resetGame}
+              variant="outline"
+              borderColor={colors.primary[150]}
+              color={colors.primary[50]}
+              _hover={{ bg: colors.primary[200], transform: "scale(1.05)" }}
+              size="sm"
+            >
+              Reset Game
+            </Button>
+          </HStack>
         </VStack>
 
-        {/* Grid of Mystery Boxes */}
-        <Grid templateColumns="repeat(5, 1fr)" gap={6} justifyItems="center" mb={8}>
-          {boxContents.map((content) => (
-            <GridItem key={content.id}>
-              <MysteryBox
-                id={content.id}
-                isRevealed={revealedBoxes.has(content.id)}
-                onToggle={toggleBox}
-                content={content}
-              />
-            </GridItem>
-          ))}
-        </Grid>
-
-        {/* Stats */}
         <Box textAlign="center" mt={8}>
-          <Text fontSize="xl" color={colors.primary[50]}>
-            Boxes Revealed: {revealedBoxes.size} / {TOTAL_BOXES}
-          </Text>
+          <Text fontSize="xl" color={colors.primary[50]}>Boxes Revealed: {revealedBoxes.size} / {TOTAL_BOXES}</Text>
         </Box>
+
+        {revealedHistory.length > 0 && (
+          <Box mt={12} p={6} bg={colors.primary[200]} borderRadius="2xl" shadow="xl">
+            <Text fontSize="2xl" fontWeight="bold" mb={4}>Revealed History</Text>
+            <Divider mb={4} borderColor={colors.primary[100]} />
+            <VStack spacing={4} align="stretch">
+              {revealedHistory.map((entry, index) => (
+                <HStack key={index} p={4} bg={colors.dark} borderRadius="lg" shadow="md" justify="space-between">
+                  <VStack align="flex-start" spacing={1}>
+                    <HStack>
+                      <Text fontWeight="bold" color={colors.primary[50]}>{contentIcons[entry.type]} Box {entry.boxId}:</Text>
+                      <Text>{entry.content}</Text>
+                    </HStack>
+                    <Text fontSize="sm" color="whiteAlpha.700">
+                      Team: <Text as="span" fontWeight="bold">{entry.teamName}</Text> (Code: <Tag size="sm" colorScheme="blue">{entry.teamCode}</Tag>)
+                    </Text>
+                  </VStack>
+                  <Text fontWeight="bold" fontSize="lg" color="green.300">Bid: ${entry.bidAmount}</Text>
+                </HStack>
+              ))}
+            </VStack>
+          </Box>
+        )}
       </Box>
+
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent bg={colors.primary[200]} color="white" borderRadius="2xl" shadow="2xl">
+          <ModalHeader fontWeight="bold" fontSize="xl">Bid Details</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <VStack spacing={5}>
+              <FormControl>
+                <FormLabel>Mystery Box Number</FormLabel>
+                <Input value={selectedBox?.id || ''} isReadOnly bg={colors.dark} borderColor={colors.primary[150]} />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Team Code</FormLabel>
+                <Input value={teamCode} onChange={(e) => setTeamCode(e.target.value)} placeholder="Enter team code" bg={colors.dark} borderColor={colors.primary[150]} />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Team Name</FormLabel>
+                <Input value={teamName} onChange={(e) => setTeamName(e.target.value)} placeholder="Enter team name" bg={colors.dark} borderColor={colors.primary[150]} />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Bid Amount</FormLabel>
+                <Input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="Enter bid amount" bg={colors.dark} borderColor={colors.primary[150]} />
+              </FormControl>
+              <VStack align="flex-start" p={4} bg={colors.dark} borderRadius="md" w="100%">
+                <Text fontWeight="bold" color={colors.primary[50]}>Mystery Box Content</Text>
+                <Text fontSize="md" fontStyle="italic">{selectedBox?.content}</Text>
+              </VStack>
+              <Button onClick={handleModalSubmit} bgGradient={`linear(to-r, ${colors.primary[100]}, ${colors.primary[150]})`} _hover={{ bgGradient: `linear(to-r, ${colors.primary[50]}, ${colors.primary[100]})`, transform: "scale(1.05)" }} w="100%" mt={4} borderRadius="lg" shadow="md">Save</Button>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
