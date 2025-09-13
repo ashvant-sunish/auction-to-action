@@ -71,7 +71,7 @@ function AdminTableAdmin() {
             const displayAdmin = {
                 id: admin._id || admin.id,
                 username: admin.username,
-                role: admin.role || 'admin',
+                role: admin.role || 'not found',
                 original: admin
             };
             setSelectedAdmin(displayAdmin);

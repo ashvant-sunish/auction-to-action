@@ -1,17 +1,27 @@
 import React from 'react';
 import SpinningCardWheel from './spinthewheel/SpinningCardWheel';
+import FormRound1 from './spinthewheel/Form.Round1';
 
 function Round1() {
+  // Get admin user data from localStorage
+  const getAdminUser = () => {
+    try {
+      const userData = localStorage.getItem('adminUser');
+      return userData ? JSON.parse(userData) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const adminUser = getAdminUser();
+  const adminRole = adminUser?.role;
+
+  console.log("Admin User:", adminUser);
+  console.log("Admin Role:", adminRole);
+
   return (
     <div>
-      <SpinningCardWheel
-        cardCount={75}
-        cylinderRadius={280}
-        animationDuration={6000}
-        onCardSelected={(cardNumber) => {
-          console.log(`Card ${cardNumber} was selected!`);
-        }}
-      />
+      { adminRole === "superadmin" ? <SpinningCardWheel /> : <FormRound1 /> }
     </div>
   )
 }

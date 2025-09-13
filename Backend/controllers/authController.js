@@ -10,9 +10,14 @@ const Team = require('../models/Team');
  */
 exports.registerAdmin = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, role = 'admin' } = req.body;
         if (!username || !password) {
             return res.status(400).json({ message: 'Username and password are required.' });
+        }
+        
+        // Validate role
+        if (role && !['admin', 'superadmin'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role. Must be either "admin" or "superadmin".' });
         }
         
         const existingAdmin = await AdminUser.findOne({ username });
@@ -21,11 +26,14 @@ exports.registerAdmin = async (req, res) => {
         }
         
         const hashedPassword = await bcrypt.hash(password, 10);
-        const admin = new AdminUser({ username, password: hashedPassword });
+        const admin = new AdminUser({ username, password: hashedPassword, role });
         
         await admin.save();
         
-        res.status(201).json({ message: 'Admin user created successfully.' });
+        res.status(201).json({ 
+            message: `${role.charAt(0).toUpperCase() + role.slice(1)} user created successfully.`,
+            role: admin.role 
+        });
     } catch (error) {
         console.error("ERROR CREATING ADMIN:", error); 
         res.status(500).json({ message: 'Server error while creating admin.' });
@@ -46,7 +54,15 @@ exports.loginAdmin = async (req, res) => {
                 process.env.ADMIN_JWT_SECRET,
                 { expiresIn: '8h' }
             );
-            res.json({ message: 'Admin login successful!', token });
+            res.json({ 
+                message: 'Admin login successful!', 
+                token,
+                user: {
+                    id: admin._id,
+                    username: admin.username,
+                    role: admin.role
+                }
+            });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
         }
