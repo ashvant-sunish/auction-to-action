@@ -352,7 +352,6 @@ exports.deleteTradeHistory = async (req, res) => {
     res.status(500).json({ message: 'Error deleting trade history' });
   }
 };
-<<<<<<< HEAD
 
 // --- ROUND 1 SPINNING WHEEL INTEGRATION ---
 
@@ -713,7 +712,6 @@ exports.getGameState = async (req, res) => {
         res.status(500).json({ message: 'Error fetching game state' });
     }
 };
-=======
 // --- TEAM STATUS MANAGEMENT (isActive toggle) ---
 
 /**
@@ -748,5 +746,3 @@ exports.setTeamActiveStatus = async (req, res) => {
     res.status(500).json({ message: 'Server error updating team status.' });
   }
 };
-
->>>>>>> dcad12332d45d9b295c4d27e644b1fdb75a16b4f
