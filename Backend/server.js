@@ -11,6 +11,7 @@ const teamRoutes = require('./routes/teamRoutes');
 const socketRoutes = require('./routes/socketRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
 const wheelRoutes = require('./routes/wheelRoutes');
+const mysteryBoxRoutes = require('./routes/mysteryBoxRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -41,6 +42,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/trade', tradeRoutes);
 app.use('/api/wheel', wheelRoutes); // Wheel selection routes
+app.use('/api/mysterybox', mysteryBoxRoutes); // Mystery box routes
 app.use('/', socketRoutes); // Socket routes for real-time updates
 
 // Welcome Route

@@ -2,6 +2,7 @@
 
 const TradeHistory = require('../models/TradeHistory');
 const Team = require('../models/Team');
+const BidHistory = require('../models/BidHistory');
 
 // Execute a trade between two teams
 const executeTrade = async (req, res) => {
@@ -307,9 +308,211 @@ const getTradeStats = async (req, res) => {
   }
 };
 
+// Submit trade for Round 2 Mystery Box rewards
+const submitTrade = async (req, res) => {
+  try {
+    console.log('Mystery box trade submission:', JSON.stringify(req.body, null, 2));
+    
+    const {
+      teamId,
+      teamName,
+      bidAmount,
+      deductionAmount,
+      cashReward,
+      cashMultiplier,
+      mysteryBoxReward,
+      rewardType,
+      resources,
+      round,
+      tradeType
+    } = req.body;
+
+    // Validate required fields
+    if (!teamId || !teamName || !bidAmount) {
+      return res.status(400).json({
+        success: false,
+        message: 'Team ID, team name, and bid amount are required'
+      });
+    }
+
+    // Find the team by teamCode (case-insensitive)
+    const team = await Team.findOne({ 
+      teamCode: { $regex: new RegExp(`^${teamId}$`, 'i') }
+    });
+
+    if (!team) {
+      return res.status(404).json({
+        success: false,
+        message: `Team not found with ID: ${teamId}`
+      });
+    }
+
+    // Check if team has sufficient balance for deduction
+    const currentBalance = team.credit - team.debit;
+    if (deductionAmount && currentBalance < deductionAmount) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient balance. Required: ₹${deductionAmount.toLocaleString()}, Available: ₹${currentBalance.toLocaleString()}`
+      });
+    }
+
+    console.log(`Team ${team.teamName} balance before transaction:`, {
+      credit: team.credit,
+      debit: team.debit,
+      balance: currentBalance
+    });
+
+    // Update team balance using credit/debit system
+    if (deductionAmount) {
+      team.debit += deductionAmount; // Increase debit when spending money
+    }
+    if (cashReward) {
+      team.credit += cashReward; // Increase credit when gaining money
+    }
+
+    // Update team resources
+    if (resources && rewardType === 'resources') {
+      Object.entries(resources).forEach(([resourceName, amount]) => {
+        if (amount > 0) {
+          const currentAmount = team.resources.get(resourceName) || 0;
+          team.resources.set(resourceName, currentAmount + amount);
+        }
+      });
+    }
+
+    // Save team updates
+    await team.save();
+
+    // Calculate final balance after transaction
+    const finalBalance = team.credit - team.debit;
+    
+    console.log(`Team ${team.teamName} balance after transaction:`, {
+      credit: team.credit,
+      debit: team.debit,
+      balance: finalBalance,
+      balanceChange: finalBalance - currentBalance
+    });
+
+    // Create bid history record
+    const bidHistoryData = {
+      round: round || 2,
+      teamCode: team.teamCode,
+      teamName: team.teamName,
+      bidAmount: bidAmount,
+      mysteryBoxReward: mysteryBoxReward,
+      rewardType: rewardType,
+      deductionAmount: deductionAmount || 0,
+      cashReward: cashReward || 0,
+      cashMultiplier: cashMultiplier || 1,
+      resourcesGained: {},
+      balanceAfter: finalBalance,
+      creditAfter: team.credit,
+      debitAfter: team.debit,
+      tradeType: tradeType || 'mystery_box_reward'
+    };
+
+    // Add resources to bid history
+    if (resources && rewardType === 'resources') {
+      Object.entries(resources).forEach(([resourceName, amount]) => {
+        if (amount > 0) {
+          bidHistoryData.resourcesGained[resourceName] = amount;
+        }
+      });
+    }
+
+    const bidHistory = new BidHistory(bidHistoryData);
+    await bidHistory.save();
+
+    // Create trade history record
+    const tradeHistoryData = {
+      tradeId: `R2_${team.teamCode}_${Date.now()}`,
+      round: round || 2,
+      teamOne: {
+        teamCode: team.teamCode,
+        teamName: team.teamName,
+        teamNumber: team.teamCode
+      },
+      teamTwo: {
+        teamCode: 'SYSTEM',
+        teamName: 'Mystery Box System',
+        teamNumber: 'SYS'
+      },
+      teamOneGives: {
+        money: deductionAmount || 0,
+        items: []
+      },
+      teamTwoGives: {
+        money: cashReward || 0,
+        items: []
+      },
+      mysteryBoxData: {
+        reward: mysteryBoxReward,
+        rewardType: rewardType,
+        cashMultiplier: cashMultiplier || 1,
+        resourcesGained: bidHistoryData.resourcesGained
+      },
+      status: 'completed',
+      executedBy: req.user?.userId || 'admin',
+      executedAt: new Date()
+    };
+
+    // Add resources to trade history
+    if (resources && rewardType === 'resources') {
+      const resourceItems = Object.entries(resources)
+        .filter(([name, amount]) => amount > 0)
+        .map(([name, amount]) => ({ name, quantity: amount }));
+      tradeHistoryData.teamTwoGives.items = resourceItems;
+    }
+
+    const tradeHistory = new TradeHistory(tradeHistoryData);
+    await tradeHistory.save();
+
+    // Emit socket event for real-time updates
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('tradeCompleted', {
+        teamCode: team.teamCode,
+        teamName: team.teamName,
+        round: round || 2,
+        mysteryBoxReward: mysteryBoxReward,
+        rewardType: rewardType,
+        balanceChange: finalBalance - currentBalance,
+        newBalance: finalBalance,
+        newCredit: team.credit,
+        newDebit: team.debit,
+        resourcesGained: bidHistoryData.resourcesGained
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Mystery box reward processed successfully',
+      data: {
+        teamName: team.teamName,
+        balanceChange: finalBalance - currentBalance,
+        newBalance: finalBalance,
+        newCredit: team.credit,
+        newDebit: team.debit,
+        resourcesGained: bidHistoryData.resourcesGained,
+        bidHistory: bidHistoryData,
+        tradeHistory: tradeHistoryData
+      }
+    });
+
+  } catch (error) {
+    console.error('Error submitting mystery box trade:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error processing mystery box reward',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   executeTrade,
   getAllTrades,
   getTeamTrades,
-  getTradeStats
+  getTradeStats,
+  submitTrade
 };

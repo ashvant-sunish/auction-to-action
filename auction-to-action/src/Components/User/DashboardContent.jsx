@@ -32,7 +32,7 @@ import { FaSearch } from "react-icons/fa";
 import { FiMaximize, FiMinimize } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import serverUrl from "../../servercon";
-import { Round2 } from "./../Admin/Content/Rounds/Round2";
+import Round2 from "./../Admin/Content/Rounds/Round2.jsx";
 import { RiAuctionLine } from "react-icons/ri";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 

@@ -7,11 +7,13 @@ const {
   executeTrade,
   getAllTrades,
   getTeamTrades,
-  getTradeStats
+  getTradeStats,
+  submitTrade
 } = require('../controllers/tradeController');
 
 // Admin routes for trade management
 router.post('/execute', protectAdmin, executeTrade);
+router.post('/submit-trade', protectAdmin, submitTrade);
 router.get('/all', protectAdmin, getAllTrades);
 router.get('/stats', protectAdmin, getTradeStats);
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -6,8 +6,11 @@ import {
   VStack,
   HStack,
   Center,
+  Badge,
+  Flex,
 } from "@chakra-ui/react";
 import { css, keyframes } from "@emotion/react";
+import io from 'socket.io-client';
 
 // Custom theme colors
 const colors = {
@@ -56,42 +59,81 @@ const glowPulse = keyframes`
 `;
 
 const Round2User = () => {
-  // New state to manage the bid history
-  const [bidHistory, setBidHistory] = useState([]);
+  const [revealedBox, setRevealedBox] = useState(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const [countdown, setCountdown] = useState(0);
 
-  // Example data for a revealed bid. In a real app, this would come from an API or game logic.
-  const sampleRevealedBid = {
-    id: bidHistory.length + 1,
-    text: "Gain 6 Transportation, 2 Office Space",
-    amount: "1789"
-  };
+  // Initialize socket connection
+  useEffect(() => {
+    const newSocket = io('http://localhost:5000');
+    setSocket(newSocket);
 
-  const handleReveal = () => {
+    // Listen for mystery box reveals
+    newSocket.on('mysteryBoxRevealed', (boxData) => {
+      console.log('Mystery box revealed for users:', boxData);
+      handleAdminReveal(boxData);
+    });
+
+    // Listen for reset events
+    newSocket.on('mysteryBoxReset', () => {
+      handleReset();
+    });
+
+    // Listen for undo events
+    newSocket.on('mysteryBoxUndo', () => {
+      handleReset();
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  // Auto reset timer
+  useEffect(() => {
+    let timer;
+    if (isRevealed && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            handleReset();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isRevealed, countdown]);
+
+  const handleAdminReveal = (boxData) => {
     setIsShaking(true);
+    setRevealedBox(boxData);
+    
     setTimeout(() => {
-      // Add the new bid to the history
-      setBidHistory([...bidHistory, sampleRevealedBid]);
       setIsRevealed(true);
       setIsShaking(false);
+      setCountdown(60); // Start 60 second countdown
     }, 1000);
   };
 
-  // New function to handle the undo action
-const handleUndo = () => {
-  if (bidHistory.length > 0) {
-    setBidHistory(bidHistory.slice(0, -1));
-  }
-  setIsRevealed(false); // Go back to box state
-};
-
-
   const handleReset = () => {
-    // Clear both the revealed state and the bid history
     setIsRevealed(false);
     setIsShaking(false);
-    setBidHistory([]);
+    setRevealedBox(null);
+    setCountdown(0);
+  };
+
+  const getRewardTypeColor = (type) => {
+    switch (type) {
+      case 'cash': return colors.primary[50];
+      case 'resources': return '#4A90E2';
+      case 'challenge': return '#FF8C42';
+      case 'nothing': return '#8A8A8A';
+      default: return colors.primary[100];
+    }
   };
 
   return (
@@ -123,6 +165,31 @@ const handleUndo = () => {
 
       <Center>
         <VStack spacing={8}>
+          {/* Status Header */}
+          {isRevealed && revealedBox && (
+            <Flex direction="column" align="center" spacing={2}>
+              <Badge 
+                colorScheme={revealedBox.itemType === 'cash' ? 'green' : 
+                           revealedBox.itemType === 'resources' ? 'blue' : 
+                           revealedBox.itemType === 'challenge' ? 'orange' : 'gray'} 
+                fontSize="lg" 
+                p={3}
+                borderRadius="full"
+              >
+                Box {revealedBox.boxId} - {revealedBox.itemName}
+              </Badge>
+              {countdown > 0 && (
+                <Text 
+                  color={colors.white} 
+                  fontSize="sm" 
+                  fontWeight="bold"
+                  textShadow={`1px 1px 2px ${colors.dark}`}
+                >
+                  Auto-reset in {countdown}s
+                </Text>
+              )}
+            </Flex>
+          )}
           {/* Mystery Box */}
           {!isRevealed && (
             <Box
@@ -132,15 +199,14 @@ const handleUndo = () => {
               bg={`linear-gradient(45deg, ${colors.primary[200]}, ${colors.primary[150]})`}
               border={`3px solid ${colors.primary[100]}`}
               borderRadius="20px"
-              cursor="pointer"
+              cursor="not-allowed"
               transition="all 0.3s ease"
               animation={isShaking ? `${boxShake} 0.5s ease-in-out 2` : ""}
+              opacity={0.8}
               _hover={{
-                transform: "scale(1.05)",
-                boxShadow: `0 0 20px ${colors.primary[100]}`,
-                animation: `${glowPulse} 2s infinite`,
+                transform: "scale(1.02)",
+                boxShadow: `0 0 15px ${colors.primary[100]}`,
               }}
-              onClick={handleReveal}
             >
               {/* Box lid */}
               <Box
@@ -179,14 +245,25 @@ const handleUndo = () => {
 
               {/* Mystery symbol */}
               <Center height="100%">
-                <Text
-                  fontSize="4xl"
-                  color={colors.white}
-                  fontWeight="bold"
-                  textShadow={`2px 2px 4px ${colors.dark}`}
-                >
-                  ?
-                </Text>
+                <VStack spacing={2}>
+                  <Text
+                    fontSize="4xl"
+                    color={colors.white}
+                    fontWeight="bold"
+                    textShadow={`2px 2px 4px ${colors.dark}`}
+                  >
+                    ?
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color={colors.white}
+                    fontWeight="bold"
+                    textShadow={`1px 1px 2px ${colors.dark}`}
+                    textAlign="center"
+                  >
+                    Waiting for Admin
+                  </Text>
+                </VStack>
               </Center>
 
               {/* Glow effect */}
@@ -233,8 +310,22 @@ const handleUndo = () => {
                     textShadow={`2px 2px 4px ${colors.dark}`}
                     letterSpacing="wider"
                   >
-                    {bidHistory.length > 0 ? bidHistory[bidHistory.length - 1].text : ""}
+                    {revealedBox?.content || revealedBox?.description || "Mystery Reward"}
                   </Text>
+                  
+                  {/* Reward type indicator */}
+                  {revealedBox?.itemType && (
+                    <Badge 
+                      colorScheme={revealedBox.itemType === 'cash' ? 'green' : 
+                                 revealedBox.itemType === 'resources' ? 'blue' : 
+                                 revealedBox.itemType === 'challenge' ? 'orange' : 'gray'}
+                      fontSize="md"
+                      p={2}
+                      borderRadius="full"
+                    >
+                      {revealedBox.itemType.toUpperCase()} REWARD
+                    </Badge>
+                  )}
                   
                   {/* Decorative elements */}
                   <Box
@@ -265,7 +356,34 @@ const handleUndo = () => {
             </Box>
           )}
           
-
+          {/* Real-time Status Display */}
+          {!isRevealed && (
+            <Box 
+              bg="rgba(255, 255, 255, 0.1)" 
+              backdropFilter="blur(10px)"
+              borderRadius="20px"
+              p={4}
+              border={`1px solid ${colors.primary[100]}33`}
+            >
+              <Text 
+                color={colors.white} 
+                textAlign="center" 
+                fontSize="lg"
+                fontWeight="bold"
+                textShadow={`1px 1px 2px ${colors.dark}`}
+              >
+                🎁 Round 2: Mystery Box Reveal
+              </Text>
+              <Text 
+                color={colors.primary[50]} 
+                textAlign="center" 
+                fontSize="sm"
+                mt={2}
+              >
+                Admin will reveal mystery boxes in real-time
+              </Text>
+            </Box>
+          )}
 
         </VStack>
       </Center>
