@@ -149,12 +149,30 @@ function UserDashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call backend logout endpoint to set isActive = false
+      const token = localStorage.getItem("token");
+      if (token) {
+        await axios.post(`${socketServerUrl}/api/team/logout`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Continue with logout even if backend call fails
+    }
+
+    // Clean up frontend
     if (teamData?.teamNumber) {
       socketService.leaveTeam(teamData.teamNumber);
     }
     socketService.disconnect();
     localStorage.removeItem("token");
+    
     toast({
       title: "Logged out successfully",
       status: "success",

@@ -34,7 +34,9 @@ app.set('io', io); // Also set as 'io' for the wheel routes
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ Successfully connected to MongoDB!'))
+  .then(() => {
+    console.log('✅ Successfully connected to MongoDB!');
+  })
   .catch((err) => console.error('❌ Database connection error:', err));
 
 // API Routes

@@ -43,7 +43,7 @@ const teamSchema = new mongoose.Schema({
   // --- NEW FIELD ---
   isActive: {
     type: Boolean,
-    default: false   // Team starts as inactive until login
+    default: false   // Team is inactive by default, active only when logged in
   }
 
 }, {

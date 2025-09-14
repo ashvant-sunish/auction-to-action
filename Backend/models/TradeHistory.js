@@ -51,7 +51,8 @@ const tradeHistorySchema = new mongoose.Schema({
   executedBy: { type: String }, // Admin who executed the trade
   executedAt: { type: Date, default: Date.now }
 }, {
-  timestamps: true
+  timestamps: true,
+  collection: 'tradelistings' // Explicitly set collection name
 });
 
 module.exports = mongoose.model('TradeHistory', tradeHistorySchema);

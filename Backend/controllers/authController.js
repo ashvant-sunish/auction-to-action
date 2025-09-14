@@ -85,12 +85,14 @@ exports.loginTeam = async (req, res) => {
       return res.status(401).json({ message: 'Invalid Team Code or Password.' });
     }
 
-    // 🔹 Check if team is active
-    if (team.isActive === false) {
-      return res.status(403).json({ message: 'This team is currently deactivated by the Admin.' });
-    }
-
+    // 🔹 Teams can login even if inactive - isActive tracks current session status
+    // Only block if explicitly deactivated by admin (this would require a separate field)
+    
     if (await bcrypt.compare(password, team.password)) {
+      // Set team as active on successful login
+      team.isActive = true;
+      await team.save();
+
       const token = jwt.sign(
         { teamId: team._id, teamCode: team.teamCode, role: 'participant' },
         process.env.JWT_SECRET,
@@ -103,6 +105,32 @@ exports.loginTeam = async (req, res) => {
   } catch (error) {
     console.error("❌ Error logging in team:", error);
     res.status(500).json({ message: 'Server error during login.' });
+  }
+};
+
+/**
+ * Logs out a Team.
+ */
+exports.logoutTeam = async (req, res) => {
+  try {
+    // req.user is populated by the protectTeam middleware
+    const team = await Team.findById(req.user.teamId);
+
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found.' });
+    }
+
+    // Set team as inactive on logout
+    team.isActive = false;
+    await team.save();
+
+    res.status(200).json({ 
+      message: 'Logout successful!',
+      teamCode: team.teamCode 
+    });
+  } catch (error) {
+    console.error("❌ Error logging out team:", error);
+    res.status(500).json({ message: 'Server error during logout.' });
   }
 };
 
