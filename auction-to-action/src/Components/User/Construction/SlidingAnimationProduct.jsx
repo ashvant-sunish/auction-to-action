@@ -59,10 +59,12 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       });
 
       if (response.data.enterprises) {
-        setOwnedEnterprises(response.data.enterprises.map(ent => ent.id));
+        const enterpriseIds = response.data.enterprises.map(ent => parseInt(ent.id));
+        console.log('Owned enterprises:', enterpriseIds);
+        setOwnedEnterprises(enterpriseIds);
       }
       if (response.data.products) {
-        setOwnedProducts(response.data.products.map(prod => prod.id));
+        setOwnedProducts(response.data.products.map(prod => parseInt(prod.id)));
       }
     } catch (error) {
       console.error('Error fetching team inventory:', error);
@@ -80,9 +82,10 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
     const normalized = (Array.isArray(productsData) ? productsData : []).map(
       (product, i) => {
         const imageName = (product.imageUrl || "").split("/").pop();
-        const isAvailable = ownedEnterprises.includes(
-          product.requiredEnterpriseId
-        );
+        const requiredId = parseInt(product.requiredEnterpriseId);
+        const isAvailable = ownedEnterprises.includes(requiredId);
+        
+        console.log(`Product ${product.title}: requires enterprise ${requiredId}, available: ${isAvailable}`);
 
         return {
           ...product,
@@ -248,14 +251,15 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   );
 
   // Individual lock variables for each product (change to false to unlock)
-  const needsLock1 = false; // Product 1 unlocked
-  const needsLock2 = true;
-  const needsLock3 = true;
-  const needsLock4 = true;
-  const needsLock5 = true;
+  // Now using availability check instead of hardcoded locks
+  const needsLock1 = !cards[0]?.isAvailable; 
+  const needsLock2 = !cards[1]?.isAvailable;
+  const needsLock3 = !cards[2]?.isAvailable;
+  const needsLock4 = !cards[3]?.isAvailable;
+  const needsLock5 = !cards[4]?.isAvailable;
 
   // Local variable to lock all cards (set to false to unlock all)
-  const allLocked = true; // TODO: Replace with backend value
+  const allLocked = false; // Unlock all cards
 
   const handleCardClick = useCallback(
     (cardId, idx, event) => {
@@ -266,25 +270,17 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
 
       if (isScrollingRef.current) return;
 
-      // Assign lock state per product
-      let isLocked = false;
-      if (idx === 0) isLocked = needsLock1;
-      else if (idx === 1) isLocked = needsLock2;
-      else if (idx === 2) isLocked = needsLock3;
-      else if (idx === 3) isLocked = needsLock4;
-      else if (idx === 4) isLocked = needsLock5;
-
-      if (isLocked) return; // Prevent interaction if locked
-
-      stopScrolling();
-
       const card = cards.find((c) => c.id === cardId);
+      
+      // Use availability check instead of hardcoded locks
+      const isLocked = !card?.isAvailable;
 
-      // Only allow selection of available products
-      if (!card?.isAvailable) {
+      if (isLocked) {
         console.log("Product not available - required enterprise not owned");
         return;
       }
+
+      stopScrolling();
 
       if (activeCardRef.current === cardId) {
         // deselect
@@ -557,13 +553,8 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
           ref={containerRef}
         >
           {cards.map((card, idx) => {
-            // Assign lock state per product
-            let isLocked = false;
-            if (idx === 0) isLocked = needsLock1;
-            else if (idx === 1) isLocked = needsLock2;
-            else if (idx === 2) isLocked = needsLock3;
-            else if (idx === 3) isLocked = needsLock4;
-            else if (idx === 4) isLocked = needsLock5;
+            // Use availability check instead of hardcoded locks
+            const isLocked = !card.isAvailable;
 
             const isActive = activeCard === card.id;
             const isHovered = hoveredCard === card.id;

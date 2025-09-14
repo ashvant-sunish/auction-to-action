@@ -59,15 +59,6 @@ const constructEnterprise = async (req, res) => {
       return res.status(404).json({ error: 'Team not found' });
     }
 
-    // Check if enterprise already constructed
-    const alreadyOwned = team.enterprises.find(ent => ent.id === enterpriseId);
-    if (alreadyOwned) {
-      return res.status(400).json({ 
-        error: `You already own "${title}"`,
-        type: 'already_owned'
-      });
-    }
-
     // Check resource requirements
     const resourceCheck = checkResourceRequirements(team.resources, requirements);
     if (!resourceCheck.isValid) {
@@ -137,20 +128,17 @@ const purchaseProduct = async (req, res) => {
     }
 
     // Check if required enterprise is owned
-    const ownsRequiredEnterprise = team.enterprises.find(ent => ent.id === requiredEnterpriseId);
+    const ownsRequiredEnterprise = team.enterprises.find(ent => 
+      parseInt(ent.id) === parseInt(requiredEnterpriseId)
+    );
     if (!ownsRequiredEnterprise) {
+      console.log('Enterprise check failed:', {
+        requiredEnterpriseId,
+        ownedEnterprises: team.enterprises.map(ent => ({ id: ent.id, title: ent.title }))
+      });
       return res.status(400).json({ 
         error: `You need to own the required enterprise (ID: ${requiredEnterpriseId}) to purchase this product`,
         type: 'missing_enterprise'
-      });
-    }
-
-    // Check if product already purchased
-    const alreadyOwned = team.products.find(prod => prod.id === productId);
-    if (alreadyOwned) {
-      return res.status(400).json({ 
-        error: `You already own "${title}"`,
-        type: 'already_owned'
       });
     }
 

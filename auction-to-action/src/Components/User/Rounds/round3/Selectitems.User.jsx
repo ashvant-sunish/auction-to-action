@@ -154,18 +154,30 @@ const TradingWishlistTable = () => {
     }
   };
 
-  // Convert team resources to tradeable format
+  // Convert team resources to tradeable format with commitment info
   const availableResources = useMemo(() => {
     if (!teamData?.resources) return [];
     
+    // Create map of committed resources from current wishlist
+    const committedMap = new Map();
+    currentWishlist.forEach(item => {
+      committedMap.set(item.name, item.count);
+    });
+    
     return Object.entries(teamData.resources)
       .filter(([name, count]) => count > 0)
-      .map(([name, count]) => ({
-        name,
-        count,
-        type: 'resource'
-      }));
-  }, [teamData]);
+      .map(([name, count]) => {
+        const committed = committedMap.get(name) || 0;
+        const available = count - committed;
+        return {
+          name,
+          totalCount: count,
+          committed,
+          available: Math.max(0, available),
+          type: 'resource'
+        };
+      });
+  }, [teamData, currentWishlist]);
 
   const handleCheckboxChange = (itemName, isChecked) => {
     setTradeItems((prev) => ({
@@ -178,8 +190,9 @@ const TradingWishlistTable = () => {
   };
 
   const handleQuantityChange = (itemName, value) => {
-    const totalCount = availableResources.find((r) => r.name === itemName)?.count || 0;
-    const newCount = Math.max(0, Math.min(parseInt(value, 10) || 0, totalCount));
+    const resource = availableResources.find((r) => r.name === itemName);
+    const maxAvailable = resource?.available || 0;
+    const newCount = Math.max(0, Math.min(parseInt(value, 10) || 0, maxAvailable));
 
     setTradeItems((prev) => ({
       ...prev,
@@ -259,17 +272,42 @@ const TradingWishlistTable = () => {
         // Reset form
         setTradeItems({});
       } else {
-        throw new Error(result.message || 'Failed to submit trade wishlist');
+        // Handle detailed error responses
+        if (result.error === 'INSUFFICIENT_RESOURCES' && result.details) {
+          const { resource, available, currentlyCommitted, requested, totalNeeded } = result.details;
+          toast({
+            title: 'Insufficient Resources',
+            description: `${resource}: Available ${available}, Already committed ${currentlyCommitted}, Requesting ${requested} more. Total needed: ${totalNeeded}`,
+            status: 'error',
+            duration: 8000,
+            isClosable: true,
+          });
+        } else {
+          throw new Error(result.message || 'Failed to submit trade wishlist');
+        }
       }
     } catch (error) {
       console.error('Error submitting trade wishlist:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to submit trade wishlist',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      
+      // Try to parse detailed error from response
+      if (error.response?.data?.details) {
+        const { resource, available, currentlyCommitted, requested, totalNeeded } = error.response.data.details;
+        toast({
+          title: 'Resource Validation Failed',
+          description: `${resource}: You have ${available} available, ${currentlyCommitted} already committed. Cannot commit ${requested} more (would need ${totalNeeded} total).`,
+          status: 'error',
+          duration: 8000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to submit trade wishlist',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -378,7 +416,13 @@ const TradingWishlistTable = () => {
                   {availableResources.length} Resource Types
                 </Badge>
                 <Badge colorScheme="orange" fontSize="sm">
-                  {availableResources.reduce((sum, item) => sum + item.count, 0)} Total Items
+                  {availableResources.reduce((sum, item) => sum + item.totalCount, 0)} Total Items
+                </Badge>
+                <Badge colorScheme="purple" fontSize="sm">
+                  {availableResources.reduce((sum, item) => sum + item.committed, 0)} Committed
+                </Badge>
+                <Badge colorScheme="green" fontSize="sm">
+                  {availableResources.reduce((sum, item) => sum + item.available, 0)} Available
                 </Badge>
               </HStack>
             </HStack>
@@ -433,6 +477,8 @@ const TradingWishlistTable = () => {
                         <Tr>
                           <Th color="gray.600">Select</Th>
                           <Th color="gray.600">Resource Name</Th>
+                          <Th color="gray.600" isNumeric>Total</Th>
+                          <Th color="gray.600" isNumeric>Committed</Th>
                           <Th color="gray.600" isNumeric>Available</Th>
                           <Th color="gray.600" isNumeric>Quantity to Trade</Th>
                         </Tr>
@@ -454,8 +500,18 @@ const TradingWishlistTable = () => {
                               <Text color="gray.700" fontWeight="medium">{item.name}</Text>
                             </Td>
                             <Td isNumeric>
-                              <Badge colorScheme="green" variant="subtle">
-                                {item.count}
+                              <Badge colorScheme="blue" variant="subtle">
+                                {item.totalCount}
+                              </Badge>
+                            </Td>
+                            <Td isNumeric>
+                              <Badge colorScheme="purple" variant="subtle">
+                                {item.committed}
+                              </Badge>
+                            </Td>
+                            <Td isNumeric>
+                              <Badge colorScheme={item.available > 0 ? "green" : "red"} variant="subtle">
+                                {item.available}
                               </Badge>
                             </Td>
                             <Td isNumeric>
@@ -463,9 +519,9 @@ const TradingWishlistTable = () => {
                                 size="sm"
                                 width="100px"
                                 min={0}
-                                max={item.count}
+                                max={item.available}
                                 value={tradeItems[item.name]?.count || 0}
-                                isDisabled={!tradeItems[item.name]?.isSelected}
+                                isDisabled={!tradeItems[item.name]?.isSelected || item.available === 0}
                                 onChange={(value) =>
                                   handleQuantityChange(item.name, value)
                                 }

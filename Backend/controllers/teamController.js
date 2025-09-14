@@ -103,13 +103,44 @@ exports.submitTradeWishlist = async (req, res) => {
         console.log('Team found:', team.teamCode, team.teamName);
         console.log('Team resources:', Object.fromEntries(team.resources || new Map()));
 
-        // Validate that team has the resources they want to trade
+        // Get existing wishlist first to check current commitments
+        let existingWishlist = await TradeWishlist.findOne({ 
+            teamCode: team.teamCode, 
+            round: 3,
+            status: 'active'
+        });
+
+        // Calculate current commitments for each resource
+        const currentCommitments = new Map();
+        if (existingWishlist) {
+            existingWishlist.itemsToTrade.forEach(item => {
+                currentCommitments.set(item.name, item.count);
+            });
+        }
+
+        console.log('Current wishlist commitments:', Object.fromEntries(currentCommitments));
+
+        // Validate that team has enough resources for total commitment (existing + new)
         for (const item of itemsToTrade) {
             const available = team.resources.get(item.name) || 0;
-            console.log(`Checking ${item.name}: available=${available}, requested=${item.count}`);
-            if (available < item.count) {
+            const currentlyCommitted = currentCommitments.get(item.name) || 0;
+            const newCommitment = item.count;
+            const totalCommitment = currentlyCommitted + newCommitment;
+
+            console.log(`Checking ${item.name}: available=${available}, currently_committed=${currentlyCommitted}, new=${newCommitment}, total_needed=${totalCommitment}`);
+            
+            if (totalCommitment > available) {
                 return res.status(400).json({
-                    message: `Insufficient ${item.name}. Available: ${available}, Requested: ${item.count}`
+                    success: false,
+                    message: `Insufficient ${item.name}. Available: ${available}, Already committed: ${currentlyCommitted}, Requesting: ${newCommitment}, Total needed: ${totalCommitment}`,
+                    error: 'INSUFFICIENT_RESOURCES',
+                    details: {
+                        resource: item.name,
+                        available,
+                        currentlyCommitted,
+                        requested: newCommitment,
+                        totalNeeded: totalCommitment
+                    }
                 });
             }
         }
@@ -128,12 +159,8 @@ exports.submitTradeWishlist = async (req, res) => {
 
         console.log('Trade wishlist data prepared:', tradeWishlistData);
 
-        // Create or update trade wishlist using the dedicated TradeWishlist model
-        let wishlistRecord = await TradeWishlist.findOne({ 
-            teamCode: team.teamCode, 
-            round: 3,
-            status: 'active'
-        });
+        // Use the existing wishlist we already fetched
+        let wishlistRecord = existingWishlist;
 
         if (wishlistRecord) {
             // Accumulate items instead of replacing them

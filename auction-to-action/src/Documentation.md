@@ -265,3 +265,7 @@
 
   - All components are working
   - Integreation also done 
+
+# Update 0.1.1
+
+  - Updated logic for user side round 3
