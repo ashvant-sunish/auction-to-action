@@ -2,6 +2,7 @@ const Team = require('../models/Team');
 const GameItem = require('../models/GameItem');
 const BidHistory = require('../models/BidHistory');
 const TradeHistory = require('../models/TradeHistory');
+const TradeWishlist = require('../models/TradeWishlist');
 
 /**
  * Gets all dashboard data for the logged-in team.
@@ -127,50 +128,46 @@ exports.submitTradeWishlist = async (req, res) => {
 
         console.log('Trade wishlist data prepared:', tradeWishlistData);
 
-        // Store in a collection or handle as needed
-        // For now, we'll create a simple trade history record
-        const tradeRecord = new TradeHistory({
-            tradeId: `R3_WISHLIST_${team.teamCode}_${Date.now()}`,
+        // Create or update trade wishlist using the dedicated TradeWishlist model
+        let wishlistRecord = await TradeWishlist.findOne({ 
+            teamCode: team.teamCode, 
             round: 3,
-            teamOne: {
-                teamCode: team.teamCode,
-                teamName: team.teamName,
-                teamNumber: team.teamCode
-            },
-            teamTwo: {
-                teamCode: 'SYSTEM',
-                teamName: 'Trade Wishlist System',
-                teamNumber: 'SYS'
-            },
-            teamOneGives: {
-                items: itemsToTrade.map(item => ({ name: item.name, quantity: item.count })),
-                money: 0
-            },
-            teamTwoGives: {
-                items: [],
-                money: 0
-            },
-            status: 'pending',
-            executedBy: 'team_submission',
-            executedAt: new Date()
+            status: 'active'
         });
 
-        console.log('Trade record to save:', tradeRecord);
-
-        await tradeRecord.save();
-        console.log('Trade record saved successfully with ID:', tradeRecord._id);
-
-        // Verify the record was actually saved by querying it back
-        const savedRecord = await TradeHistory.findById(tradeRecord._id);
-        console.log('Verification - Record found in database:', savedRecord ? 'YES' : 'NO');
-        if (savedRecord) {
-            console.log('Saved record details:', {
-                id: savedRecord._id,
-                tradeId: savedRecord.tradeId,
-                teamCode: savedRecord.teamOne.teamCode,
-                itemCount: savedRecord.teamOneGives.items.length
+        if (wishlistRecord) {
+            // Accumulate items instead of replacing them
+            const existingItems = new Map();
+            
+            // Add existing items to map
+            wishlistRecord.itemsToTrade.forEach(item => {
+                existingItems.set(item.name, item.count);
             });
+            
+            // Add new items to map (accumulating quantities)
+            itemsToTrade.forEach(item => {
+                const currentCount = existingItems.get(item.name) || 0;
+                existingItems.set(item.name, currentCount + item.count);
+            });
+            
+            // Convert map back to array
+            wishlistRecord.itemsToTrade = Array.from(existingItems.entries()).map(([name, count]) => ({
+                name,
+                count
+            }));
+            
+            wishlistRecord.totalItems = wishlistRecord.itemsToTrade.reduce((sum, item) => sum + item.count, 0);
+            wishlistRecord.submittedAt = new Date();
+            await wishlistRecord.save();
+            console.log('Updated existing trade wishlist record - items accumulated');
+        } else {
+            // Create new wishlist
+            wishlistRecord = new TradeWishlist(tradeWishlistData);
+            await wishlistRecord.save();
+            console.log('Created new trade wishlist record');
         }
+
+        console.log('Trade wishlist saved successfully with ID:', wishlistRecord._id);
 
         // Emit socket event for real-time updates
         const io = req.app.get('io');
@@ -206,11 +203,11 @@ exports.getTradeWishlist = async (req, res) => {
     try {
         const teamCode = req.user.teamCode;
 
-        // Find the latest trade wishlist for this team
-        const wishlist = await TradeHistory.findOne({
-            'teamOne.teamCode': teamCode,
+        // Find the latest trade wishlist for this team using the TradeWishlist model
+        const wishlist = await TradeWishlist.findOne({
+            teamCode: teamCode,
             round: 3,
-            status: 'pending'
+            status: 'active'
         }).sort({ createdAt: -1 });
 
         if (!wishlist) {
@@ -224,9 +221,9 @@ exports.getTradeWishlist = async (req, res) => {
         res.status(200).json({
             success: true,
             data: {
-                itemsToTrade: wishlist.teamOneGives.items,
-                totalItems: wishlist.teamOneGives.items.reduce((sum, item) => sum + item.quantity, 0),
-                submittedAt: wishlist.executedAt
+                itemsToTrade: wishlist.itemsToTrade,
+                totalItems: wishlist.totalItems,
+                submittedAt: wishlist.submittedAt
             }
         });
 
@@ -247,27 +244,27 @@ exports.getAllTeamsTradeOffers = async (req, res) => {
         const teams = await Team.find({}).select('-password').lean();
         console.log(`Found ${teams.length} teams`);
 
-        // Get all active trade wishlists from TradeHistory
-        const tradeWishlists = await TradeHistory.find({
+        // Get all active trade wishlists from TradeWishlist model
+        const tradeWishlists = await TradeWishlist.find({
             round: 3,
-            status: 'pending'
+            status: 'active'
         }).sort({ createdAt: -1 });
         
         console.log(`Found ${tradeWishlists.length} trade wishlists:`, tradeWishlists.map(w => ({
-            teamCode: w.teamOne.teamCode,
-            items: w.teamOneGives.items,
+            teamCode: w.teamCode,
+            items: w.itemsToTrade,
             createdAt: w.createdAt
         })));
 
         // Create a map of team codes to their latest trade wishlist
         const wishlistMap = new Map();
         tradeWishlists.forEach(wishlist => {
-            const teamCode = wishlist.teamOne.teamCode;
+            const teamCode = wishlist.teamCode;
             if (!wishlistMap.has(teamCode)) {
-                console.log(`Adding wishlist for ${teamCode}:`, wishlist.teamOneGives.items);
-                wishlistMap.set(teamCode, wishlist.teamOneGives.items.map(item => ({
+                console.log(`Adding wishlist for ${teamCode}:`, wishlist.itemsToTrade);
+                wishlistMap.set(teamCode, wishlist.itemsToTrade.map(item => ({
                     name: item.name,
-                    count: item.quantity
+                    count: item.count
                 })));
             }
         });

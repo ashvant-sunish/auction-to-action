@@ -48,7 +48,10 @@ const executeTrade = async (req, res) => {
       });
     }
 
-    console.log('Teams found:', { team1Name: team1.teamName, team2Name: team2.teamName });
+    console.log('Team 1 found:', team1.teamName);
+    console.log('Team 2 found:', team2.teamName);
+    console.log('TeamOneGives from request:', JSON.stringify(teamOneGives, null, 2));
+    console.log('TeamTwoGives from request:', JSON.stringify(teamTwoGives, null, 2));
 
     // Validate team1 has sufficient resources
     if (teamOneGives.items) {
@@ -141,6 +144,12 @@ const executeTrade = async (req, res) => {
     await team2.save();
 
     // Create trade record
+    console.log('Creating trade record with data:', {
+      tradeId,
+      teamOneGives: JSON.stringify(teamOneGives, null, 2),
+      teamTwoGives: JSON.stringify(teamTwoGives, null, 2)
+    });
+    
     const tradeRecord = new TradeHistory({
       tradeId,
       teamOne: {
@@ -153,10 +162,8 @@ const executeTrade = async (req, res) => {
         teamName: team2.teamName,
         teamCode: team2.teamCode
       },
-      tradeDetails: {
-        teamOneGives,
-        teamTwoGives
-      },
+      teamOneGives,
+      teamTwoGives,
       executedBy
     });
 

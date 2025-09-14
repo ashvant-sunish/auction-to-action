@@ -746,3 +746,32 @@ exports.setTeamActiveStatus = async (req, res) => {
     res.status(500).json({ message: 'Server error updating team status.' });
   }
 };
+
+// Get live auction status for dashboard
+exports.getLiveAuctionStatus = async (req, res) => {
+  try {
+    // Get the latest wheel selection from wheelselections collection
+    const WheelSelection = require('../models/WheelSelection');
+    const latestSelection = await WheelSelection.findOne({ 
+      eventType: 'RANDOM_SELECTED',
+      isLive: true 
+    }).sort({ timestamp: -1 });
+    
+    let selectedNumber = "0";
+    if (latestSelection && latestSelection.itemDetails && latestSelection.itemDetails.bidNumber) {
+      selectedNumber = latestSelection.itemDetails.bidNumber.toString();
+    }
+    
+    console.log('Latest wheel selection:', latestSelection);
+    console.log('Selected number:', selectedNumber);
+    
+    res.json({
+      selectedNumber,
+      currentItem: `Item ${selectedNumber}`,
+      timestamp: latestSelection?.timestamp || null
+    });
+  } catch (error) {
+    console.error('Error getting live auction status:', error);
+    res.status(500).json({ error: 'Failed to get live auction status' });
+  }
+};

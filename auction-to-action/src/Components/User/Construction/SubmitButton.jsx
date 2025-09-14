@@ -1,6 +1,6 @@
 import React from "react";
 
-const SubmitButton = ({ gameState, onClick }) => {
+const SubmitButton = ({ gameState, onClick, buttonText = "Construct" }) => {
   const styles = `
     .construct-row { 
       width: 100%; 
@@ -27,16 +27,17 @@ const SubmitButton = ({ gameState, onClick }) => {
     }
   `;
 
-  if (gameState !== 5) {
-    return null;
-  }
+  // Remove gameState restriction to always show the button
+  // if (gameState !== 5) {
+  //   return null;
+  // }
 
   return (
     <>
       <style>{styles}</style>
       <div className="construct-row">
         <button className="construct-btn" onClick={onClick}>
-          Construct
+          {buttonText}
         </button>
       </div>
     </>

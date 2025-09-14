@@ -1,33 +1,85 @@
 import React, { useState, useRef } from "react";
+import axios from 'axios';
+import { socketServerUrl } from '../../servercon';
 import SlidingAnimation from "./Construction/SlidingAnimation";
 import SlidingAnimationProduct from "./Construction/SlidingAnimationProduct";
 import SubmitButton from "./Construction/SubmitButton";
 
 const EnterpriseConstruction = ({ gameState }) => {
   const [notification, setNotification] = useState("");
-  const [activeTab, setActiveTab] = useState("enterprises"); // "enterprises" or "products"
+  const [activeTab, setActiveTab] = useState("enterprises");
   const slidingAnimationRef = useRef();
   const slidingAnimationProductRef = useRef();
 
-  const handleConstruct = () => {
+  const handleConstruct = async () => {
     const activeRef =
       activeTab === "enterprises"
         ? slidingAnimationRef
         : slidingAnimationProductRef;
     const activeCard = activeRef.current?.getActiveCard();
 
-    if (activeCard) {
-      const itemType = activeTab === "enterprises" ? "enterprise" : "product";
-      setNotification(
-        `The required items have been deducted for ${itemType} construction.`
-      );
-    } else {
+    if (!activeCard) {
       setNotification(
         `Please select a ${
           activeTab === "enterprises" ? "enterprise" : "product"
         } first.`
       );
+      setTimeout(() => setNotification(""), 5000);
+      return;
     }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setNotification("Please log in to construct items.");
+        setTimeout(() => setNotification(""), 5000);
+        return;
+      }
+
+      const endpoint = activeTab === "enterprises" 
+        ? `${socketServerUrl}/api/construction/construct-enterprise`
+        : `${socketServerUrl}/api/construction/purchase-product`;
+
+      const requestData = activeTab === "enterprises" 
+        ? {
+            enterpriseId: activeCard.id,
+            title: activeCard.title,
+            worth: activeCard.worth,
+            requirements: activeCard.requirements
+          }
+        : {
+            productId: activeCard.id,
+            title: activeCard.title,
+            worth: activeCard.worth,
+            requirements: activeCard.requirements,
+            requiredEnterpriseId: activeCard.requiredEnterpriseId
+          };
+
+      const response = await axios.post(endpoint, requestData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.success) {
+        setNotification(response.data.message);
+        
+        if (activeRef.current?.refreshComponent) {
+          activeRef.current.refreshComponent();
+        }
+      }
+
+    } catch (error) {
+      console.error('Construction error:', error);
+      
+      if (error.response?.data?.error) {
+        setNotification(error.response.data.error);
+      } else {
+        setNotification("Failed to construct/purchase item. Please try again.");
+      }
+    }
+
     setTimeout(() => setNotification(""), 5000);
   };
 
@@ -117,7 +169,6 @@ const EnterpriseConstruction = ({ gameState }) => {
       )}
       <style>{styles}</style>
       <div className="page-inner">
-        {/* Tab Navigation */}
         <div className="tab-navigation">
           <button
             className={`tab-button ${
@@ -135,7 +186,6 @@ const EnterpriseConstruction = ({ gameState }) => {
           </button>
         </div>
 
-        {/* Content Area */}
         <div className="content-container">
           {activeTab === "enterprises" && (
             <SlidingAnimation ref={slidingAnimationRef} />
@@ -145,7 +195,6 @@ const EnterpriseConstruction = ({ gameState }) => {
           )}
         </div>
 
-        {/* Submit Button */}
         <SubmitButton
           gameState={gameState}
           onClick={handleConstruct}

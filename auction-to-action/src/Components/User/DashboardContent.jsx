@@ -32,6 +32,7 @@ import { FaSearch } from "react-icons/fa";
 import { FiMaximize, FiMinimize } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import serverUrl from "../../servercon";
+import { io } from 'socket.io-client';
 import Round2 from "./../Admin/Content/Rounds/Round2.jsx";
 import { RiAuctionLine } from "react-icons/ri";
 import { IoIosInformationCircleOutline } from "react-icons/io";
@@ -246,12 +247,121 @@ const AvailableMaterialsTable = ({
 
 function DashboardContent({ teamData, currentRound, gameState }) {
   const [isMaterialsFullScreen, setMaterialsFullScreen] = useState(false);
+  const [selectedNumber, setSelectedNumber] = useState("0");
+  const [currentRevealedBox, setCurrentRevealedBox] = useState("0");
+  const [enterpriseWorth, setEnterpriseWorth] = useState(0);
+  const [productWorth, setProductWorth] = useState(0);
 
   // Sample data for the live auction card
   const sampleLiveAuction = {
     bidCount: 42,
     itemName: "Rare Metal",
   };
+
+  // Fetch live data based on current round
+  const fetchLiveData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No token found for live data fetch');
+        return;
+      }
+
+      console.log('Fetching live data for gameState:', gameState);
+
+      // Fetch live selected number for Round 1
+      if (gameState === 1) {
+        console.log('Fetching Round 1 selected number...');
+        const response = await fetch(`${serverUrl}/api/admin/live-auction-status`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        console.log('Selected number response status:', response.status);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Selected number data:', data);
+          setSelectedNumber(data.selectedNumber || "0");
+        } else {
+          console.error('Selected number fetch failed:', await response.text());
+        }
+      }
+
+      // Fetch current revealed mystery box number for Round 2
+      if (gameState === 3) {
+        console.log('Fetching Round 2 current revealed box number...');
+        const response = await fetch(`${serverUrl}/api/mysterybox/revealed-count`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        console.log('Mystery box response status:', response.status);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Mystery box data:', data);
+          setCurrentRevealedBox(data.currentRevealedBox?.toString() || "0");
+        } else {
+          console.error('Mystery box fetch failed:', await response.text());
+        }
+      }
+
+      // Fetch enterprise and product worth for Round 3
+      if (gameState === 5) {
+        console.log('Fetching Round 3 portfolio worth...');
+        const response = await fetch(`${serverUrl}/api/construction/portfolio-worth`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        console.log('Portfolio worth response status:', response.status);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Portfolio worth data:', data);
+          setEnterpriseWorth(data.enterpriseWorth || 0);
+          setProductWorth(data.productWorth || 0);
+        } else {
+          console.error('Portfolio worth fetch failed:', await response.text());
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching live data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveData();
+    // Refresh data every 10 seconds for live updates
+    const interval = setInterval(fetchLiveData, 10000);
+
+    // Socket connection for real-time updates
+    const socket = io(serverUrl);
+
+    // Listen for bid placed events (Round 1)
+    socket.on('bidPlaced', () => {
+      if (gameState === 1) {
+        fetchLiveData();
+      }
+    });
+
+    // Listen for mystery box revealed events (Round 2)
+    socket.on('mysteryBoxRevealed', () => {
+      if (gameState === 3) {
+        fetchLiveData();
+      }
+    });
+
+    // Listen for construction events (Round 3)
+    socket.on('enterpriseConstructed', () => {
+      if (gameState === 5) {
+        fetchLiveData();
+      }
+    });
+
+    socket.on('productPurchased', () => {
+      if (gameState === 5) {
+        fetchLiveData();
+      }
+    });
+
+    return () => {
+      clearInterval(interval);
+      socket.disconnect();
+    };
+  }, [gameState]);
 
   const toggleMaterialsFullScreen = () =>
     setMaterialsFullScreen(!isMaterialsFullScreen);
@@ -275,12 +385,12 @@ function DashboardContent({ teamData, currentRound, gameState }) {
 
   let dynamicCard;
 
-  if (gameState === 1 || gameState === 3) {
-    // Live Bids card for ongoing Round 1 and Round 2
+  if (gameState === 1) {
+    // Live Bids card for Round 1
     dynamicCard = (
       <Box
-        flex="1" // Added flex="1" to make it take up available space
-        minW="200px" // Added minW to maintain responsiveness
+        flex="1"
+        minW="200px"
         p={4}
         shadow="md"
         borderWidth="1px"
@@ -303,20 +413,65 @@ function DashboardContent({ teamData, currentRound, gameState }) {
           </Box>
           <Box>
             <Text color="gray.500" fontSize="sm">
-              Live Bids
+              Selected Number
             </Text>
-            <Text fontWeight="bold" fontSize="2xl">
-              {sampleLiveAuction.bidCount}
+            <Flex gap={2}>
+              <Text fontWeight="bold" fontSize="2xl" color="blue.600">
+                {selectedNumber}
+              </Text>
+              <Text color="gray.600" fontSize="xs" alignSelf="center" ml={2} mt={2}>
+                Current Selection
+              </Text>
+            </Flex>
+          </Box>
+        </Flex>
+      </Box>
+    );
+  } else if (gameState === 3) {
+    // Mystery Box card for Round 2
+    dynamicCard = (
+      <Box
+        flex="1"
+        minW="200px"
+        p={4}
+        shadow="md"
+        borderWidth="1px"
+        borderRadius="lg"
+        bg="white"
+        mb={4}
+      >
+        <Flex>
+          <Box
+            pl={4}
+            pr={4}
+            mr={4}
+            bg="orange.100"
+            borderRadius="full"
+            justifyContent={"center"}
+            alignItems="center"
+            display="flex"
+          >
+            <Icon as={RiAuctionLine} color="orange.500" w={8} h={10} />
+          </Box>
+          <Box>
+            <Text color="gray.500" fontSize="sm">
+              Current Revealed Box
             </Text>
-            <Text color="gray.600" fontSize="sm">
-              for {sampleLiveAuction.itemName}
-            </Text>
+            <Flex>
+              <Text fontWeight="bold" fontSize="4xl" color="orange.600">
+                {currentRevealedBox}
+              </Text>
+              <Text color="gray.600" fontSize="xs" alignSelf="center" ml={2} mt={2}>
+                Latest Box Number
+              </Text>
+            </Flex>
           </Box>
         </Flex>
       </Box>
     );
   } else if (gameState === 5) {
-    // Enterprise Amount card for ongoing Round 3
+    // Portfolio Worth card for Round 3
+    const totalWorth = enterpriseWorth + productWorth;
     dynamicCard = (
       <Box
         flex="1"
@@ -343,11 +498,16 @@ function DashboardContent({ teamData, currentRound, gameState }) {
           </Box>
           <Box>
             <Text color="gray.500" fontSize="sm">
-              Enterprise Amount
+              Total Worth
             </Text>
-            <Text fontWeight="bold" fontSize="2xl">
-              ₹12,50,000
-            </Text>
+            <Flex>
+              <Text fontWeight="bold" fontSize="2xl">
+                ₹{totalWorth.toLocaleString()}
+              </Text>
+              <Text color="gray.600" fontSize="xs" alignSelf="center" ml={2} mt={2}>
+                Enterprises + Products
+              </Text>
+            </Flex>
           </Box>
         </Flex>
       </Box>

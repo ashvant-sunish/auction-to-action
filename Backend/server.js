@@ -12,6 +12,7 @@ const socketRoutes = require('./routes/socketRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
 const wheelRoutes = require('./routes/wheelRoutes');
 const mysteryBoxRoutes = require('./routes/mysteryBoxRoutes');
+const constructionRoutes = require('./routes/constructionRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -45,6 +46,7 @@ app.use('/api/team', teamRoutes);
 app.use('/api/trade', tradeRoutes);
 app.use('/api/wheel', wheelRoutes); // Wheel selection routes
 app.use('/api/mysterybox', mysteryBoxRoutes); // Mystery box routes
+app.use('/api/construction', constructionRoutes); // Construction routes
 app.use('/', socketRoutes); // Socket routes for real-time updates
 
 // Welcome Route

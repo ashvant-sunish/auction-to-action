@@ -56,4 +56,7 @@ router.delete('/trade-history/:id', protectAdmin, adminController.deleteTradeHis
 // Public endpoint (no authentication required) for user components
 router.get('/public/game-items/round/:round', adminController.getGameItemsByRound);
 
+// Live auction status for dashboard
+router.get('/live-auction-status', adminController.getLiveAuctionStatus);
+
 module.exports = router;

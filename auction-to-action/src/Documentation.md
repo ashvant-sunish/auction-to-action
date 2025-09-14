@@ -260,3 +260,8 @@
   - Improvement in Admin UI 
   - Integration between admin and server 
   - Integration between User and server
+
+# Update 0.1.0 
+
+  - All components are working
+  - Integreation also done 

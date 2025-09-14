@@ -6,6 +6,8 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import axios from 'axios';
+import { socketServerUrl } from '../../../servercon';
 import cardData from "../../../assets/cards-data.json";
 
 import enterprise1 from "../../../assets/images/Construction/Enterprise1.png";
@@ -47,12 +49,34 @@ const SlidingAnimation = forwardRef((props, ref) => {
   const [activeCard, setActiveCard] = useState(null); // numeric id
   const [hoveredCard, setHoveredCard] = useState(null); // numeric id
   const [focusedIndex, setFocusedIndex] = useState(null);
+  const [ownedEnterprises, setOwnedEnterprises] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const containerRef = useRef(null);
   const cardRefs = useRef([]);
   const activeCardRef = useRef(activeCard);
   const hoveredCardRef = useRef(hoveredCard);
   const isScrollingRef = useRef(false);
+
+  // Fetch team inventory
+  const fetchTeamInventory = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await axios.get(`${socketServerUrl}/api/construction/inventory`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.data.enterprises) {
+        setOwnedEnterprises(response.data.enterprises.map(ent => ent.id));
+      }
+    } catch (error) {
+      console.error('Error fetching team inventory:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // normalize cardData and attach images
   useEffect(() => {
@@ -73,12 +97,16 @@ const SlidingAnimation = forwardRef((props, ref) => {
       }
     );
     setCards(normalized);
+    fetchTeamInventory(); // Fetch inventory when component loads
   }, []);
 
   useImperativeHandle(ref, () => ({
     getActiveCard: () => {
       if (activeCard == null) return null;
       return cards.find((c) => c.id === activeCard) ?? null;
+    },
+    refreshComponent: () => {
+      fetchTeamInventory(); // Allow parent to refresh the inventory
     },
   }));
 

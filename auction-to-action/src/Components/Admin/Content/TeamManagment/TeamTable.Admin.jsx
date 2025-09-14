@@ -340,7 +340,7 @@ function TeamTableAdmin() {
                                 </HStack>
                             </Th>
                             <Th>Team Name</Th>
-                            <Th>Credits</Th>
+                            <Th>Status</Th>
                             <Th>Debit</Th>
                             <Th>Balance</Th>
                             <Th>Action</Th>
@@ -360,7 +360,14 @@ function TeamTableAdmin() {
                                 <Tr key={team._id}>
                                     <Td fontWeight="semibold">{team.teamCode}</Td>
                                     <Td>{team.teamName}</Td>
-                                    <Td color="green.600" fontWeight="semibold">{team.credit.toLocaleString()}</Td>
+                                    <Td>
+                                        <Badge 
+                                            colorScheme={team.original?.isActive ? "green" : "red"}
+                                            variant="solid"
+                                        >
+                                            {team.original?.isActive ? "Active" : "Inactive"}
+                                        </Badge>
+                                    </Td>
                                     <Td color="red.600" fontWeight="semibold">{team.debit.toLocaleString()}</Td>
                                     <Td color={team.balance >= 0 ? "green.600" : "red.600"} fontWeight="bold">
                                         {team.balance.toLocaleString()}
@@ -376,7 +383,7 @@ function TeamTableAdmin() {
                         <Tr>
                             <Th>Team Code</Th>
                             <Th>Team Name</Th>
-                            <Th>Credits</Th>
+                            <Th>Status</Th>
                             <Th>Debit</Th>
                             <Th>Balance</Th>
                             <Th>Action</Th>

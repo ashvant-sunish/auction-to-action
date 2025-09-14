@@ -234,12 +234,15 @@ function Round3() {
     newItems[index][field] = value;
     setTeamOneItems(newItems);
     
-    // Update form data
+    // Update form data - only include items with both name and quantity > 0
+    const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
+    console.log('Team One valid items:', validItems);
+    
     setFormData(prev => ({
       ...prev,
       teamOneGives: {
         ...prev.teamOneGives,
-        items: newItems.filter(item => item.name) // Only include items with names
+        items: validItems
       }
     }));
   };
@@ -250,12 +253,15 @@ function Round3() {
     newItems[index][field] = value;
     setTeamTwoItems(newItems);
     
-    // Update form data
+    // Update form data - only include items with both name and quantity > 0
+    const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
+    console.log('Team Two valid items:', validItems);
+    
     setFormData(prev => ({
       ...prev,
       teamTwoGives: {
         ...prev.teamTwoGives,
-        items: newItems.filter(item => item.name) // Only include items with names
+        items: validItems
       }
     }));
   };
@@ -275,11 +281,13 @@ function Round3() {
     if (teamOneItems.length > 1) {
       const newItems = teamOneItems.filter((_, i) => i !== index);
       setTeamOneItems(newItems);
+      
+      const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
       setFormData(prev => ({
         ...prev,
         teamOneGives: {
           ...prev.teamOneGives,
-          items: newItems.filter(item => item.name)
+          items: validItems
         }
       }));
     }
@@ -289,11 +297,13 @@ function Round3() {
     if (teamTwoItems.length > 1) {
       const newItems = teamTwoItems.filter((_, i) => i !== index);
       setTeamTwoItems(newItems);
+      
+      const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
       setFormData(prev => ({
         ...prev,
         teamTwoGives: {
           ...prev.teamTwoGives,
-          items: newItems.filter(item => item.name)
+          items: validItems
         }
       }));
     }
@@ -352,30 +362,52 @@ function Round3() {
         return;
       }
 
-      // Prepare trade data in the expected format
-      const tradeData = {
-        tradeId: formData.tradeId,
-        teamOne: {
-          teamCode: formData.teamOne.teamCode,
-          teamName: formData.teamOne.teamName
-        },
-        teamTwo: {
-          teamCode: formData.teamTwo.teamCode,
-          teamName: formData.teamTwo.teamName
-        },
+      // Ensure form data is up to date with latest items before sending
+      const finalTeamOneItems = teamOneItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
+      const finalTeamTwoItems = teamTwoItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
+      
+      // Update formData with final items
+      const updatedFormData = {
+        ...formData,
         teamOneGives: {
-          items: formData.teamOneGives.items || [],
-          money: formData.teamOneGives.money || 0
+          ...formData.teamOneGives,
+          items: finalTeamOneItems
         },
         teamTwoGives: {
-          items: formData.teamTwoGives.items || [],
-          money: formData.teamTwoGives.money || 0
+          ...formData.teamTwoGives,
+          items: finalTeamTwoItems
+        }
+      };
+
+      // Prepare trade data in the expected format
+      const tradeData = {
+        tradeId: updatedFormData.tradeId,
+        teamOne: {
+          teamCode: updatedFormData.teamOne.teamCode,
+          teamName: updatedFormData.teamOne.teamName
+        },
+        teamTwo: {
+          teamCode: updatedFormData.teamTwo.teamCode,
+          teamName: updatedFormData.teamTwo.teamName
+        },
+        teamOneGives: {
+          items: updatedFormData.teamOneGives.items || [],
+          money: updatedFormData.teamOneGives.money || 0
+        },
+        teamTwoGives: {
+          items: updatedFormData.teamTwoGives.items || [],
+          money: updatedFormData.teamTwoGives.money || 0
         },
         executedBy: JSON.parse(localStorage.getItem('adminUser'))?.username || 'Admin'
       };
 
       console.log('Sending trade data:', tradeData); // Debug log
-      console.log('Form data before preparing:', formData); // Debug log
+      console.log('Original form data:', formData); // Debug log
+      console.log('Updated form data:', updatedFormData); // Debug log
+      console.log('teamOneItems state:', teamOneItems);
+      console.log('teamTwoItems state:', teamTwoItems);
+      console.log('Final Team One Items:', finalTeamOneItems);
+      console.log('Final Team Two Items:', finalTeamTwoItems);
 
       // Execute trade via API
       const response = await axios.post(

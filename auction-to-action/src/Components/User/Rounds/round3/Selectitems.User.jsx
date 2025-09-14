@@ -40,6 +40,7 @@ import {
   ModalFooter,
   ModalCloseButton,
   useDisclosure,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { FaRupeeSign, FaSearch, FaHandshake, FaList } from "react-icons/fa";
 import io from 'socket.io-client';
@@ -50,6 +51,7 @@ const TradingWishlistTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [tradeItems, setTradeItems] = useState({});
   const [teamData, setTeamData] = useState(null);
+  const [currentWishlist, setCurrentWishlist] = useState([]); // Store current wishlist
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [socket, setSocket] = useState(null);
@@ -82,7 +84,32 @@ const TradingWishlistTable = () => {
   // Fetch team data on component mount
   useEffect(() => {
     fetchTeamData();
+    fetchCurrentWishlist();
   }, []);
+
+  const fetchCurrentWishlist = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(`${socketServerUrl}/api/team/trade-wishlist`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          setCurrentWishlist(result.data.itemsToTrade || []);
+          console.log('Current wishlist loaded:', result.data.itemsToTrade);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching current wishlist:', error);
+    }
+  };
 
   const fetchTeamData = async () => {
     try {
@@ -211,10 +238,10 @@ const TradingWishlistTable = () => {
         }
 
         toast({
-          title: "Trade Wishlist Submitted!",
-          description: `You are offering ${itemsToTrade
+          title: "Items Added to Wishlist!",
+          description: `Added ${itemsToTrade
             .map((item) => `${item.count} × ${item.name}`)
-            .join(", ")} for trade.`,
+            .join(", ")} to your trading wishlist. You can add more items anytime.`,
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -222,6 +249,9 @@ const TradingWishlistTable = () => {
 
         // Store submitted items for modal display
         setSubmittedItems(itemsToTrade);
+
+        // Refresh current wishlist to show accumulated items
+        fetchCurrentWishlist();
 
         // Open confirmation modal
         onOpen();
@@ -289,7 +319,7 @@ const TradingWishlistTable = () => {
                 <VStack align="start" spacing={1}>
                   <Heading size="lg" color="gray.700">Round 3: Trading Wishlist</Heading>
                   <Text fontSize="sm" color="gray.500">
-                    Select items you want to offer for trade with other teams
+                    Select items to add to your trade wishlist. You can submit multiple times to accumulate items.
                   </Text>
                 </VStack>
               </HStack>
@@ -304,6 +334,36 @@ const TradingWishlistTable = () => {
             </HStack>
           </CardHeader>
         </Card>
+
+        {/* Current Wishlist Display */}
+        {currentWishlist.length > 0 && (
+          <Card>
+            <CardHeader>
+              <HStack justify="space-between">
+                <HStack>
+                  <Icon as={FaList} color="purple.500" boxSize={5} />
+                  <Heading size="md" color="gray.700">Your Current Trading Wishlist</Heading>
+                </HStack>
+                <Badge colorScheme="purple" fontSize="sm">
+                  {currentWishlist.reduce((sum, item) => sum + item.count, 0)} Total Items
+                </Badge>
+              </HStack>
+            </CardHeader>
+            <CardBody>
+              <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} spacing={3}>
+                {currentWishlist.map((item, index) => (
+                  <Box key={index} p={3} bg="purple.50" borderRadius="md" border="1px solid" borderColor="purple.200">
+                    <Text fontWeight="bold" color="purple.700" fontSize="sm">{item.name}</Text>
+                    <Text color="purple.600" fontSize="xs">{item.count} units</Text>
+                  </Box>
+                ))}
+              </SimpleGrid>
+              <Text fontSize="xs" color="gray.500" mt={3}>
+                These items are already in your wishlist. Adding more items below will accumulate with these.
+              </Text>
+            </CardBody>
+          </Card>
+        )}
 
         {/* Inventory Overview */}
         <Card>
@@ -430,11 +490,11 @@ const TradingWishlistTable = () => {
                       leftIcon={<FaHandshake />}
                       onClick={handleSubmitTrade}
                       isLoading={submitting}
-                      loadingText="Submitting..."
+                      loadingText="Adding to Wishlist..."
                       isDisabled={selectedItemsCount === 0}
                       px={8}
                     >
-                      Submit Trading Wishlist
+                      Add to Trading Wishlist
                     </Button>
                   </Flex>
                 </VStack>
@@ -448,13 +508,13 @@ const TradingWishlistTable = () => {
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Trade Wishlist Submitted!</ModalHeader>
+          <ModalHeader>Items Added to Wishlist!</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4} align="start">
-              <Text>Your trading wishlist has been successfully submitted.</Text>
+              <Text>These items have been added to your trading wishlist:</Text>
               <Box bg="blue.50" p={4} borderRadius="md" w="full">
-                <Text fontWeight="bold" color="blue.700" mb={2}>Items Selected for Trade:</Text>
+                <Text fontWeight="bold" color="blue.700" mb={2}>Items Added:</Text>
                 {submittedItems.map((item, index) => (
                   <Text key={index} fontSize="sm" color="blue.600">
                     • {item.count} × {item.name}
@@ -462,7 +522,7 @@ const TradingWishlistTable = () => {
                 ))}
               </Box>
               <Text fontSize="sm" color="gray.600">
-                Other teams can now see your trading offers. The admin will facilitate trades between teams.
+                You can continue adding more items to your wishlist by submitting again. Your previous items will be accumulated.
               </Text>
             </VStack>
           </ModalBody>

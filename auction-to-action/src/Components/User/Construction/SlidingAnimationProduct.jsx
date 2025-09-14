@@ -6,6 +6,8 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import axios from 'axios';
+import { socketServerUrl } from '../../../servercon';
 import productsData from "../../../assets/products-data.json";
 import cardsData from "../../../assets/cards-data.json";
 
@@ -35,8 +37,10 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   const [hoveredCard, setHoveredCard] = useState(null); // numeric id
   const [focusedIndex, setFocusedIndex] = useState(null);
 
-  // Mock owned enterprises - replace with actual data from backend/state
-  const [ownedEnterprises] = useState([1, 4, 6]); // Example: user owns enterprises 1, 4, 6
+  // Get owned enterprises and products from backend
+  const [ownedEnterprises, setOwnedEnterprises] = useState([]);
+  const [ownedProducts, setOwnedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const containerRef = useRef(null);
   const cardRefs = useRef([]);
@@ -44,7 +48,34 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   const hoveredCardRef = useRef(hoveredCard);
   const isScrollingRef = useRef(false);
 
+  // Fetch team inventory
+  const fetchTeamInventory = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await axios.get(`${socketServerUrl}/api/construction/inventory`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.data.enterprises) {
+        setOwnedEnterprises(response.data.enterprises.map(ent => ent.id));
+      }
+      if (response.data.products) {
+        setOwnedProducts(response.data.products.map(prod => prod.id));
+      }
+    } catch (error) {
+      console.error('Error fetching team inventory:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // normalize productsData and attach images
+  useEffect(() => {
+    fetchTeamInventory(); // Fetch inventory when component loads
+  }, []);
+
   useEffect(() => {
     const normalized = (Array.isArray(productsData) ? productsData : []).map(
       (product, i) => {
@@ -75,6 +106,9 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
     getActiveCard: () => {
       if (activeCard == null) return null;
       return cards.find((c) => c.id === activeCard) ?? null;
+    },
+    refreshComponent: () => {
+      fetchTeamInventory(); // Allow parent to refresh the inventory
     },
   }));
 

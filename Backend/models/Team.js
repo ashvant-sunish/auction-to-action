@@ -44,7 +44,24 @@ const teamSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: false   // Team is inactive by default, active only when logged in
-  }
+  },
+
+  // Constructed enterprises with details
+  enterprises: [{
+    id: { type: Number, required: true },
+    title: { type: String, required: true },
+    worth: { type: String, required: true },
+    constructedAt: { type: Date, default: Date.now }
+  }],
+
+  // Purchased products with details
+  products: [{
+    id: { type: Number, required: true },
+    title: { type: String, required: true },
+    worth: { type: String, required: true },
+    requiredEnterpriseId: { type: Number, required: true },
+    purchasedAt: { type: Date, default: Date.now }
+  }]
 
 }, {
   // Options to enable virtuals (like 'balance') in the JSON output

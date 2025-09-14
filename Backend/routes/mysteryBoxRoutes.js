@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protectAdmin } = require('../middleware/authMiddleware');
+const MysteryBoxReveal = require('../models/MysteryBoxReveal');
 
 // Mock mystery box data (you can replace this with a database model later)
 const mockMysteryBoxes = [
@@ -57,8 +58,37 @@ router.get('/admin-info', protectAdmin, (req, res) => {
   }
 });
 
+// Get revealed box count and latest revealed box
+router.get('/revealed-count', async (req, res) => {
+  try {
+    const round = parseInt(req.query.round) || 2;
+    
+    // Get total revealed count
+    const revealedCount = await MysteryBoxReveal.getRevealedCount(round);
+    
+    // Get latest revealed box
+    const latestReveal = await MysteryBoxReveal.getLatestRevealedBox(round);
+    const currentRevealedBox = latestReveal ? latestReveal.boxId : 0;
+    
+    console.log('Mystery box reveal data:', {
+      revealedCount,
+      currentRevealedBox,
+      latestReveal: latestReveal?._id
+    });
+    
+    res.json({ 
+      revealedCount,
+      totalBoxes: mockMysteryBoxes.length,
+      currentRevealedBox
+    });
+  } catch (error) {
+    console.error('Error getting revealed count:', error);
+    res.status(500).json({ message: 'Error getting revealed count', error: error.message });
+  }
+});
+
 // Reveal a mystery box
-router.post('/reveal/:boxId', protectAdmin, (req, res) => {
+router.post('/reveal/:boxId', protectAdmin, async (req, res) => {
   try {
     const boxId = parseInt(req.params.boxId);
     const box = mockMysteryBoxes.find(b => b.boxId === boxId);
@@ -67,7 +97,31 @@ router.post('/reveal/:boxId', protectAdmin, (req, res) => {
       return res.status(404).json({ message: 'Mystery box not found' });
     }
 
-    console.log('Found box:', box);
+    // Check if box is already revealed
+    const existingReveal = await MysteryBoxReveal.findOne({ 
+      boxId, 
+      round: 2, 
+      isActive: true 
+    });
+    
+    if (existingReveal) {
+      return res.status(400).json({ message: 'Box already revealed' });
+    }
+
+    // Save reveal to database
+    const mysteryBoxReveal = new MysteryBoxReveal({
+      round: 2,
+      boxId: box.boxId,
+      itemName: box.itemName,
+      content: box.content,
+      itemType: box.itemType,
+      revealedBy: req.user.role,
+      revealedAt: new Date()
+    });
+
+    await mysteryBoxReveal.save();
+
+    console.log('Box revealed and saved to database:', mysteryBoxReveal);
 
     // Emit socket event for real-time updates
     const io = req.app.get('io');
@@ -85,7 +139,8 @@ router.post('/reveal/:boxId', protectAdmin, (req, res) => {
 
     res.status(200).json({ 
       message: 'Mystery box revealed successfully',
-      box: box
+      box: box,
+      revealId: mysteryBoxReveal._id
     });
   } catch (error) {
     console.error('Error revealing mystery box:', error);
@@ -94,18 +149,35 @@ router.post('/reveal/:boxId', protectAdmin, (req, res) => {
 });
 
 // Undo last action
-router.post('/undo', protectAdmin, (req, res) => {
+router.post('/undo', protectAdmin, async (req, res) => {
   try {
+    // Get the latest revealed box and mark it as inactive
+    const latestReveal = await MysteryBoxReveal.getLatestRevealedBox(2);
+    
+    if (!latestReveal) {
+      return res.status(400).json({ message: 'No revealed boxes to undo' });
+    }
+
+    // Mark as inactive instead of deleting
+    latestReveal.isActive = false;
+    await latestReveal.save();
+
+    console.log('Undid reveal for box:', latestReveal.boxId);
+
     // Emit socket event for real-time updates
     const io = req.app.get('io');
     if (io) {
       io.emit('mysteryBoxUndo', {
+        boxId: latestReveal.boxId,
         message: 'Last action undone',
         undoneAt: new Date()
       });
     }
 
-    res.status(200).json({ message: 'Last action undone successfully' });
+    res.status(200).json({ 
+      message: 'Last action undone successfully',
+      undonBoxId: latestReveal.boxId
+    });
   } catch (error) {
     console.error('Error undoing action:', error);
     res.status(500).json({ message: 'Error undoing action' });
@@ -113,18 +185,42 @@ router.post('/undo', protectAdmin, (req, res) => {
 });
 
 // Reset all mystery boxes
-router.post('/reset', protectAdmin, (req, res) => {
+router.post('/reset', protectAdmin, async (req, res) => {
   try {
+    // Mark all revealed boxes as inactive
+    const result = await MysteryBoxReveal.updateMany(
+      { round: 2, isActive: true },
+      { isActive: false }
+    );
+
+    console.log('Reset all mystery boxes, marked inactive:', result.modifiedCount);
+    
     // Emit socket event for real-time updates
     const io = req.app.get('io');
     if (io) {
       io.emit('mysteryBoxReset');
     }
 
-    res.status(200).json({ message: 'All mystery boxes reset successfully' });
+    res.status(200).json({ 
+      message: 'All mystery boxes reset successfully',
+      resetCount: result.modifiedCount
+    });
   } catch (error) {
     console.error('Error resetting mystery boxes:', error);
     res.status(500).json({ message: 'Error resetting mystery boxes' });
+  }
+});
+
+// Get all revealed boxes for admin interface
+router.get('/revealed', protectAdmin, async (req, res) => {
+  try {
+    const round = parseInt(req.query.round) || 2;
+    const revealedBoxes = await MysteryBoxReveal.getAllRevealedBoxes(round);
+    
+    res.status(200).json(revealedBoxes);
+  } catch (error) {
+    console.error('Error fetching revealed boxes:', error);
+    res.status(500).json({ message: 'Error fetching revealed boxes' });
   }
 });
 
