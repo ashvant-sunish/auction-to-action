@@ -28,6 +28,24 @@ export default function Spin3DCards({
   friction = 0.995,
   onBidSelected = null,
 }) {
+  // Add new state for persisting wheel state
+  const [wheelState, setWheelState] = useState(() => {
+    // Try to load saved state from localStorage on mount
+    const saved = localStorage.getItem(`wheel_state_round_${round}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Only use saved state if it's from the last 30 minutes
+        if (Date.now() - parsed.timestamp < 30 * 60 * 1000) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error("Failed to parse saved wheel state");
+      }
+    }
+    return null;
+  });
+
   // State management - User view only
   const [availableItems, setAvailableItems] = useState([]);
   const [currentSelectedBid, setCurrentSelectedBid] = useState(null);
@@ -121,42 +139,71 @@ export default function Spin3DCards({
     }
   };
 
-  // Load initial data
+  // Load initial data with localStorage check
   useEffect(() => {
-    fetchGameItems();
+    const loadData = async () => {
+      // First try to restore from localStorage
+      if (wheelState) {
+        console.log("🔄 Restoring wheel state from localStorage:", wheelState);
+        setCurrentSelectedBid(wheelState.selectedBid);
+        setWheelStopped(wheelState.stopped);
+        setSpinning(!wheelState.stopped);
+        if (wheelState.angle) {
+          angleRef.current = wheelState.angle;
+        }
+      }
+
+      // Then fetch from server
+      await fetchGameItems();
+    };
+
+    loadData();
   }, [round]);
 
-  // Debug: Log state changes
+  // Save state changes to localStorage
   useEffect(() => {
-    const stateInfo = {
-      spinning,
-      wheelStopped,
-      isSelecting,
-      availableItems: availableItems.length,
-      socketConnected,
-      currentSelectedBid: currentSelectedBid?.title || null,
-    };
-    console.log("🎪 User wheel state changed:", stateInfo);
-  }, [
-    spinning,
-    wheelStopped,
-    isSelecting,
-    availableItems.length,
-    socketConnected,
-    currentSelectedBid,
-  ]);
-
-  // Ensure wheel starts spinning when data is loaded
-  useEffect(() => {
-    if (availableItems.length > 0 && !isSelecting && !wheelStopped) {
-      setSpinning(true);
-      console.log(
-        "🎪 User wheel started spinning with",
-        availableItems.length,
-        "items"
+    if (currentSelectedBid || wheelStopped) {
+      const stateToSave = {
+        timestamp: Date.now(),
+        selectedBid: currentSelectedBid,
+        stopped: wheelStopped,
+        angle: angleRef.current,
+        round,
+      };
+      localStorage.setItem(
+        `wheel_state_round_${round}`,
+        JSON.stringify(stateToSave)
       );
+      console.log("💾 Saved wheel state to localStorage:", stateToSave);
     }
-  }, [availableItems.length, isSelecting, wheelStopped]);
+  }, [currentSelectedBid, wheelStopped, round]);
+
+  // Clear localStorage on explicit admin actions
+  const clearSavedState = () => {
+    localStorage.removeItem(`wheel_state_round_${round}`);
+    console.log("🧹 Cleared saved wheel state");
+  };
+
+  // Reset wheel state
+  const resetWheel = () => {
+    clearSavedState();
+    console.log("🔄 Resetting user wheel - resuming normal spinning");
+    console.log("🔄 Previous state:", {
+      currentSelectedBid: !!currentSelectedBid,
+      isSelecting,
+      wheelStopped,
+      spinning,
+    });
+
+    setCurrentSelectedBid(null);
+    setIsSelecting(false);
+    setWheelStopped(false);
+    setSpinning(true);
+    speedRef.current = initialSpeed;
+    animatingToPosition.current = false;
+
+    console.log("🔄 Reset completed");
+  };
 
   // Enhanced animateToPosition function with detailed logging
   const animateToPosition = (targetAngle) => {
@@ -220,26 +267,6 @@ export default function Spin3DCards({
 
       animate();
     });
-  };
-
-  // Reset wheel state
-  const resetWheel = () => {
-    console.log("🔄 Resetting user wheel - resuming normal spinning");
-    console.log("🔄 Previous state:", {
-      currentSelectedBid: !!currentSelectedBid,
-      isSelecting,
-      wheelStopped,
-      spinning,
-    });
-
-    setCurrentSelectedBid(null);
-    setIsSelecting(false);
-    setWheelStopped(false);
-    setSpinning(true);
-    speedRef.current = initialSpeed;
-    animatingToPosition.current = false;
-
-    console.log("🔄 Reset completed");
   };
 
   // Enhanced triggerAdminSpin with extensive debugging
@@ -478,6 +505,7 @@ export default function Spin3DCards({
       console.log("📡 User received wheel confirmation:", data);
 
       if (data.round == round) {
+        clearSavedState(); // Clear on confirmation
         fetchGameItems();
         resetWheel();
       }
@@ -487,6 +515,7 @@ export default function Spin3DCards({
       console.log("📡 User received wheel skip:", data);
 
       if (data.round == round) {
+        clearSavedState(); // Clear on skip
         resetWheel();
       }
     });
