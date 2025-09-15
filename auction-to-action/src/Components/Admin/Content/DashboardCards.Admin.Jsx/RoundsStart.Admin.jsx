@@ -15,11 +15,16 @@ import { updateRoundRealtime } from "../../../../services/adminSocket";
 function RoundsStartAdmin({ ongoingRound }) {
   const toast = useToast();
 
+  // Read admin role from localStorage
+  const adminUser = JSON.parse(localStorage.getItem('adminUser'));
+  const adminRole = adminUser?.role;
+  const isSuperAdmin = adminRole === 'superadmin';
+
   //This Function is for Updating the round number to Real Time database
   const roundNumber = async (gameState) => {
     let roundNum = 0;
     let roundStatus = 'not_started';
-    
+
     // State mapping:
     // 0 - Not yet started
     // 1 - Round 1 starts
@@ -28,8 +33,8 @@ function RoundsStartAdmin({ ongoingRound }) {
     // 4 - Round 2 ends
     // 5 - Round 3 starts
     // 6 - Round 3 ends
-    
-    switch(gameState) {
+
+    switch (gameState) {
       case 0:
         roundNum = 0;
         roundStatus = 'not_started';
@@ -62,21 +67,21 @@ function RoundsStartAdmin({ ongoingRound }) {
         roundNum = 0;
         roundStatus = 'not_started';
     }
-    
+
     try {
       // Update round with real-time Socket.IO broadcast
       await updateRoundRealtime(roundNum, roundStatus);
-      
+
       const stateNames = {
         0: 'Game Not Started',
         1: 'Round 1 Started',
         2: 'Round 1 Ended',
-        3: 'Round 2 Started', 
+        3: 'Round 2 Started',
         4: 'Round 2 Ended',
         5: 'Round 3 Started',
         6: 'Round 3 Ended'
       };
-      
+
       toast({
         title: "Game state updated",
         description: `${stateNames[gameState]} - broadcasted to all users`,
@@ -100,12 +105,12 @@ function RoundsStartAdmin({ ongoingRound }) {
     // State will update automatically via useRoundManager hook when database changes
     roundNumber(newState); // Broadcast round update via Socket.IO
   };
-  
+
   const handleEndRound = (currentState) => {
     const nextState = currentState + 1;
     // State will update automatically via useRoundManager hook when database changes
     roundNumber(nextState);
-    
+
     // Auto-reset to state 0 after Round 3 ends (state 6)
     if (nextState === 6) {
       setTimeout(() => {
@@ -122,7 +127,7 @@ function RoundsStartAdmin({ ongoingRound }) {
       1: 'Round 1 - Ongoing',
       2: 'Round 1 - Ended',
       3: 'Round 2 - Ongoing',
-      4: 'Round 2 - Ended', 
+      4: 'Round 2 - Ended',
       5: 'Round 3 - Ongoing',
       6: 'Round 3 - Ended'
     };
@@ -161,6 +166,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   colorScheme="green"
                   size="sm"
                   mr={6}
+                  isDisabled={!isSuperAdmin}
                 >
                   Start Round
                 </Button>
@@ -181,6 +187,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   onClick={() => handleEndRound(1)}
                   colorScheme="red"
                   size="sm"
+                  isDisabled={!isSuperAdmin}
                 >
                   End Round
                 </Button>
@@ -206,6 +213,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   colorScheme="green"
                   size="sm"
                   mr={6}
+                  isDisabled={!isSuperAdmin}
                 >
                   Start Round
                 </Button>
@@ -226,6 +234,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   onClick={() => handleEndRound(3)}
                   colorScheme="red"
                   size="sm"
+                  isDisabled={!isSuperAdmin}
                 >
                   End Round
                 </Button>
@@ -251,6 +260,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   colorScheme="green"
                   size="sm"
                   mr={6}
+                  isDisabled={!isSuperAdmin}
                 >
                   Start Round
                 </Button>
@@ -271,6 +281,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   onClick={() => handleEndRound(5)}
                   colorScheme="red"
                   size="sm"
+                  isDisabled={!isSuperAdmin}
                 >
                   End Round
                 </Button>

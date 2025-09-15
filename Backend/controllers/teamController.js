@@ -145,7 +145,7 @@ exports.submitTradeWishlist = async (req, res) => {
             }
         }
 
-        // Create or update trade wishlist
+        // Create or update trade wishlist using findOneAndUpdate for better reliability
         const tradeWishlistData = {
             teamCode: team.teamCode,
             teamName: team.teamName,
@@ -159,15 +159,21 @@ exports.submitTradeWishlist = async (req, res) => {
 
         console.log('Trade wishlist data prepared:', tradeWishlistData);
 
-        // Use the existing wishlist we already fetched
-        let wishlistRecord = existingWishlist;
+        let wishlistRecord;
 
-        if (wishlistRecord) {
-            // Accumulate items instead of replacing them
+        // Use findOneAndUpdate with upsert to handle both create and update cases
+        const filter = { 
+            teamCode: team.teamCode, 
+            round: 3,
+            status: 'active'
+        };
+
+        if (existingWishlist) {
+            // Team has existing wishlist - accumulate items
             const existingItems = new Map();
             
             // Add existing items to map
-            wishlistRecord.itemsToTrade.forEach(item => {
+            existingWishlist.itemsToTrade.forEach(item => {
                 existingItems.set(item.name, item.count);
             });
             
@@ -178,20 +184,63 @@ exports.submitTradeWishlist = async (req, res) => {
             });
             
             // Convert map back to array
-            wishlistRecord.itemsToTrade = Array.from(existingItems.entries()).map(([name, count]) => ({
+            const updatedItemsToTrade = Array.from(existingItems.entries()).map(([name, count]) => ({
                 name,
                 count
             }));
             
-            wishlistRecord.totalItems = wishlistRecord.itemsToTrade.reduce((sum, item) => sum + item.count, 0);
-            wishlistRecord.submittedAt = new Date();
-            await wishlistRecord.save();
+            const updatedTotalItems = updatedItemsToTrade.reduce((sum, item) => sum + item.count, 0);
+            
+            // Update existing record
+            wishlistRecord = await TradeWishlist.findOneAndUpdate(
+                filter,
+                {
+                    $set: {
+                        itemsToTrade: updatedItemsToTrade,
+                        totalItems: updatedTotalItems,
+                        submittedAt: new Date(),
+                        teamName: team.teamName,
+                        teamId: team._id
+                    }
+                },
+                { 
+                    new: true,
+                    runValidators: true
+                }
+            );
+            
             console.log('Updated existing trade wishlist record - items accumulated');
         } else {
-            // Create new wishlist
-            wishlistRecord = new TradeWishlist(tradeWishlistData);
-            await wishlistRecord.save();
-            console.log('Created new trade wishlist record');
+            // Team has no existing wishlist - create new one using upsert
+            wishlistRecord = await TradeWishlist.findOneAndUpdate(
+                filter,
+                {
+                    $setOnInsert: {
+                        teamCode: team.teamCode,
+                        teamName: team.teamName,
+                        teamId: team._id,
+                        round: 3,
+                        status: 'active',
+                        createdAt: new Date()
+                    },
+                    $set: {
+                        itemsToTrade: tradeWishlistData.itemsToTrade,
+                        totalItems: tradeWishlistData.totalItems,
+                        submittedAt: new Date()
+                    }
+                },
+                { 
+                    new: true,
+                    upsert: true,
+                    runValidators: true
+                }
+            );
+            
+            console.log('Created new trade wishlist record using upsert');
+        }
+
+        if (!wishlistRecord) {
+            throw new Error('Failed to create or update wishlist record');
         }
 
         console.log('Trade wishlist saved successfully with ID:', wishlistRecord._id);
@@ -203,9 +252,9 @@ exports.submitTradeWishlist = async (req, res) => {
             io.emit('tradeWishlistSubmitted', {
                 teamCode: team.teamCode,
                 teamName: team.teamName,
-                itemsToTrade,
-                totalItems: tradeWishlistData.totalItems,
-                submittedAt: tradeWishlistData.submittedAt
+                itemsToTrade: wishlistRecord.itemsToTrade,
+                totalItems: wishlistRecord.totalItems,
+                submittedAt: wishlistRecord.submittedAt
             });
         } else {
             console.log('Socket.io not available');
@@ -214,12 +263,41 @@ exports.submitTradeWishlist = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'Trade wishlist submitted successfully',
-            data: tradeWishlistData
+            data: {
+                teamCode: team.teamCode,
+                teamName: team.teamName,
+                itemsToTrade: wishlistRecord.itemsToTrade,
+                totalItems: wishlistRecord.totalItems,
+                submittedAt: wishlistRecord.submittedAt
+            }
         });
 
     } catch (error) {
         console.error("Error submitting trade wishlist:", error);
-        res.status(500).json({ message: 'Server error while submitting trade wishlist.' });
+        
+        // Log more detailed error information
+        if (error.name === 'ValidationError') {
+            console.error("Validation errors:", error.errors);
+            return res.status(400).json({ 
+                success: false,
+                message: 'Validation error while submitting trade wishlist',
+                errors: error.errors
+            });
+        }
+        
+        if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+            console.error("MongoDB error:", error.message);
+            return res.status(500).json({ 
+                success: false,
+                message: 'Database error while submitting trade wishlist'
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error while submitting trade wishlist.',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 };
 

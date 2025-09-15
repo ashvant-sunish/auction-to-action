@@ -14,12 +14,18 @@ import {
   MenuItem,
   Divider,
   Badge,
+  Button,
 } from "@chakra-ui/react";
 import { MdHome } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
 import { CiLogout } from "react-icons/ci";
 
-const Navbar = ({ pageTitle, onLogout, teamData, currentRound, gameState }) => {
+const Navbar = ({ pageTitle, onLogout, onViewRules, teamData, currentRound, gameState }) => {
+  // Remove the old rule state management
+  // let [ruleview, setruleview] = React.useState(localStorage.getItem("rulestate"));
+  // let [rulebutton, setrulebutton] = React.useState(localStorage.getItem("rulebutton"));
+
+  // console.log("Rule View:", ruleview);
   // Function to determine badge color based on game state
   const getBadgeColorScheme = () => {
     // States 1, 3, 5 are "Ongoing"
@@ -70,24 +76,34 @@ const Navbar = ({ pageTitle, onLogout, teamData, currentRound, gameState }) => {
           {currentRound}
         </Badge>
       </HStack>
-
-      <HStack spacing={4}>
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            aria-label="Options"
-            icon={<BsPersonCircle />}
-            variant="none"
-          />
-          <MenuList bg="white" textColor="black">
-            <MenuItem>Logged in as: {teamData?.teamNumber || "Team"}</MenuItem>
-            <Divider />
-            <MenuItem onClick={onLogout}>
-              <CiLogout /> &nbsp;Log Out
-            </MenuItem>
-          </MenuList>
-        </Menu>
-      </HStack>
+      <Flex flex="1" justify="flex-end" gap={4}>
+        <HStack>
+          <Button
+            onClick={onViewRules}
+            colorScheme="blue"
+            variant="outline"
+          >
+            View Rules
+          </Button>
+        </HStack>
+        <HStack spacing={4}>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              aria-label="Options"
+              icon={<BsPersonCircle />}
+              variant="none"
+            />
+            <MenuList bg="white" textColor="black">
+              <MenuItem>Logged in as: {teamData?.teamNumber || "Team"}</MenuItem>
+              <Divider />
+              <MenuItem onClick={onLogout}>
+                <CiLogout /> &nbsp;Log Out
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </HStack>
+      </Flex>
     </Flex>
   );
 };

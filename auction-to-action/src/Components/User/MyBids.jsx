@@ -111,6 +111,10 @@ function MyBids() {
   };
 
   const handleViewTrade = (trade) => {
+    if (!trade) {
+      console.error("Trade object is undefined");
+      return;
+    }
     setSelectedTrade(trade);
     onOpen();
   };
@@ -155,6 +159,8 @@ function MyBids() {
       <Thead>
         <Tr>
           <Th>Teams</Th>
+          <Th>Items Exchanged</Th>
+          <Th>Money Exchanged</Th>
           <Th>Status</Th>
           <Th>Date</Th>
           <Th>Action</Th>
@@ -171,6 +177,28 @@ function MyBids() {
                 {' vs '}
                 <Text as="span" fontWeight="bold" color="green.600">
                   {trade.teamTwo?.teamName || 'Team 2'}
+                </Text>
+              </Text>
+            </Td>
+            <Td>
+              <Text fontSize="xs">
+                <Text color="blue.600">
+                  {formatTradeItems(trade.teamOneGives?.items) || 'No items'}
+                </Text>
+                <Text color="gray.500">↔</Text>
+                <Text color="green.600">
+                  {formatTradeItems(trade.teamTwoGives?.items) || 'No items'}
+                </Text>
+              </Text>
+            </Td>
+            <Td>
+              <Text fontSize="xs">
+                <Text color="blue.600">
+                  ₹{(trade.teamOneGives?.money || 0).toLocaleString()}
+                </Text>
+                <Text color="gray.500">↔</Text>
+                <Text color="green.600">
+                  ₹{(trade.teamTwoGives?.money || 0).toLocaleString()}
                 </Text>
               </Text>
             </Td>
@@ -249,7 +277,7 @@ function MyBids() {
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg">My Activity History</Heading>
+        <Heading size="lg">My History</Heading>
         <Select 
           value={selectedRound} 
           onChange={(e) => setSelectedRound(e.target.value)}
@@ -335,7 +363,7 @@ function MyBids() {
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Trade Details - {selectedTrade?.tradeId}</ModalHeader>
+          <ModalHeader>Trade Details - {selectedTrade?.tradeId || 'Unknown'}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {selectedTrade && (
@@ -359,11 +387,11 @@ function MyBids() {
                   <HStack justify="space-between" mb={2}>
                     <Box>
                       <Text fontSize="sm" color="gray.600">Team One:</Text>
-                      <Text>{selectedTrade.teamOne.teamName} ({selectedTrade.teamOne.teamCode})</Text>
+                      <Text>{selectedTrade?.teamOne?.teamName || 'Unknown'} ({selectedTrade?.teamOne?.teamCode || 'N/A'})</Text>
                     </Box>
                     <Box>
                       <Text fontSize="sm" color="gray.600">Team Two:</Text>
-                      <Text>{selectedTrade.teamTwo.teamName} ({selectedTrade.teamTwo.teamCode})</Text>
+                      <Text>{selectedTrade?.teamTwo?.teamName || 'Unknown'} ({selectedTrade?.teamTwo?.teamCode || 'N/A'})</Text>
                     </Box>
                   </HStack>
                 </Box>
@@ -375,27 +403,27 @@ function MyBids() {
                   <HStack align="start" justify="space-between">
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="semibold" color="blue.600">
-                        {selectedTrade.teamOne.teamName} gives:
+                        {selectedTrade?.teamOne?.teamName || 'Team One'} gives:
                       </Text>
                       <Text fontSize="sm">
-                        Items: {formatTradeItems(selectedTrade.tradeDetails.teamOneGives.items)}
+                        Items: {formatTradeItems(selectedTrade?.teamOneGives?.items)}
                       </Text>
-                      {selectedTrade.tradeDetails.teamOneGives.money > 0 && (
+                      {(selectedTrade?.teamOneGives?.money || 0) > 0 && (
                         <Text fontSize="sm">
-                          Money: ₹{selectedTrade.tradeDetails.teamOneGives.money.toLocaleString()}
+                          Money: ₹{(selectedTrade?.teamOneGives?.money || 0).toLocaleString()}
                         </Text>
                       )}
                     </Box>
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="semibold" color="green.600">
-                        {selectedTrade.teamTwo.teamName} gives:
+                        {selectedTrade?.teamTwo?.teamName || 'Team Two'} gives:
                       </Text>
                       <Text fontSize="sm">
-                        Items: {formatTradeItems(selectedTrade.tradeDetails.teamTwoGives.items)}
+                        Items: {formatTradeItems(selectedTrade?.teamTwoGives?.items)}
                       </Text>
-                      {selectedTrade.tradeDetails.teamTwoGives.money > 0 && (
+                      {(selectedTrade?.teamTwoGives?.money || 0) > 0 && (
                         <Text fontSize="sm">
-                          Money: ₹{selectedTrade.tradeDetails.teamTwoGives.money.toLocaleString()}
+                          Money: ₹{(selectedTrade?.teamTwoGives?.money || 0).toLocaleString()}
                         </Text>
                       )}
                     </Box>
@@ -406,14 +434,14 @@ function MyBids() {
 
                 <HStack justify="space-between">
                   <Text fontSize="sm" color="gray.600">
-                    Round: {selectedTrade.roundNumber}
+                    Round: {selectedTrade?.roundNumber || 'N/A'}
                   </Text>
                   <Text fontSize="sm" color="gray.600">
-                    Date: {new Date(selectedTrade.createdAt).toLocaleString()}
+                    Date: {selectedTrade?.createdAt ? new Date(selectedTrade.createdAt).toLocaleString() : 'N/A'}
                   </Text>
                 </HStack>
                 
-                {selectedTrade.executedBy && (
+                {selectedTrade?.executedBy && (
                   <Text fontSize="sm" color="gray.600">
                     Executed by: {selectedTrade.executedBy}
                   </Text>

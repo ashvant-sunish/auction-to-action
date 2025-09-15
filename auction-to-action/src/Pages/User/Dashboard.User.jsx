@@ -19,6 +19,7 @@ import MyBids from "../../Components/User/MyBids.jsx";
 import TradingMarket from "../../Components/User/TradingMarket.jsx";
 import RoundsUser from "../../Components/User/Rounds.User.jsx";
 import EnterpriseConstruction from "../../Components/User/EnterpriseConstruction.jsx";
+import RulesUser from "../../Components/User/Rules.User.jsx";
 import { FaLock } from "react-icons/fa";
 
 function UserDashboard() {
@@ -27,6 +28,8 @@ function UserDashboard() {
   const [balance, setBalance] = useState(0);
   const [gameState, setGameState] = useState(0);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [isFirstTimeLogin, setIsFirstTimeLogin] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -40,6 +43,7 @@ function UserDashboard() {
       navigate("/");
       return;
     }
+
     fetchTeamData();
     fetchCurrentRound();
     setupRealTimeConnection();
@@ -48,6 +52,20 @@ function UserDashboard() {
       socketService.disconnect();
     };
   }, [navigate]);
+
+  // Check for first-time login after teamData is loaded
+  useEffect(() => {
+    if (teamData?.teamCode) {
+      // Check if this specific team has seen rules before
+      const teamRulesKey = `hasSeenRules_${teamData.teamCode}`;
+      const hasSeenRules = localStorage.getItem(teamRulesKey);
+      
+      if (!hasSeenRules) {
+        setIsFirstTimeLogin(true);
+        setShowRules(true);
+      }
+    }
+  }, [teamData]);
 
   useEffect(() => {
     if (teamData?.teamNumber) {
@@ -173,6 +191,9 @@ function UserDashboard() {
     socketService.disconnect();
     localStorage.removeItem("token");
     
+    // Optional: Uncomment the next line if you want to reset rules for testing
+    // localStorage.removeItem(`hasSeenRules_${teamData?.teamCode}`);
+    
     toast({
       title: "Logged out successfully",
       status: "success",
@@ -182,9 +203,24 @@ function UserDashboard() {
     navigate("/");
   };
 
+  const handleViewRules = () => {
+    setShowRules(true);
+    setIsFirstTimeLogin(false); // When manually triggered, it's not first time
+  };
+
+  const handleCloseRules = () => {
+    setShowRules(false);
+    // Mark that this specific team has seen the rules
+    if (isFirstTimeLogin && teamData?.teamCode) {
+      const teamRulesKey = `hasSeenRules_${teamData.teamCode}`;
+      localStorage.setItem(teamRulesKey, "true");
+      setIsFirstTimeLogin(false);
+    }
+  };
+
   const pageTitles = {
     dashboard: "Dashboard",
-    "my-bids": "My Bidding History",
+    "my-bids": "My History",
     "trading-market": "Trading Market",
     rounds: "Auction Rounds",
     "enterprise-construction": "Enterprise Construction",
@@ -209,6 +245,12 @@ function UserDashboard() {
 
   return (
     <Flex h="100vh" overflow="hidden">
+      {showRules && (
+        <RulesUser 
+          onClose={handleCloseRules}
+          isFirstTime={isFirstTimeLogin}
+        />
+      )}
       <Sidebar
         activeComponent={activeComponent}
         setActiveComponent={setActiveComponent}
@@ -227,6 +269,7 @@ function UserDashboard() {
         <Navbar
           pageTitle={pageTitles[activeComponent]}
           onLogout={handleLogout}
+          onViewRules={handleViewRules}
           teamData={teamData}
           currentRound={getRoundDisplayText(gameState)}
           gameState={gameState}

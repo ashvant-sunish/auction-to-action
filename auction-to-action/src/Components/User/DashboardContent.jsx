@@ -36,6 +36,7 @@ import { io } from 'socket.io-client';
 import Round2 from "./../Admin/Content/Rounds/Round2.jsx";
 import { RiAuctionLine } from "react-icons/ri";
 import { IoIosInformationCircleOutline } from "react-icons/io";
+import { PiConfettiBold } from "react-icons/pi";
 
 const AvailableMaterialsTable = ({
   resources,
@@ -451,14 +452,14 @@ function DashboardContent({ teamData, currentRound, gameState }) {
             alignItems="center"
             display="flex"
           >
-            <Icon as={RiAuctionLine} color="orange.500" w={8} h={10} />
+            <Icon as={PiConfettiBold} color="orange.500" w={8} h={10} />
           </Box>
           <Box>
             <Text color="gray.500" fontSize="sm">
               Current Revealed Box
             </Text>
             <Flex>
-              <Text fontWeight="bold" fontSize="4xl" color="orange.600">
+              <Text fontWeight="bold" fontSize="2xl" color="orange.600">
                 {currentRevealedBox}
               </Text>
               <Text color="gray.600" fontSize="xs" alignSelf="center" ml={2} mt={2}>
