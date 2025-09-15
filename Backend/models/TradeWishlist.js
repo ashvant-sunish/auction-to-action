@@ -19,7 +19,8 @@ const tradeWishlistSchema = new mongoose.Schema({
   collection: 'tradelistings' // Use the existing tradelistings collection
 });
 
-// Index for faster queries
+// Create a compound unique index for wishlist records (instead of relying on tradeId)
+tradeWishlistSchema.index({ teamCode: 1, round: 1, status: 1 }, { unique: true, sparse: true });
 tradeWishlistSchema.index({ teamCode: 1, round: 1 });
 tradeWishlistSchema.index({ status: 1 });
 

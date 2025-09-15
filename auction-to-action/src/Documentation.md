@@ -134,7 +134,7 @@
 
     ### Built Reusable Dashboard Components (Sidebar.jsx, Navbar.jsx)
 
-    - Sidebar: A persistent navigation component that includes links to the main "Dashboard," "My Bidding History," and "Team Bid History" pages.
+    - Sidebar: A persistent navigation component that includes links to the main "Dashboard," "My History," and "Team Bid History" pages.
     - Navbar: A dynamic header that displays the current page title based on the URL. It also includes a profile icon with a hover tooltip.
 
     ### Developed Bidding Information Components

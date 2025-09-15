@@ -81,6 +81,8 @@ function LoginComponentUser() {
       setMessageType("success");
       setMessage(response.data.message);
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("rulestate", "false");
+      localStorage.setItem("rulebutton", "false");
       setTimeout(() => navigate("/userdashboard"), 1000);
     } catch (err) {
       setMessageType("error");

@@ -1,0 +1,18 @@
+{
+  "_id": "68c6ae7d992b4bf42d05b80b",
+  "teamCode": "TEAM01",
+  "teamName": "Team 1",
+  "teamId": "68bf2ea595b38c1ff27a7540",
+  "round": 3,
+  "itemsToTrade": [
+    { "name": "Technology", "count": 28, "_id": "68c80da423ee25ba5ae39aca" },
+    { "name": "Machinery & Tools", "count": 2, "_id": "68c80da423ee25ba5ae39acb" },
+    { "name": "Property", "count": 18, "_id": "68c80da423ee25ba5ae39acc" }
+  ],
+  "totalItems": 48,
+  "status": "active",
+  "submittedAt": "2025-09-15T12:59:16.472+00:00",
+  "createdAt": "2025-09-14T12:01:01.398+00:00",
+  "updatedAt": "2025-09-15T12:59:16.472+00:00",
+  "__v": 7
+}

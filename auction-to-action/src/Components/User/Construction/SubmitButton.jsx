@@ -27,10 +27,10 @@ const SubmitButton = ({ gameState, onClick, buttonText = "Construct" }) => {
     }
   `;
 
-  // Remove gameState restriction to always show the button
-  // if (gameState !== 5) {
-  //   return null;
-  // }
+  // Only show construct buttons in Round 3 (gameState === 5)
+  if (gameState !== 5) {
+    return null;
+  }
 
   return (
     <>

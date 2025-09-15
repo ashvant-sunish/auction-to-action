@@ -38,7 +38,7 @@ const Sidebar = ({
   const navItems = [
     { name: "Dashboard", icon: MdDashboard, key: "dashboard" },
     { name: "Auction Rounds", icon: RiAuctionLine, key: "rounds" },
-    { name: "My Bidding History", icon: MdHistory, key: "my-bids" },
+    { name: "My History", icon: MdHistory, key: "my-bids" },
     { name: "Trading Market", icon: MdGroups, key: "trading-market" },
     {
       name: "Enterprise Construction",
