@@ -1,5 +1,3 @@
-const serverUrl = "http://localhost:5000";
+const serverUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default serverUrl;
-
-export const socketServerUrl = 'http://localhost:5000';

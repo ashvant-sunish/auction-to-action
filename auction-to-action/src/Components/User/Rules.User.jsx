@@ -105,7 +105,7 @@ function RulesUser({ onClose, isFirstTime }) {
                                     <ListItem><strong>No ceiling</strong> on total bidding amount</ListItem>
                                     <ListItem><strong>Wallet Rule:</strong> Bids exceeding wallet balance are null and void</ListItem>
                                     <ListItem><strong>Penalty:</strong> 3+ wallet violations = banned for next 20 bids</ListItem>
-                                    <ListItem><strong>Mandatory:</strong> Every team must win at least 1 bid or face 15% wallet deduction</ListItem>
+                                    <ListItem><strong>Mandatory:</strong> Every team must win at least 1 bid or face 15% wallet deduction for upcoming rounds</ListItem>
                                 </UnorderedList>
                             </Box>
 
@@ -114,7 +114,7 @@ function RulesUser({ onClose, isFirstTime }) {
                                 <Heading size="md" mb={3} color="purple.700">Round 2 - Mystery Box</Heading>
                                 <UnorderedList spacing={2} fontSize="sm">
                                     <ListItem><strong>Base Price:</strong> ₹2,500</ListItem>
-                                    <ListItem>Contains surprise enterprises, extra cash, or hidden advantages</ListItem>
+                                    <ListItem>Contains surprise resources, extra cash, or hidden advantages</ListItem>
                                     <ListItem>Strategic bidding can provide unexpected benefits</ListItem>
                                 </UnorderedList>
                             </Box>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { socketServerUrl } from '../../servercon';
 import socketService from '../../services/socket';
+import serverUrl from './../../servercon';
 
 const TradingMarket = () => {
   const [teams, setTeams] = useState([]);
@@ -32,7 +32,7 @@ const TradingMarket = () => {
       console.log('=== FETCHING TEAMS DATA FOR TRADING MARKET ===');
 
       // Fetch all teams with their trade wishlists
-      const response = await axios.get(`${socketServerUrl}/api/team/all-trade-offers`, {
+      const response = await axios.get(`${serverUrl}/api/team/all-trade-offers`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }

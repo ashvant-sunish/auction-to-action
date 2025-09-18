@@ -236,7 +236,7 @@ function MyBids() {
       </Thead>
       <Tbody>
         {data.map((enterprise) => (
-          <Tr key={enterprise.id}>
+          <Tr key={enterprise._id}>
             <Td fontWeight="bold">ENT-{enterprise.id}</Td>
             <Td>{enterprise.title}</Td>
             <Td isNumeric>₹{parseInt(enterprise.worth).toLocaleString()}</Td>
@@ -260,7 +260,7 @@ function MyBids() {
       </Thead>
       <Tbody>
         {data.map((product) => (
-          <Tr key={product.id}>
+          <Tr key={product._id}>
             <Td fontWeight="bold">PROD-{product.id}</Td>
             <Td>{product.title}</Td>
             <Td isNumeric>₹{parseInt(product.worth).toLocaleString()}</Td>

@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { css, keyframes } from "@emotion/react";
 import io from 'socket.io-client';
+import serverUrl from './../../../servercon';
 
 // Custom theme colors
 const colors = {
@@ -67,7 +68,7 @@ const Round2User = () => {
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io(serverUrl);
     setSocket(newSocket);
 
     // Listen for mystery box reveals

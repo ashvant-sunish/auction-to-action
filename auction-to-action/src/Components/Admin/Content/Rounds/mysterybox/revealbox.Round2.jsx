@@ -14,7 +14,7 @@ import {
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
-import serverUrl, { socketServerUrl } from "../../../../../servercon";
+import serverUrl from "../../../../../servercon";
 import io from "socket.io-client";
 
 // colors
@@ -92,7 +92,7 @@ export const RevealBoxRound2 = () => {
 
   // Initialize socket connection and fetch data
   useEffect(() => {
-    const newSocket = io(socketServerUrl);
+    const newSocket = io(serverUrl);
     setSocket(newSocket);
     
     fetchAdminInfo();

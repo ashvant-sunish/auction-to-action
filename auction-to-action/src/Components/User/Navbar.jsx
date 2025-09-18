@@ -20,7 +20,7 @@ import { MdHome } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
 import { CiLogout } from "react-icons/ci";
 
-const Navbar = ({ pageTitle, onLogout, onViewRules, teamData, currentRound, gameState }) => {
+const Navbar = ({ pageTitle, onLogout, onViewRules, teamCode, currentRound, gameState }) => {
   // Remove the old rule state management
   // let [ruleview, setruleview] = React.useState(localStorage.getItem("rulestate"));
   // let [rulebutton, setrulebutton] = React.useState(localStorage.getItem("rulebutton"));
@@ -95,7 +95,7 @@ const Navbar = ({ pageTitle, onLogout, onViewRules, teamData, currentRound, game
               variant="none"
             />
             <MenuList bg="white" textColor="black">
-              <MenuItem>Logged in as: {teamData?.teamNumber || "Team"}</MenuItem>
+              <MenuItem>Logged in as: {teamCode || "Team"}</MenuItem>
               <Divider />
               <MenuItem onClick={onLogout}>
                 <CiLogout /> &nbsp;Log Out

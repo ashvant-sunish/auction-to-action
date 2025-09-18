@@ -7,7 +7,6 @@ import React, {
   useImperativeHandle,
 } from "react";
 import axios from 'axios';
-import { socketServerUrl } from '../../../servercon';
 import productsData from "../../../assets/products-data.json";
 import cardsData from "../../../assets/cards-data.json";
 
@@ -16,6 +15,7 @@ import product2 from "../../../assets/images/Products/Product2.png";
 import product3 from "../../../assets/images/Products/Product3.png";
 import product4 from "../../../assets/images/Products/Product4.png";
 import product5 from "../../../assets/images/Products/Product5.png";
+import serverUrl from './../../../servercon';
 
 const imageMap = {
   "Product1.png": product1,
@@ -54,7 +54,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await axios.get(`${socketServerUrl}/api/construction/inventory`, {
+      const response = await axios.get(`${serverUrl}/api/construction/inventory`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

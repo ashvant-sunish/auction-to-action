@@ -1,9 +1,9 @@
 import React, { useState, useRef } from "react";
 import axios from 'axios';
-import { socketServerUrl } from '../../servercon';
 import SlidingAnimation from "./Construction/SlidingAnimation";
 import SlidingAnimationProduct from "./Construction/SlidingAnimationProduct";
 import SubmitButton from "./Construction/SubmitButton";
+import serverUrl from './../../servercon';
 
 const EnterpriseConstruction = ({ gameState }) => {
   const [notification, setNotification] = useState("");
@@ -37,8 +37,8 @@ const EnterpriseConstruction = ({ gameState }) => {
       }
 
       const endpoint = activeTab === "enterprises" 
-        ? `${socketServerUrl}/api/construction/construct-enterprise`
-        : `${socketServerUrl}/api/construction/purchase-product`;
+        ? `${serverUrl}/api/construction/construct-enterprise`
+        : `${serverUrl}/api/construction/purchase-product`;
 
       const requestData = activeTab === "enterprises" 
         ? {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import socketService from '../services/socket';
 import axios from 'axios';
-import { socketServerUrl } from '../servercon';
+import serverUrl from './../servercon';
 
 /**
  * Custom hook for managing round state with real-time updates
@@ -20,7 +20,7 @@ export const useRoundManager = () => {
   const fetchCurrentRound = useCallback(async () => {
     try {
       setError(null);
-      const response = await axios.get(`${socketServerUrl}/api/round/current`);
+      const response = await axios.get(`${serverUrl}/api/round/current`);
       if (response.data.success) {
         setCurrentRound(response.data.roundData);
         console.log('🎯 Round state fetched from database:', response.data.roundData);

@@ -31,14 +31,15 @@ import {
 import { FaRandom, FaCheck } from "react-icons/fa";
 import { MdSkipNext } from "react-icons/md";
 import axios from "axios";
-import { socketServerUrl } from "../../../../../servercon";
 import io from "socket.io-client";
+import serverUrl from './../../../../../servercon';
 
 function FormRound1() {
   const [formData, setFormData] = useState({
     round: 1,
     itemCode: "",
     itemName: "",
+    resources: [],
     teamCode: "",
     teamName: "",
     bidAmount: 0,
@@ -54,7 +55,7 @@ function FormRound1() {
 
   // Initialize socket connection for live updates
   useEffect(() => {
-    const newSocket = io(socketServerUrl);
+    const newSocket = io(serverUrl);
     setSocket(newSocket);
 
     // Listen for live bid selections
@@ -90,6 +91,7 @@ function FormRound1() {
             ...prev,
             itemCode: data.itemDetails.itemCode || "",
             itemName: data.itemDetails.title || "",
+            
             bidAmount: data.itemDetails.basePrice || 0,
           }));
         }
@@ -164,7 +166,7 @@ function FormRound1() {
     try {
       const adminToken = localStorage.getItem("adminToken");
       const response = await axios.get(
-        `${socketServerUrl}/api/admin/game-state`,
+        `${serverUrl}/api/admin/game-state`,
         {
           headers: {
             Authorization: `Bearer ${adminToken}`,
@@ -193,7 +195,7 @@ function FormRound1() {
     try {
       const adminToken = localStorage.getItem("adminToken");
       const response = await axios.get(
-        `${socketServerUrl}/api/wheel/wheel-selection/1`, // Round 1
+        `${serverUrl}/api/wheel/wheel-selection/1`, // Round 1
         {
           headers: {
             Authorization: `Bearer ${adminToken}`,
@@ -236,7 +238,7 @@ function FormRound1() {
       if (!adminToken) return;
 
       const response = await axios.get(
-        `${socketServerUrl}/api/admin/game-items/round/1?itemCode=${itemCode}`,
+        `${serverUrl}/api/admin/game-items/round/1?itemCode=${itemCode}`,
         {
           headers: {
             Authorization: `Bearer ${adminToken}`,
@@ -273,7 +275,13 @@ function FormRound1() {
 
       // Fetch resources for this item
       fetchItemResources(itemCode);
-
+      setItemResources(
+            {
+              "Gold": 100,
+              "Silver": 50,
+              "Bronze": 25
+            }
+          )
       toast({
         title: "Form Auto-Filled",
         description: "Item details have been filled from wheel selection",
@@ -304,7 +312,7 @@ function FormRound1() {
       }
 
       const response = await axios.get(
-        `${socketServerUrl}/api/admin/teams?teamCode=${teamCode}`,
+        `${serverUrl}/api/admin/teams?teamCode=${teamCode}`,
         {
           headers: {
             Authorization: `Bearer ${adminToken}`,
@@ -451,7 +459,7 @@ function FormRound1() {
       };
 
       const response = await axios.post(
-        `${socketServerUrl}/api/admin/complete-trade`,
+        `${serverUrl}/api/admin/complete-trade`,
         tradeData,
         {
           headers: {
@@ -474,6 +482,7 @@ function FormRound1() {
           round: 1,
           itemCode: "",
           itemName: "",
+          resources: [],
           teamCode: "",
           teamName: "",
           bidAmount: 0,
@@ -687,7 +696,7 @@ function FormRound1() {
                 placeholder="e.g., R1I001"
                 value={formData.itemCode}
                 onChange={(e) => {
-                  const newItemCode = e.target.value.toUpperCase();
+                  const newItemCode = e.target.value.toLowerCase();
                   setFormData((prev) => ({ ...prev, itemCode: newItemCode }));
                   fetchItemResources(newItemCode);
                 }}
@@ -706,7 +715,6 @@ function FormRound1() {
             </FormControl>
           </SimpleGrid>
         </Box>
-
         {/* Resources Section */}
         {itemResources && Object.keys(itemResources).length > 0 && (
           <>

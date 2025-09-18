@@ -246,7 +246,7 @@ const AvailableMaterialsTable = ({
   );
 };
 
-function DashboardContent({ teamData, currentRound, gameState }) {
+function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
   const [isMaterialsFullScreen, setMaterialsFullScreen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState("0");
   const [currentRevealedBox, setCurrentRevealedBox] = useState("0");
@@ -370,6 +370,10 @@ function DashboardContent({ teamData, currentRound, gameState }) {
   const credit = teamData?.credit ?? 0;
   const debit = teamData?.debit ?? 0;
   const resources = teamData?.resources ?? {};
+
+  const calculateTotalBalance = (credit, debit) => {
+    return credit - debit;
+  };
 
   const getRoundDisplayText = (state) => {
     const displays = {
@@ -592,10 +596,10 @@ function DashboardContent({ teamData, currentRound, gameState }) {
                 </Box>
                 <Box>
                   <Text color="gray.500" fontSize="sm">
-                    Credit
+                    Balance
                   </Text>
                   <Text fontWeight="bold" fontSize="2xl">
-                    ₹{credit.toLocaleString()}
+                    ₹{calculateTotalBalance(credit, debit).toLocaleString()}
                   </Text>
                 </Box>
               </Flex>

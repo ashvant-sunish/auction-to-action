@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Box, Spinner, Text, Alert, AlertIcon } from '@chakra-ui/react'
 import RevealBoxRound2 from './mysterybox/revealbox.Round2';
-import FormRound2 from './mysterybox/form.round2';
+import FormRound2 from './mysterybox/Form.Round2';
 import serverUrl from '../../../../servercon';
 
 function Round2() {

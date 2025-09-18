@@ -7,7 +7,7 @@ import React, {
   useImperativeHandle,
 } from "react";
 import axios from 'axios';
-import { socketServerUrl } from '../../../servercon';
+import serverUrl from '../../../servercon';
 import cardData from "../../../assets/cards-data.json";
 
 import enterprise1 from "../../../assets/images/Construction/Enterprise1.png";
@@ -64,7 +64,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await axios.get(`${socketServerUrl}/api/construction/inventory`, {
+      const response = await axios.get(`${serverUrl}/api/construction/inventory`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

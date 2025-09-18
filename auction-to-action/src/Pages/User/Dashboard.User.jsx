@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import serverUrl, { socketServerUrl } from "../../servercon";
+import serverUrl from "../../servercon";
 import socketService from "../../services/socket";
 import Sidebar from "../../Components/User/Sidebar.jsx";
 import Navbar from "../../Components/User/Navbar.jsx";
@@ -101,7 +101,7 @@ function UserDashboard() {
   };
 
   const setupRealTimeConnection = () => {
-    socketService.connect(socketServerUrl);
+    socketService.connect(serverUrl);
 
     socketService.onTeamUpdate((updatedTeam) => {
       if (teamData && updatedTeam.teamNumber === teamData.teamNumber) {
@@ -158,7 +158,7 @@ function UserDashboard() {
 
   const fetchCurrentRound = async () => {
     try {
-      const response = await axios.get(`${socketServerUrl}/api/round/current`);
+      const response = await axios.get(`${serverUrl}/api/round/current`);
       if (response.data.success) {
         processRoundData(response.data.roundData);
       }
@@ -172,7 +172,7 @@ function UserDashboard() {
       // Call backend logout endpoint to set isActive = false
       const token = localStorage.getItem("token");
       if (token) {
-        await axios.post(`${socketServerUrl}/api/team/logout`, {}, {
+        await axios.post(`${serverUrl}/api/team/logout`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -229,7 +229,7 @@ function UserDashboard() {
   const renderContent = () => {
     switch (activeComponent) {
       case "dashboard":
-        return <DashboardContent teamData={teamData} balance={balance} gameState={gameState}  />;
+        return <DashboardContent teamData={teamData} balance={balance} gameState={gameState} />;
       case "my-bids":
         return <MyBids />;
       case "trading-market":
@@ -239,7 +239,7 @@ function UserDashboard() {
       case "enterprise-construction":
         return <EnterpriseConstruction gameState={gameState} />;
       default:
-        return <DashboardContent teamData={teamData} balance={balance} />;
+        return <DashboardContent teamData={teamData} balance={balance} gameState={gameState} />;
     }
   };
 
@@ -270,7 +270,7 @@ function UserDashboard() {
           pageTitle={pageTitles[activeComponent]}
           onLogout={handleLogout}
           onViewRules={handleViewRules}
-          teamData={teamData}
+          teamCode={teamData?.teamName}
           currentRound={getRoundDisplayText(gameState)}
           gameState={gameState}
         />

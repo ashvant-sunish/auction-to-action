@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FrameImages } from './../../../../../utils/spinthewheelimagepath';
 import axios from 'axios';
-import { socketServerUrl } from '../../../../../servercon';
 import io from 'socket.io-client';
+import serverUrl from './../../../../../servercon';
 
 // Bid management functions
 function pickRandomBid(availableItems) {
@@ -51,7 +51,7 @@ export default function Spin3DCards({
       const adminToken = localStorage.getItem('adminToken');
       
       const response = await axios.get(
-        `${socketServerUrl}/api/admin/game-items/round/${round}`,
+        `${serverUrl}/api/admin/game-items/round/${round}`,
         {
           headers: {
             'Authorization': `Bearer ${adminToken}`,
@@ -84,7 +84,7 @@ export default function Spin3DCards({
 
   // Socket.IO listener for real-time updates
   useEffect(() => {
-    const socket = io(socketServerUrl);
+    const socket = io(serverUrl);
     
     // Listen for new wheel events
     socket.on('wheelRandomSelection', (data) => {
@@ -211,7 +211,7 @@ export default function Spin3DCards({
       };
 
       await axios.post(
-        `${socketServerUrl}/api/wheel/wheel-selection/random`,
+        `${serverUrl}/api/wheel/wheel-selection/random`,
         {
           round,
           itemDetails: {
@@ -274,7 +274,7 @@ export default function Spin3DCards({
       };
 
       await axios.post(
-        `${socketServerUrl}/api/wheel/wheel-selection/skip`,
+        `${serverUrl}/api/wheel/wheel-selection/skip`,
         {
           round,
           itemDetails: {
@@ -348,7 +348,7 @@ export default function Spin3DCards({
       
       // Move item from item_list to item_list_2 via backend
       const response = await axios.post(
-        `${socketServerUrl}/api/admin/game-items/select`,
+        `${serverUrl}/api/admin/game-items/select`,
         {
           itemCode: currentSelectedBid.itemCode,
           bidNumber: currentSelectedBid.bidNumber, // Use bidNumber field
@@ -389,7 +389,7 @@ export default function Spin3DCards({
           };
 
           await axios.post(
-            `${socketServerUrl}/api/wheel/wheel-selection/confirm`,
+            `${serverUrl}/api/wheel/wheel-selection/confirm`,
             {
               round,
               itemDetails: {

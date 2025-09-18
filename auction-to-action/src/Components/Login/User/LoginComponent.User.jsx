@@ -150,7 +150,7 @@ function LoginComponentUser() {
           fontFamily="'Inter', sans-serif"
           p={{ base: 5 }}
         >
-          Login
+          Team Login
         </Heading>
 
         {message && <CustomAlert status={messageType}>{message}</CustomAlert>}
@@ -158,13 +158,13 @@ function LoginComponentUser() {
           <VStack spacing={5}>
             <FormControl isInvalid={!!errors.teamNumber}>
               <FormLabel htmlFor="teamNumber" color="gray.200">
-                Leader Registration Number
+                Team Registration Number
               </FormLabel>
               <Input
                 id="teamNumber"
                 name="teamNumber"
                 type="text"
-                placeholder="e.g., 21BCE1234"
+                placeholder="e.g: TEAM101"
                 value={formData.teamNumber}
                 onChange={handleInputChange}
                 bg="rgba(255, 255, 255, 0.1)"

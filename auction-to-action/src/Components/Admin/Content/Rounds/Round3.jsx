@@ -24,7 +24,7 @@ import {
   AlertDescription,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { socketServerUrl } from "../../../../servercon";
+import serverUrl from './../../../../servercon';
 
 // Function to generate MongoDB-style ObjectId
 const generateObjectId = () => {
@@ -96,7 +96,7 @@ function Round3() {
 
       // Fetch team data by team code
       const response = await axios.get(
-        `${socketServerUrl}/api/admin/teams?teamCode=${teamCode}`,
+        `${serverUrl}/api/admin/teams?teamCode=${teamCode}`,
         {
           headers: {
             'Authorization': `Bearer ${adminToken}`,
@@ -411,7 +411,7 @@ function Round3() {
 
       // Execute trade via API
       const response = await axios.post(
-        `${socketServerUrl}/api/trade/execute`,
+        `${serverUrl}/api/trade/execute`,
         tradeData,
         {
           headers: {

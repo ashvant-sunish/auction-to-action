@@ -1,5 +1,5 @@
+import serverUrl from './../servercon';
 import { io } from 'socket.io-client';
-import { socketServerUrl } from '../servercon';
 
 class SocketService {
   constructor() {
@@ -7,9 +7,9 @@ class SocketService {
     this.isConnected = false;
   }
 
-  connect(serverUrl = socketServerUrl) {
+  connect(url = serverUrl) {
     if (!this.socket) {
-      this.socket = io(serverUrl, {
+      this.socket = io(url, {
         autoConnect: false,
         cors: {
           origin: "*",

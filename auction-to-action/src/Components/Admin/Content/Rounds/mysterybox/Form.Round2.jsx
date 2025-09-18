@@ -24,6 +24,7 @@ import {
 } from '@chakra-ui/react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import io from 'socket.io-client';
+import serverUrl from './../../../../../servercon';
 
 const FormRound2 = () => {
   const [formData, setFormData] = useState({
@@ -55,7 +56,7 @@ const FormRound2 = () => {
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io(serverUrl);
     setSocket(newSocket);
 
     // Listen for mystery box reveals
@@ -131,7 +132,7 @@ const FormRound2 = () => {
   const fetchTeams = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:5000/api/admin/teams', {
+      const response = await fetch(`${serverUrl}/api/admin/teams`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -306,7 +307,7 @@ const FormRound2 = () => {
         tradeType: 'mystery_box_reward'
       };
 
-      const response = await fetch('http://localhost:5000/api/trade/submit-trade', {
+      const response = await fetch(`${serverUrl}/api/trade/submit-trade`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

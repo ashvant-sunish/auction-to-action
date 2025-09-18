@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { socketServerUrl } from "../../../servercon";
 import io from "socket.io-client";
 import { FrameImages } from "../../../utils/spinthewheelimagepath";
+import serverUrl from './../../../servercon';
 
 // Bid management functions
 function pickRandomBid(availableItems) {
@@ -69,7 +69,7 @@ export default function Spin3DCards({
 
       // Use public endpoint that doesn't require authentication
       const response = await axios.get(
-        `${socketServerUrl}/api/admin/public/game-items/round/${round}`
+        `${serverUrl}/api/admin/public/game-items/round/${round}`
       );
 
       if (response.data && response.data.availableItems) {
@@ -428,7 +428,7 @@ export default function Spin3DCards({
 
   // Socket.IO listener for real-time updates from admin with enhanced debugging
   useEffect(() => {
-    const socket = io(socketServerUrl);
+    const socket = io(serverUrl);
 
     socket.on("connect", () => {
       console.log("🔌 User wheel connected to socket:", socket.id);

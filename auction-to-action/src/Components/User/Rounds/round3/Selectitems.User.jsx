@@ -44,7 +44,7 @@ import {
 } from "@chakra-ui/react";
 import { FaRupeeSign, FaSearch, FaHandshake, FaList } from "react-icons/fa";
 import io from 'socket.io-client';
-import { socketServerUrl } from '../../../../servercon';
+import serverUrl from './../../../../servercon';
 
 // Enhanced Trading Table Component
 const TradingWishlistTable = () => {
@@ -61,7 +61,7 @@ const TradingWishlistTable = () => {
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io(socketServerUrl);
+    const newSocket = io(serverUrl);
     setSocket(newSocket);
 
     // Listen for trade updates
@@ -92,7 +92,7 @@ const TradingWishlistTable = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch(`${socketServerUrl}/api/team/trade-wishlist`, {
+      const response = await fetch(`${serverUrl}/api/team/trade-wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -126,7 +126,7 @@ const TradingWishlistTable = () => {
         return;
       }
 
-      const response = await fetch(`${socketServerUrl}/api/team/profile`, {
+      const response = await fetch(`${serverUrl}/api/team/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -227,7 +227,7 @@ const TradingWishlistTable = () => {
 
       console.log('Submitting trade wishlist:', tradeWishlistData);
 
-      const response = await fetch(`${socketServerUrl}/api/team/trade-wishlist`, {
+      const response = await fetch(`${serverUrl}/api/team/trade-wishlist`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
