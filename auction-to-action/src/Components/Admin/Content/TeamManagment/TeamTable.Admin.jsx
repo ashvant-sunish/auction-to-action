@@ -19,8 +19,9 @@ function TeamTableAdmin() {
     const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [editingTeam, setEditingTeam] = useState(null);
-    const [newTeam, setNewTeam] = useState({ teamCode: '', teamName: '', password: '', credit: 20000 });
+    const [newTeam, setNewTeam] = useState({ teamCode: '', teamName: '', password: '', credit: 150000 });
     const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+    const [sortField, setSortField] = useState('teamCode'); // 'teamCode' or 'balance'
     const [isLoading, setIsLoading] = useState(true);
     const [teams, setTeams] = useState([]); // This will hold current display data
     const cancelRef = useRef();
@@ -269,8 +270,13 @@ function TeamTableAdmin() {
     };
 
     // This function works with the existing /admin/updateTeam endpoint
-    const toggleSortOrder = () => {
-        setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+    const toggleSortOrder = (field) => {
+        if (sortField === field) {
+            setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortOrder('desc'); // Default to descending for balance
+        }
     };
 
     // Create display data with proper sorting
@@ -289,10 +295,19 @@ function TeamTableAdmin() {
     });
 
     const sortedData = [...displayTeams].sort((a, b) => {
-        // Sort by team code
-        const aCode = a.teamCode || '';
-        const bCode = b.teamCode || '';
-        return sortOrder === 'asc' ? aCode.localeCompare(bCode) : bCode.localeCompare(aCode);
+        if (sortField === 'balance') {
+            // Sort by balance
+            return sortOrder === 'asc' ? 
+                a.balance - b.balance : 
+                b.balance - a.balance;
+        } else {
+            // Sort by team code
+            const aCode = a.teamCode || '';
+            const bCode = b.teamCode || '';
+            return sortOrder === 'asc' ? 
+                aCode.localeCompare(bCode) : 
+                bCode.localeCompare(aCode);
+        }
     });
 
     return (
@@ -332,17 +347,26 @@ function TeamTableAdmin() {
                             <Th 
                                 cursor="pointer" 
                                 _hover={{ bg: "gray.50" }}
-                                onClick={toggleSortOrder}
+                                onClick={() => toggleSortOrder('teamCode')}
                             >
                                 <HStack spacing={1}>
                                     <Text>Team Code</Text>
-                                    {sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />}
+                                    {sortField === 'teamCode' && (sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />)}
                                 </HStack>
                             </Th>
                             <Th>Team Name</Th>
                             <Th>Status</Th>
                             <Th>Debit</Th>
-                            <Th>Balance</Th>
+                            <Th 
+                                cursor="pointer" 
+                                _hover={{ bg: "gray.50" }}
+                                onClick={() => toggleSortOrder('balance')}
+                            >
+                                <HStack spacing={1}>
+                                    <Text>Balance</Text>
+                                    {sortField === 'balance' && (sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />)}
+                                </HStack>
+                            </Th>
                             <Th>Action</Th>
                         </Tr>
                     </Thead>
@@ -368,7 +392,9 @@ function TeamTableAdmin() {
                                             {team.original?.isActive ? "Active" : "Inactive"}
                                         </Badge>
                                     </Td>
-                                    <Td color="red.600" fontWeight="semibold">{team.debit.toLocaleString()}</Td>
+                                    <Td color="red.600" fontWeight="semibold">
+                                        {team.debit.toLocaleString()}
+                                    </Td>
                                     <Td color={team.balance >= 0 ? "green.600" : "red.600"} fontWeight="bold">
                                         {team.balance.toLocaleString()}
                                     </Td>

@@ -139,7 +139,7 @@ function MyBids() {
         <Tr>
           <Th>Items</Th>
           <Th isNumeric>Amount</Th>
-          <Th>Date</Th>
+          <Th>Resources</Th>
         </Tr>
       </Thead>
       <Tbody>
@@ -147,7 +147,18 @@ function MyBids() {
           <Tr key={bid._id}>
             <Td>{formatBidItems(bid)}</Td>
             <Td isNumeric>₹{bid.bidAmount.toLocaleString()}</Td>
-            <Td>{new Date(bid.createdAt).toLocaleDateString()}</Td>
+            <Td>
+              {bid.resourcesGained ? 
+                <VStack align="start" spacing={1}>
+                  {Object.entries(bid.resourcesGained).map(([resource, quantity]) => (
+                    <Text key={resource} fontSize="sm">
+                      {resource}: {quantity}
+                    </Text>
+                  ))}
+                </VStack>
+                : "No resources"
+              }
+            </Td>
           </Tr>
         ))}
       </Tbody>

@@ -2,23 +2,25 @@
   {
     "id": 1,
     "title": "Eco-Furniture Workshop",
-    "worth": "45000",
+    "worth": "50000",
     "requirements": [
       "Property (2)",
       "Skilled Labour (2)",
-      "Construction Material (1)"
+      "Construction Material (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise1.png"
   },
   {
     "id": 2,
     "title": "Solar Lighting Solutions Assembly Unit",
-    "worth": "60000",
+    "worth": "65000",
     "requirements": [
       "Property (2)",
       "Technology (2)",
       "Electricity Supply (1)",
-      "Skilled Labour (1)"
+      "Skilled Labour (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise2.png"
   },
@@ -36,11 +38,12 @@
   {
     "id": 4,
     "title": "Community Water Purification & Bottling Center",
-    "worth": "50000",
+    "worth": "55000",
     "requirements": [
       "Property (2)",
       "Machinery & Tools (2)",
-      "Electricity Supply (1)"
+      "Electricity Supply (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise4.png"
   },
@@ -58,22 +61,24 @@
   {
     "id": 6,
     "title": "Women-Led Stitching & Tailoring Unit",
-    "worth": "40000",
+    "worth": "45000",
     "requirements": [
       "Property (2)",
       "Skilled Labour (2)",
-      "Machinery & Tools (1)"
+      "Machinery & Tools (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise6.png"
   },
   {
     "id": 7,
     "title": "Community Bicycle Repair & Rental Hub",
-    "worth": "45000",
+    "worth": "50000",
     "requirements": [
       "Property (2)",
       "Machinery & Tools (2)",
-      "Skilled Labour (1)"
+      "Skilled Labour (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise7.png"
   },
@@ -91,22 +96,24 @@
   {
     "id": 9,
     "title": "Urban Recycling Booth",
-    "worth": "30000",
+    "worth": "35000",
     "requirements": [
       "Property (2)",
       "Machinery & Tools (1)",
-      "Skilled Labour (1)"
+      "Skilled Labour (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise9.png"
   },
   {
     "id": 10,
     "title": "Youth Career Guidance Center",
-    "worth": "40000",
+    "worth": "45000",
     "requirements": [
       "Property (2)",
       "Office Space (2)",
-      "Technology (1)"
+      "Technology (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise10.png"
   },
@@ -135,12 +142,13 @@
   {
     "id": 13,
     "title": "SunSpot Energy Center",
-    "worth": "75000",
+    "worth": "80000",
     "requirements": [
       "Property (2)",
       "Technology (2)",
       "Electricity Supply (1)",
-      "Skilled Labour (1)"
+      "Skilled Labour (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise13.png"
   },
@@ -158,12 +166,14 @@
   {
     "id": 15,
     "title": "WeCare Health Studio",
-    "worth": "50000",
+    "worth": "55000",
     "requirements": [
       "Property (2)",
       "Office Space (2)",
-      "Skilled Labour (1)"
+      "Skilled Labour (1)",
+      "Transportation (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise15.png"
   }
 ]
+

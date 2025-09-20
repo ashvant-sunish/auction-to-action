@@ -592,6 +592,7 @@ exports.completeTrade = async (req, res) => {
             round,
             itemCode,
             itemName,
+            resources,
             teamCode,
             teamName,
             bidAmount,
@@ -604,6 +605,7 @@ exports.completeTrade = async (req, res) => {
         console.log('🔄 Processing complete trade:', {
             teamCode,
             itemName,
+            resources,
             bidAmount,
             updateInventory,
             updateAccount
@@ -658,15 +660,25 @@ exports.completeTrade = async (req, res) => {
         await team.save();
 
         // Create bid history record for tracking
-        const bidHistory = new BidHistory({
+        const bidHistoryRecord = {
             round,
             itemCode,
             itemName,
+            resourcesGained: {},
             teamCode,
             teamName,
             bidAmount
-        });
+        };
 
+        // Add resources gained to bid history
+        if (gameItem && gameItem.resources) {
+            gameItem.resources.forEach((quantity, resourceName) => {
+                bidHistoryRecord.resourcesGained[resourceName] = quantity;
+            });
+        }
+
+        // Save bid history
+        const bidHistory = new BidHistory(bidHistoryRecord);
         await bidHistory.save();
         console.log('📊 Bid history created:', bidHistory._id);
 
@@ -681,7 +693,7 @@ exports.completeTrade = async (req, res) => {
                 bidAmount,
                 newBalance: team.credit - team.debit,
                 inventoryCount: team.inventory?.length || 0,
-                resources: Object.fromEntries(team.resources || new Map())
+                resourcesGained: Object.fromEntries(team.resourcesGained || new Map())
             }
         });
 

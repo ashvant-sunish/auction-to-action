@@ -44,12 +44,21 @@ function UserDashboard() {
       return;
     }
 
+    // Set up real-time connection first
+    setupRealTimeConnection();
+    
+    // Then fetch initial data
     fetchTeamData();
     fetchCurrentRound();
-    setupRealTimeConnection();
+
+    // Set up periodic refresh of team data
+    const refreshInterval = setInterval(() => {
+      fetchTeamData();
+    }, 30000); // Refresh every 30 seconds as a fallback
 
     return () => {
       socketService.disconnect();
+      clearInterval(refreshInterval);
     };
   }, [navigate]);
 
@@ -104,7 +113,9 @@ function UserDashboard() {
     socketService.connect(serverUrl);
 
     socketService.onTeamUpdate((updatedTeam) => {
-      if (teamData && updatedTeam.teamNumber === teamData.teamNumber) {
+      const currentTeamNumber = teamData?.teamNumber;
+      // Update team data even if teamData is not yet set, as long as the team numbers match
+      if (currentTeamNumber && updatedTeam.teamNumber === currentTeamNumber) {
         setTeamData(updatedTeam);
         setBalance(updatedTeam.balance || updatedTeam.credit || 0);
         toast({
@@ -145,8 +156,12 @@ function UserDashboard() {
       const response = await axios.get(`${serverUrl}/api/team/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTeamData(response.data);
-      setBalance(response.data.balance);
+      
+      // Only update if the data has actually changed
+      if (JSON.stringify(response.data) !== JSON.stringify(teamData)) {
+        setTeamData(response.data);
+        setBalance(response.data.balance);
+      }
     } catch (error) {
       console.error("Error fetching team data:", error);
       if (error.response?.status === 401) {

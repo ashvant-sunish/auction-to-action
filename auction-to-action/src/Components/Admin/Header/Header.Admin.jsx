@@ -43,6 +43,9 @@ function HeaderAdmin({ file, setfile }) {
         case "rounds":
             CurrentPage = "Rounds";
             break;
+        case "worthcalculator":
+            CurrentPage = "Worth Calculator";
+            break;
         default:
             break;
     }
