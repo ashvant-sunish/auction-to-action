@@ -10,8 +10,8 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { css, keyframes } from "@emotion/react";
-import io from 'socket.io-client';
-import serverUrl from './../../../servercon';
+import io from "socket.io-client";
+import serverUrl from "./../../../servercon";
 
 // Custom theme colors
 const colors = {
@@ -72,18 +72,18 @@ const Round2User = () => {
     setSocket(newSocket);
 
     // Listen for mystery box reveals
-    newSocket.on('mysteryBoxRevealed', (boxData) => {
-      console.log('Mystery box revealed for users:', boxData);
+    newSocket.on("mysteryBoxRevealed", (boxData) => {
+      console.log("Mystery box revealed for users:", boxData);
       handleAdminReveal(boxData);
     });
 
     // Listen for reset events
-    newSocket.on('mysteryBoxReset', () => {
+    newSocket.on("mysteryBoxReset", () => {
       handleReset();
     });
 
     // Listen for undo events
-    newSocket.on('mysteryBoxUndo', () => {
+    newSocket.on("mysteryBoxUndo", () => {
       handleReset();
     });
 
@@ -97,7 +97,7 @@ const Round2User = () => {
     let timer;
     if (isRevealed && countdown > 0) {
       timer = setInterval(() => {
-        setCountdown(prev => {
+        setCountdown((prev) => {
           if (prev <= 1) {
             handleReset();
             return 0;
@@ -112,7 +112,7 @@ const Round2User = () => {
   const handleAdminReveal = (boxData) => {
     setIsShaking(true);
     setRevealedBox(boxData);
-    
+
     setTimeout(() => {
       setIsRevealed(true);
       setIsShaking(false);
@@ -129,11 +129,16 @@ const Round2User = () => {
 
   const getRewardTypeColor = (type) => {
     switch (type) {
-      case 'cash': return colors.primary[50];
-      case 'resources': return '#4A90E2';
-      case 'challenge': return '#FF8C42';
-      case 'nothing': return '#8A8A8A';
-      default: return colors.primary[100];
+      case "cash":
+        return colors.primary[50];
+      case "resources":
+        return "#4A90E2";
+      case "challenge":
+        return "#FF8C42";
+      case "nothing":
+        return "#8A8A8A";
+      default:
+        return colors.primary[100];
     }
   };
 
@@ -159,7 +164,8 @@ const Round2User = () => {
           top={`${Math.random() * 100}%`}
           left={`${Math.random() * 100}%`}
           css={css`
-            animation: ${sparkle} ${2 + Math.random() * 3}s infinite ${Math.random() * 2}s;
+            animation: ${sparkle} ${2 + Math.random() * 3}s infinite
+              ${Math.random() * 2}s;
           `}
         />
       ))}
@@ -169,20 +175,26 @@ const Round2User = () => {
           {/* Status Header */}
           {isRevealed && revealedBox && (
             <Flex direction="column" align="center" spacing={2}>
-              <Badge 
-                colorScheme={revealedBox.itemType === 'cash' ? 'green' : 
-                           revealedBox.itemType === 'resources' ? 'blue' : 
-                           revealedBox.itemType === 'challenge' ? 'orange' : 'gray'} 
-                fontSize="lg" 
+              <Badge
+                colorScheme={
+                  revealedBox.itemType === "cash"
+                    ? "green"
+                    : revealedBox.itemType === "resources"
+                    ? "blue"
+                    : revealedBox.itemType === "challenge"
+                    ? "orange"
+                    : "gray"
+                }
+                fontSize="lg"
                 p={3}
                 borderRadius="full"
               >
                 Box {revealedBox.boxId} - {revealedBox.itemName}
               </Badge>
               {countdown > 0 && (
-                <Text 
-                  color={colors.white} 
-                  fontSize="sm" 
+                <Text
+                  color={colors.white}
+                  fontSize="sm"
                   fontWeight="bold"
                   textShadow={`1px 1px 2px ${colors.dark}`}
                 >
@@ -221,7 +233,7 @@ const Round2User = () => {
                 border={`2px solid ${colors.primary[100]}`}
                 zIndex={2}
               />
-              
+
               {/* Box ribbon */}
               <Box
                 position="absolute"
@@ -254,15 +266,6 @@ const Round2User = () => {
                     textShadow={`2px 2px 4px ${colors.dark}`}
                   >
                     ?
-                  </Text>
-                  <Text
-                    fontSize="sm"
-                    color={colors.white}
-                    fontWeight="bold"
-                    textShadow={`1px 1px 2px ${colors.dark}`}
-                    textAlign="center"
-                  >
-                    Waiting for Admin
                   </Text>
                 </VStack>
               </Center>
@@ -311,15 +314,23 @@ const Round2User = () => {
                     textShadow={`2px 2px 4px ${colors.dark}`}
                     letterSpacing="wider"
                   >
-                    {revealedBox?.content || revealedBox?.description || "Mystery Reward"}
+                    {revealedBox?.content ||
+                      revealedBox?.description ||
+                      "Mystery Reward"}
                   </Text>
-                  
+
                   {/* Reward type indicator */}
                   {revealedBox?.itemType && (
-                    <Badge 
-                      colorScheme={revealedBox.itemType === 'cash' ? 'green' : 
-                                 revealedBox.itemType === 'resources' ? 'blue' : 
-                                 revealedBox.itemType === 'challenge' ? 'orange' : 'gray'}
+                    <Badge
+                      colorScheme={
+                        revealedBox.itemType === "cash"
+                          ? "green"
+                          : revealedBox.itemType === "resources"
+                          ? "blue"
+                          : revealedBox.itemType === "challenge"
+                          ? "orange"
+                          : "gray"
+                      }
                       fontSize="md"
                       p={2}
                       borderRadius="full"
@@ -327,7 +338,7 @@ const Round2User = () => {
                       {revealedBox.itemType.toUpperCase()} REWARD
                     </Badge>
                   )}
-                  
+
                   {/* Decorative elements */}
                   <Box
                     width="80%"
@@ -356,36 +367,35 @@ const Round2User = () => {
               ))}
             </Box>
           )}
-          
+
           {/* Real-time Status Display */}
           {!isRevealed && (
-            <Box 
-              bg="rgba(255, 255, 255, 0.1)" 
+            <Box
+              bg="rgba(255, 255, 255, 0.1)"
               backdropFilter="blur(10px)"
-              borderRadius="20px"
+              borderRadius="12"
               p={4}
               border={`1px solid ${colors.primary[100]}33`}
             >
-              <Text 
-                color={colors.white} 
-                textAlign="center" 
+              <Text
+                color={colors.white}
+                textAlign="center"
                 fontSize="lg"
                 fontWeight="bold"
                 textShadow={`1px 1px 2px ${colors.dark}`}
               >
                 🎁 Round 2: Mystery Box Reveal
               </Text>
-              <Text 
-                color={colors.primary[50]} 
-                textAlign="center" 
+              <Text
+                color={colors.primary[50]}
+                textAlign="center"
                 fontSize="sm"
                 mt={2}
               >
-                Admin will reveal mystery boxes in real-time
+                Waiting for Admin to reveal mystery boxes in real-time
               </Text>
             </Box>
           )}
-
         </VStack>
       </Center>
     </Box>

@@ -16,11 +16,17 @@ import {
   Badge,
   Button,
 } from "@chakra-ui/react";
-import { MdHome } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
 import { CiLogout } from "react-icons/ci";
 
-const Navbar = ({ pageTitle, onLogout, onViewRules, teamCode, currentRound, gameState }) => {
+const Navbar = ({
+  pageTitle,
+  onLogout,
+  onViewRules,
+  teamCode,
+  currentRound,
+  gameState,
+}) => {
   // Remove the old rule state management
   // let [ruleview, setruleview] = React.useState(localStorage.getItem("rulestate"));
   // let [rulebutton, setrulebutton] = React.useState(localStorage.getItem("rulebutton"));
@@ -48,24 +54,23 @@ const Navbar = ({ pageTitle, onLogout, onViewRules, teamCode, currentRound, game
       w="full"
       px="4"
       py="2"
-      bg="white"
+      bg="#0A7075"
       borderBottomWidth="1px"
       borderColor="gray.200"
     >
       <HStack spacing={4}>
-        <Breadcrumb separator="/">
-          <BreadcrumbItem>
-            <BreadcrumbLink href="#">
-              <Icon as={MdHome} color="gray.600" />
-            </BreadcrumbLink>
-          </BreadcrumbItem>
+        <Breadcrumb>
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink href="#" fontWeight="bold">
+            <BreadcrumbLink
+              href="#"
+              fontSize="2xl"
+              fontWeight="bold"
+              color="white"
+            >
               {pageTitle || "Dashboard"}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
-        {/* --- CHANGE: Added the Round Status Badge --- */}
         <Badge
           colorScheme={getBadgeColorScheme()}
           variant="subtle"
@@ -79,11 +84,14 @@ const Navbar = ({ pageTitle, onLogout, onViewRules, teamCode, currentRound, game
       <Flex flex="1" justify="flex-end" gap={4}>
         <HStack>
           <Button
+            borderRadius="full"
             onClick={onViewRules}
-            colorScheme="blue"
-            variant="outline"
+            bg="transparent"
+            color="white"
+            borderColor="white"
+            _hover={{ bg: "whiteAlpha.200" }}
           >
-            View Rules
+            RULES
           </Button>
         </HStack>
         <HStack spacing={4}>
@@ -93,6 +101,7 @@ const Navbar = ({ pageTitle, onLogout, onViewRules, teamCode, currentRound, game
               aria-label="Options"
               icon={<BsPersonCircle />}
               variant="none"
+              color="white"
             />
             <MenuList bg="white" textColor="black">
               <MenuItem>Logged in as: {teamCode || "Team"}</MenuItem>

@@ -6,8 +6,8 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import axios from 'axios';
-import serverUrl from '../../../servercon';
+import axios from "axios";
+import serverUrl from "../../../servercon";
 import cardData from "../../../assets/cards-data.json";
 
 import enterprise1 from "../../../assets/images/Construction/Enterprise1.png";
@@ -61,18 +61,21 @@ const SlidingAnimation = forwardRef((props, ref) => {
   // Fetch team inventory
   const fetchTeamInventory = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await axios.get(`${serverUrl}/api/construction/inventory`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await axios.get(
+        `${serverUrl}/api/construction/inventory`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.data.enterprises) {
-        setOwnedEnterprises(response.data.enterprises.map(ent => ent.id));
+        setOwnedEnterprises(response.data.enterprises.map((ent) => ent.id));
       }
     } catch (error) {
-      console.error('Error fetching team inventory:', error);
+      console.error("Error fetching team inventory:", error);
     } finally {
       setLoading(false);
     }
@@ -486,7 +489,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
                     Worth: ₹{Number(card.worth || 0).toLocaleString()}
                   </p>
                   <ul className="card-requirements">
-                    {(card.requirements || []).slice(0, 4).map((r, i) => (
+                    {(card.requirements || []).slice(0, 5).map((r, i) => (
                       <li key={i}>{r}</li>
                     ))}
                   </ul>
