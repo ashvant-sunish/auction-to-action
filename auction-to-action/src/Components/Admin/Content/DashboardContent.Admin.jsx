@@ -1,10 +1,10 @@
 import { Box, Flex } from "@chakra-ui/react";
 import React from "react";
-import OngoingRoundAdmin from "./DashboardCards.Admin.Jsx/OngoingRound.Admin";
-import TotalAdminsAdmin from "./DashboardCards.Admin.Jsx/TotalAdmins.Admin";
-import TotalTeamsAdmin from "./DashboardCards.Admin.Jsx/TotalTeams.Admin";
-import RoundsStartAdmin from "./DashboardCards.Admin.Jsx/RoundsStart.Admin";
-import RoundLinksAdmin from "./DashboardCards.Admin.Jsx/RoundLinks.Admin";
+import OngoingRoundAdmin from "./DashboardCards/OngoingRound.Admin";
+import TotalAdminsAdmin from "./DashboardCards/TotalAdmins.Admin";
+import TotalTeamsAdmin from "./DashboardCards/TotalTeams.Admin";
+import RoundsStartAdmin from "./DashboardCards/RoundsStart.Admin";
+import RoundLinksAdmin from "./DashboardCards/RoundLinks.Admin";
 
 function DashboardContentAdmin({
   ongoingRound,

@@ -138,38 +138,30 @@ function MyBids() {
     <Table variant="simple" size="md">
       <Thead bg="gray.50">
         <Tr>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
-            Items
-          </Th>
-          <Th
-            fontSize="sm"
-            fontWeight="semibold"
-            color="gray.700"
-            py={4}
-            isNumeric
-          >
-            Amount
-          </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
-            Date
-          </Th>
+          <Th>Items</Th>
+          <Th isNumeric>Amount</Th>
+          <Th>Resources</Th>
         </Tr>
       </Thead>
       <Tbody>
-        {data.map((bid, index) => (
-          <Tr
-            key={bid._id}
-            bg={index % 2 === 0 ? "white" : "gray.25"}
-            _hover={{ bg: "gray.50" }}
-          >
-            <Td py={4} fontWeight="medium">
-              {formatBidItems(bid)}
-            </Td>
-            <Td py={4} isNumeric fontWeight="bold" color="green.600">
-              ₹{bid.bidAmount.toLocaleString()}
-            </Td>
-            <Td py={4} color="gray.600">
-              {new Date(bid.createdAt).toLocaleDateString()}
+        {data.map((bid) => (
+          <Tr key={bid._id}>
+            <Td>{formatBidItems(bid)}</Td>
+            <Td isNumeric>₹{bid.bidAmount.toLocaleString()}</Td>
+            <Td>
+              {bid.resourcesGained ? (
+                <VStack align="start" spacing={1}>
+                  {Object.entries(bid.resourcesGained).map(
+                    ([resource, quantity]) => (
+                      <Text key={resource} fontSize="sm">
+                        {resource}: {quantity}
+                      </Text>
+                    )
+                  )}
+                </VStack>
+              ) : (
+                "No resources"
+              )}
             </Td>
           </Tr>
         ))}

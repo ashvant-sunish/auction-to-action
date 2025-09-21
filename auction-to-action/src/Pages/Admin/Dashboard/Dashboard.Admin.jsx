@@ -12,6 +12,7 @@ import serverUrl from '../../../servercon';
 import { useNavigate } from 'react-router-dom';
 import socketService from '../../../services/socket';
 import { useRoundManager } from '../../../hooks/useRoundManager';
+import WorthCalculatorAdmin from '../../../Components/Admin/Content/WorthCalculator.Admin';
 
 function AdminDashboard() {
   const [TotalAdmins, setTotalAdmins] = React.useState(78);
@@ -137,6 +138,9 @@ function AdminDashboard() {
       break;
     case 'rounds':
       content = <RoundsAdmin ongoingRound={ongoingRound} setfile={setfile} />;
+      break;
+    case 'worthcalculator':
+      content = <WorthCalculatorAdmin />;
       break;
 
     default:

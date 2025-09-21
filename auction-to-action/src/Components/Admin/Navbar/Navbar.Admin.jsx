@@ -8,6 +8,7 @@ function NavbarAdmin({ setfile, file }) {
     { key: "adminmanagement", label: "Admin Management" },
     { key: "teamsmanagement", label: "Teams Management" },
     { key: "rounds", label: "Rounds" },
+    { key: "worthcalculator", label: "Worth Calculator" },
   ];
 
   return (

@@ -90,6 +90,11 @@ exports.loginTeam = async (req, res) => {
     
     if (await bcrypt.compare(password, team.password)) {
       // Set team as active on successful login
+      
+      if (team.isActive){
+        return res.status(400).json({ message: 'Team is already logged in from another session.' });
+      }
+
       team.isActive = true;
       await team.save();
 

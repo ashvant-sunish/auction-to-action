@@ -27,6 +27,7 @@ import {
   Switch,
   HStack,
   Icon,
+  Spacer,
 } from "@chakra-ui/react";
 import { FaRandom, FaCheck } from "react-icons/fa";
 import { MdSkipNext } from "react-icons/md";
@@ -49,7 +50,6 @@ function FormRound1() {
   const [liveGameState, setLiveGameState] = useState(null);
   const [wheelSelection, setWheelSelection] = useState(null);
   const [autoFillEnabled, setAutoFillEnabled] = useState(true);
-  const [itemResources, setItemResources] = useState(null);
   const [socket, setSocket] = useState(null);
   const toast = useToast();
 
@@ -91,7 +91,7 @@ function FormRound1() {
             ...prev,
             itemCode: data.itemDetails.itemCode || "",
             itemName: data.itemDetails.title || "",
-            
+            resources: data.itemDetails.resources || [],
             bidAmount: data.itemDetails.basePrice || 0,
           }));
         }
@@ -116,9 +116,6 @@ function FormRound1() {
           timestamp: new Date(data.timestamp),
         });
 
-        // Fetch resources for the confirmed item
-        fetchItemResources(data.itemDetails?.itemCode);
-
         toast({
           title: "✅ Item Confirmed",
           description: `${data.itemDetails.title} confirmed`,
@@ -139,8 +136,16 @@ function FormRound1() {
           timestamp: new Date(data.timestamp),
         });
 
-        // Clear resources when item is skipped
-        setItemResources(null);
+        // Reset form
+        setFormData({
+          round: 1,
+          itemCode: "",
+          itemName: "",
+          resources: [],
+          teamCode: "",
+          teamName: "",
+          bidAmount: 0,
+        });
 
         toast({
           title: "⏭️ Item Skipped",
@@ -218,6 +223,7 @@ function FormRound1() {
             ...prev,
             itemCode: selection.itemDetails.itemCode || "",
             itemName: selection.itemDetails.title || "",
+            resources: selection.itemDetails.resources || [],
           }));
         }
       }
@@ -226,38 +232,6 @@ function FormRound1() {
     }
   };
 
-  // Fetch item details including resources
-  const fetchItemResources = async (itemCode) => {
-    if (!itemCode) {
-      setItemResources(null);
-      return;
-    }
-
-    try {
-      const adminToken = localStorage.getItem("adminToken");
-      if (!adminToken) return;
-
-      const response = await axios.get(
-        `${serverUrl}/api/admin/game-items/round/1?itemCode=${itemCode}`,
-        {
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data && response.data.length > 0) {
-        const item = response.data.find((item) => item.itemCode === itemCode);
-        if (item) {
-          setItemResources(item.resources);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching item resources:", error);
-      setItemResources(null);
-    }
-  };
 
   // Auto-fill form with wheel selection data
   const autoFillFromWheelSelection = () => {
@@ -267,21 +241,13 @@ function FormRound1() {
         ...prev,
         itemCode: itemCode,
         itemName: wheelSelection.itemDetails.title || "",
+        resources: wheelSelection.itemDetails.resources || [],
         // Don't auto-fill team data - user needs to enter manually
         teamCode: "",
         teamName: "",
         bidAmount: wheelSelection.itemDetails.basePrice || 0,
       }));
 
-      // Fetch resources for this item
-      fetchItemResources(itemCode);
-      setItemResources(
-            {
-              "Gold": 100,
-              "Silver": 50,
-              "Bronze": 25
-            }
-          )
       toast({
         title: "Form Auto-Filled",
         description: "Item details have been filled from wheel selection",
@@ -449,6 +415,7 @@ function FormRound1() {
         round: formData.round,
         itemCode: formData.itemCode,
         itemName: formData.itemName,
+        resources: wheelSelection.itemDetails.resources,
         teamCode: formData.teamCode,
         teamName: formData.teamName,
         bidAmount: formData.bidAmount,
@@ -505,9 +472,21 @@ function FormRound1() {
     }
   };
 
+  const handleReset = () => {
+    setFormData({
+      round: 1,
+      itemCode: "",
+      itemName: "",
+      resources: [],
+      teamCode: "",
+      teamName: "",
+      bidAmount: 0,
+    });
+  };
+
   return (
     <Box maxW="800px" mx="auto" p={6}>
-      <Heading size="lg" mb={6} textAlign="center" color="blue.600">
+      <Heading size="lg" mb={6} textAlign="center" color="White">
         Round 1 Bid Data Entry
       </Heading>
 
@@ -519,15 +498,15 @@ function FormRound1() {
             wheelSelection.status === "CONFIRMED"
               ? "green.50"
               : wheelSelection.status === "SKIPPED"
-              ? "orange.50"
-              : "blue.50"
+                ? "orange.50"
+                : "blue.50"
           }
           borderColor={
             wheelSelection.status === "CONFIRMED"
               ? "green.200"
               : wheelSelection.status === "SKIPPED"
-              ? "orange.200"
-              : "blue.200"
+                ? "orange.200"
+                : "blue.200"
           }
           borderWidth="2px"
         >
@@ -539,15 +518,15 @@ function FormRound1() {
                     wheelSelection.status === "CONFIRMED"
                       ? FaCheck
                       : wheelSelection.status === "SKIPPED"
-                      ? MdSkipNext
-                      : FaRandom
+                        ? MdSkipNext
+                        : FaRandom
                   }
                   color={
                     wheelSelection.status === "CONFIRMED"
                       ? "green.600"
                       : wheelSelection.status === "SKIPPED"
-                      ? "orange.600"
-                      : "blue.600"
+                        ? "orange.600"
+                        : "blue.600"
                   }
                 />
                 <Heading
@@ -556,15 +535,15 @@ function FormRound1() {
                     wheelSelection.status === "CONFIRMED"
                       ? "green.600"
                       : wheelSelection.status === "SKIPPED"
-                      ? "orange.600"
-                      : "blue.600"
+                        ? "orange.600"
+                        : "blue.600"
                   }
                 >
                   {wheelSelection.status === "CONFIRMED"
                     ? "✅ Wheel: Item Confirmed"
                     : wheelSelection.status === "SKIPPED"
-                    ? "⏭️ Wheel: Item Skipped"
-                    : "🎯 Wheel: Item Selected"}
+                      ? "⏭️ Wheel: Item Skipped"
+                      : "🎯 Wheel: Item Selected"}
                 </Heading>
               </HStack>
               <Badge
@@ -572,8 +551,8 @@ function FormRound1() {
                   wheelSelection.status === "CONFIRMED"
                     ? "green"
                     : wheelSelection.status === "SKIPPED"
-                    ? "orange"
-                    : "blue"
+                      ? "orange"
+                      : "blue"
                 }
                 fontSize="xs"
               >
@@ -625,7 +604,7 @@ function FormRound1() {
             <Text fontSize="xs" color="gray.500">
               {wheelSelection.timestamp?.toLocaleString()}
             </Text>
-            {wheelSelection.status === "SELECTED" && autoFillEnabled && (
+            {(wheelSelection.status === "SELECTED" && autoFillEnabled) || (wheelSelection.status === "CONFIRMED" && autoFillEnabled) && (
               <Button
                 size="sm"
                 mt={2}
@@ -686,7 +665,7 @@ function FormRound1() {
       <VStack spacing={6} align="stretch">
         {/* Item Details Section */}
         <Box>
-          <Heading size="md" mb={4} color="gray.700">
+          <Heading size="md" mb={4} color="white">
             Item Details
           </Heading>
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
@@ -716,74 +695,50 @@ function FormRound1() {
           </SimpleGrid>
         </Box>
         {/* Resources Section */}
-        {itemResources && Object.keys(itemResources).length > 0 && (
-          <>
-            <Divider />
-            <Box>
-              <Heading size="md" mb={4} color="gray.700">
-                Resources to Add to Team Inventory
-              </Heading>
-              <Card bg="green.50" borderColor="green.200" borderWidth="1px">
-                <CardBody>
-                  <Text
-                    fontSize="sm"
-                    color="green.700"
-                    fontWeight="semibold"
-                    mb={3}
-                  >
-                    📦 This item will add the following resources to the team:
-                  </Text>
-                  <SimpleGrid columns={{ base: 2, md: 4 }} spacing={3}>
-                    {Object.entries(itemResources).map(
-                      ([resourceType, quantity]) => (
-                        <Box
-                          key={resourceType}
-                          textAlign="center"
-                          p={2}
-                          bg="white"
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor="green.200"
-                        >
-                          <Text
-                            fontSize="xs"
-                            color="gray.600"
-                            textTransform="uppercase"
-                            letterSpacing="wide"
-                          >
-                            {resourceType}
-                          </Text>
-                          <Text
-                            fontSize="lg"
-                            fontWeight="bold"
-                            color="green.600"
-                          >
-                            +{quantity}
-                          </Text>
-                        </Box>
-                      )
-                    )}
-                  </SimpleGrid>
-                  <Text
-                    fontSize="xs"
-                    color="gray.600"
-                    mt={3}
-                    textAlign="center"
-                  >
-                    These resources will be automatically added to the team's
-                    inventory when the trade is completed.
-                  </Text>
-                </CardBody>
-              </Card>
-            </Box>
-          </>
-        )}
+        <Divider />
+        <Box>
+          <Heading size="md" mb={4} color="White">
+            Resources Management
+          </Heading>
+          {/* Resource Summary */}
+          {Object.keys(formData.resources).length > 0 && (
+            <Card bg="green.50" borderColor="green.200" borderWidth="1px" mb={4}>
+              <CardBody>
+                <Text fontSize="sm" color="green.700" fontWeight="semibold" mb={3}>
+                  📦 Current Resources:
+                </Text>
+                <SimpleGrid columns={{ base: 2, md: 4 }} spacing={3}>
+                  {Object.entries(formData.resources).map(([type, quantity]) => (
+                    quantity > 0 && (
+                      <Box
+                        key={type}
+                        textAlign="center"
+                        p={2}
+                        bg="white"
+                        borderRadius="md"
+                        border="1px solid"
+                        borderColor="green.200"
+                      >
+                        <Text fontSize="xs" color="gray.600" textTransform="uppercase" letterSpacing="wide">
+                          {type}
+                        </Text>
+                        <Text fontSize="lg" fontWeight="bold" color="green.600">
+                          +{quantity}
+                        </Text>
+                      </Box>
+                    )
+                  ))}
+                </SimpleGrid>
+              </CardBody>
+            </Card>
+          )}
+        </Box>
 
         <Divider />
 
         {/* Team Details Section */}
         <Box>
-          <Heading size="md" mb={4} color="gray.700">
+          <Heading size="md" mb={4} color="white">
             Winning Team Details
           </Heading>
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
@@ -829,7 +784,7 @@ function FormRound1() {
 
         {/* Bid Amount Section */}
         <Box>
-          <Heading size="md" mb={4} color="gray.700">
+          <Heading size="md" mb={4} color="white">
             Bid Details
           </Heading>
           <FormControl isRequired maxW="300px">
@@ -847,8 +802,8 @@ function FormRound1() {
             >
               <NumberInputField />
               <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
+                <NumberIncrementStepper color={'white'}/>
+                <NumberDecrementStepper color={'white'}/>
               </NumberInputStepper>
             </NumberInput>
           </FormControl>
@@ -867,6 +822,17 @@ function FormRound1() {
             minW="200px"
           >
             Create Bid Entry
+          </Button>
+          <Spacer />
+          <Button
+            colorScheme="blue"
+            size="lg"
+            onClick={handleReset}
+            isLoading={loading}
+            loadingText="Creating Bid Entry..."
+            minW="200px"
+          >
+            Reset Form
           </Button>
         </Flex>
       </VStack>
