@@ -368,7 +368,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
 
   const styles = `
     .page-header { text-align:center; margin-bottom:0.8rem; }
-    .page-title { font-size:1.4rem; font-weight:700; color:#2d3748; margin:0; }
+    .page-title { font-size:1.4rem; font-weight:700; color:white; margin:0; }
 
     .card-container-wrapper { position: relative; width: 100%; }
     .card-container {

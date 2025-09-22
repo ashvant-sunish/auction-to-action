@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Button,
-  Text,
-  VStack,
-  HStack,
-  Center,
-  Badge,
-  Flex,
-} from "@chakra-ui/react";
+import { Box, Text, VStack, Center, Badge, Flex } from "@chakra-ui/react";
 import { css, keyframes } from "@emotion/react";
 import io from "socket.io-client";
 import serverUrl from "./../../../servercon";
@@ -47,16 +38,6 @@ const cardPop = keyframes`
     transform: translateY(0) scale(1) rotateY(0deg);
     opacity: 1;
   }
-`;
-
-const sparkle = keyframes`
-  0%, 100% { opacity: 0; transform: scale(0); }
-  50% { opacity: 1; transform: scale(1); }
-`;
-
-const glowPulse = keyframes`
-  0%, 100% { box-shadow: 0 0 20px ${colors.primary[100]}; }
-  50% { box-shadow: 0 0 40px ${colors.primary[50]}, 0 0 60px ${colors.primary[100]}; }
 `;
 
 const Round2User = () => {
@@ -144,260 +125,238 @@ const Round2User = () => {
 
   return (
     <Box
-      minH="100vh"
-      bg={`linear-gradient(135deg, ${colors.dark} 0%, ${colors.bg} 50%, ${colors.primary[200]} 100%)`}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      position="relative"
-      overflow="hidden"
+      position="absolute"
+      top="50%"
+      left="50%"
+      transform="translate(-50%, -50%)"
+      bg="transparent"
+      zIndex={10}
     >
-      {/* Background particles */}
-      {[...Array(15)].map((_, i) => (
-        <Box
-          key={i}
-          position="absolute"
-          width="4px"
-          height="4px"
-          bg={colors.primary[50]}
-          borderRadius="50%"
-          top={`${Math.random() * 100}%`}
-          left={`${Math.random() * 100}%`}
-          css={css`
-            animation: ${sparkle} ${2 + Math.random() * 3}s infinite
-              ${Math.random() * 2}s;
-          `}
-        />
-      ))}
-
-      <Center>
-        <VStack spacing={8}>
-          {/* Status Header */}
-          {isRevealed && revealedBox && (
-            <Flex direction="column" align="center" spacing={2}>
-              <Badge
-                colorScheme={
-                  revealedBox.itemType === "cash"
-                    ? "green"
-                    : revealedBox.itemType === "resources"
-                    ? "blue"
-                    : revealedBox.itemType === "challenge"
-                    ? "orange"
-                    : "gray"
-                }
-                fontSize="lg"
-                p={3}
-                borderRadius="full"
-              >
-                Box {revealedBox.boxId} - {revealedBox.itemName}
-              </Badge>
-              {countdown > 0 && (
-                <Text
-                  color={colors.white}
-                  fontSize="sm"
-                  fontWeight="bold"
-                  textShadow={`1px 1px 2px ${colors.dark}`}
-                >
-                  Auto-reset in {countdown}s
-                </Text>
-              )}
-            </Flex>
-          )}
-          {/* Mystery Box */}
-          {!isRevealed && (
-            <Box
-              position="relative"
-              width="200px"
-              height="200px"
-              bg={`linear-gradient(45deg, ${colors.primary[200]}, ${colors.primary[150]})`}
-              border={`3px solid ${colors.primary[100]}`}
-              borderRadius="20px"
-              cursor="not-allowed"
-              transition="all 0.3s ease"
-              animation={isShaking ? `${boxShake} 0.5s ease-in-out 2` : ""}
-              opacity={0.8}
-              _hover={{
-                transform: "scale(1.02)",
-                boxShadow: `0 0 15px ${colors.primary[100]}`,
-              }}
+      <VStack spacing={6}>
+        {/* Status Header */}
+        {isRevealed && revealedBox && (
+          <Flex direction="column" align="center" gap={2}>
+            <Badge
+              colorScheme={
+                revealedBox.itemType === "cash"
+                  ? "green"
+                  : revealedBox.itemType === "resources"
+                  ? "blue"
+                  : revealedBox.itemType === "challenge"
+                  ? "orange"
+                  : "gray"
+              }
+              fontSize="lg"
+              p={3}
+              borderRadius="full"
+              bg="rgba(15, 59, 61, 0.8)"
+              backdropFilter="blur(15px)"
+              border="1px solid rgba(255, 255, 255, 0.3)"
+              color="white"
             >
-              {/* Box lid */}
-              <Box
-                position="absolute"
-                top="-10px"
-                left="-5px"
-                right="-5px"
-                height="30px"
-                bg={`linear-gradient(45deg, ${colors.primary[150]}, ${colors.primary[100]})`}
-                borderRadius="15px 15px 5px 5px"
-                border={`2px solid ${colors.primary[100]}`}
-                zIndex={2}
-              />
-
-              {/* Box ribbon */}
-              <Box
-                position="absolute"
-                top="-15px"
-                left="50%"
-                transform="translateX(-50%)"
-                width="20px"
-                height="calc(100% + 30px)"
-                bg={colors.primary[50]}
-                zIndex={3}
-              />
-              <Box
-                position="absolute"
-                top="50%"
-                left="-10px"
-                transform="translateY(-50%)"
-                width="calc(100% + 20px)"
-                height="20px"
-                bg={colors.primary[50]}
-                zIndex={1}
-              />
-
-              {/* Mystery symbol */}
-              <Center height="100%">
-                <VStack spacing={2}>
-                  <Text
-                    fontSize="4xl"
-                    color={colors.white}
-                    fontWeight="bold"
-                    textShadow={`2px 2px 4px ${colors.dark}`}
-                  >
-                    ?
-                  </Text>
-                </VStack>
-              </Center>
-
-              {/* Glow effect */}
-              <Box
-                position="absolute"
-                inset="-20px"
-                borderRadius="30px"
-                bg={`radial-gradient(circle, ${colors.primary[100]}22 0%, transparent 70%)`}
-                zIndex={-1}
-              />
-            </Box>
-          )}
-
-          {/* Revealed Card */}
-          {isRevealed && (
-            <Box
-              width="400px"
-              height="250px"
-              bg={`linear-gradient(135deg, ${colors.primary[200]} 0%, ${colors.bg} 100%)`}
-              borderRadius="20px"
-              border={`3px solid ${colors.primary[100]}`}
-              animation={`${cardPop} 0.8s ease-out`}
-              position="relative"
-              overflow="hidden"
-              boxShadow={`0 20px 40px ${colors.dark}88, 0 0 30px ${colors.primary[100]}44`}
-            >
-              {/* Card background pattern */}
-              <Box
-                position="absolute"
-                inset={0}
-                opacity={0.1}
-                bg={`radial-gradient(circle at 20% 80%, ${colors.primary[50]} 0%, transparent 50%),
-                       radial-gradient(circle at 80% 20%, ${colors.primary[100]} 0%, transparent 50%)`}
-              />
-
-              {/* Card content */}
-              <Center height="100%" p={6}>
-                <VStack spacing={4}>
-                  <Text
-                    fontSize="2xl"
-                    fontWeight="bold"
-                    color={colors.white}
-                    textAlign="center"
-                    textShadow={`2px 2px 4px ${colors.dark}`}
-                    letterSpacing="wider"
-                  >
-                    {revealedBox?.content ||
-                      revealedBox?.description ||
-                      "Mystery Reward"}
-                  </Text>
-
-                  {/* Reward type indicator */}
-                  {revealedBox?.itemType && (
-                    <Badge
-                      colorScheme={
-                        revealedBox.itemType === "cash"
-                          ? "green"
-                          : revealedBox.itemType === "resources"
-                          ? "blue"
-                          : revealedBox.itemType === "challenge"
-                          ? "orange"
-                          : "gray"
-                      }
-                      fontSize="md"
-                      p={2}
-                      borderRadius="full"
-                    >
-                      {revealedBox.itemType.toUpperCase()} REWARD
-                    </Badge>
-                  )}
-
-                  {/* Decorative elements */}
-                  <Box
-                    width="80%"
-                    height="2px"
-                    bg={`linear-gradient(90deg, transparent, ${colors.primary[50]}, transparent)`}
-                  />
-                </VStack>
-              </Center>
-
-              {/* Corner decorations */}
-              {[...Array(4)].map((_, i) => (
-                <Box
-                  key={i}
-                  position="absolute"
-                  width="30px"
-                  height="30px"
-                  border={`2px solid ${colors.primary[50]}`}
-                  borderRadius="50%"
-                  {...{
-                    top: i < 2 ? "15px" : "auto",
-                    bottom: i >= 2 ? "15px" : "auto",
-                    left: i % 2 === 0 ? "15px" : "auto",
-                    right: i % 2 === 1 ? "15px" : "auto",
-                  }}
-                />
-              ))}
-            </Box>
-          )}
-
-          {/* Real-time Status Display */}
-          {!isRevealed && (
-            <Box
-              bg="rgba(255, 255, 255, 0.1)"
-              backdropFilter="blur(10px)"
-              borderRadius="12"
-              p={4}
-              border={`1px solid ${colors.primary[100]}33`}
-            >
+              Box {revealedBox.boxId} - {revealedBox.itemName}
+            </Badge>
+            {countdown > 0 && (
               <Text
-                color={colors.white}
-                textAlign="center"
-                fontSize="lg"
-                fontWeight="bold"
-                textShadow={`1px 1px 2px ${colors.dark}`}
-              >
-                🎁 Round 2: Mystery Box Reveal
-              </Text>
-              <Text
-                color={colors.primary[50]}
-                textAlign="center"
+                color="white"
                 fontSize="sm"
-                mt={2}
+                fontWeight="bold"
+                bg="rgba(15, 59, 61, 0.7)"
+                backdropFilter="blur(10px)"
+                px={3}
+                py={1}
+                borderRadius="full"
+                border="1px solid rgba(255, 255, 255, 0.2)"
               >
-                Waiting for Admin to reveal mystery boxes in real-time
+                Auto-reset in {countdown}s
               </Text>
-            </Box>
-          )}
-        </VStack>
-      </Center>
+            )}
+          </Flex>
+        )}
+
+        {/* Mystery Box */}
+        {!isRevealed && (
+          <Box
+            position="relative"
+            width="200px"
+            height="200px"
+            bg={`linear-gradient(45deg, ${colors.primary[200]}, ${colors.primary[150]})`}
+            border={`3px solid ${colors.primary[100]}`}
+            borderRadius="20px"
+            cursor="not-allowed"
+            transition="all 0.3s ease"
+            animation={isShaking ? `${boxShake} 0.5s ease-in-out 2` : ""}
+            opacity={0.9}
+            _hover={{
+              transform: "scale(1.02)",
+              boxShadow: `0 0 15px ${colors.primary[100]}`,
+            }}
+          >
+            {/* Box lid */}
+            <Box
+              position="absolute"
+              top="-10px"
+              left="-5px"
+              right="-5px"
+              height="30px"
+              bg={`linear-gradient(45deg, ${colors.primary[150]}, ${colors.primary[100]})`}
+              borderRadius="15px 15px 5px 5px"
+              border={`2px solid ${colors.primary[100]}`}
+              zIndex={2}
+            />
+
+            {/* Box ribbon */}
+            <Box
+              position="absolute"
+              top="-15px"
+              left="50%"
+              transform="translateX(-50%)"
+              width="20px"
+              height="calc(100% + 30px)"
+              bg={colors.primary[50]}
+              zIndex={3}
+            />
+            <Box
+              position="absolute"
+              top="50%"
+              left="-10px"
+              transform="translateY(-50%)"
+              width="calc(100% + 20px)"
+              height="20px"
+              bg={colors.primary[50]}
+              zIndex={1}
+            />
+
+            {/* Mystery symbol */}
+            <Center height="100%">
+              <Text
+                fontSize="4xl"
+                color={colors.white}
+                fontWeight="bold"
+                textShadow={`2px 2px 4px ${colors.dark}`}
+              >
+                ?
+              </Text>
+            </Center>
+
+            {/* Glow effect */}
+            <Box
+              position="absolute"
+              inset="-20px"
+              borderRadius="30px"
+              bg={`radial-gradient(circle, ${colors.primary[100]}22 0%, transparent 70%)`}
+              zIndex={-1}
+            />
+          </Box>
+        )}
+
+        {/* Revealed Card */}
+        {isRevealed && (
+          <Box
+            width="400px"
+            height="250px"
+            bg={`linear-gradient(135deg, ${colors.primary[200]} 0%, ${colors.bg} 100%)`}
+            borderRadius="20px"
+            border={`3px solid ${colors.primary[100]}`}
+            animation={`${cardPop} 0.8s ease-out`}
+            position="relative"
+            overflow="hidden"
+            boxShadow={`0 20px 40px rgba(0,0,0,0.5), 0 0 30px ${colors.primary[100]}44`}
+          >
+            {/* Card background pattern */}
+            <Box
+              position="absolute"
+              inset={0}
+              opacity={0.1}
+              bg={`radial-gradient(circle at 20% 80%, ${colors.primary[50]} 0%, transparent 50%),
+                       radial-gradient(circle at 80% 20%, ${colors.primary[100]} 0%, transparent 50%)`}
+            />
+
+            {/* Card content */}
+            <Center height="100%" p={6}>
+              <VStack spacing={4}>
+                <Text
+                  fontSize="2xl"
+                  fontWeight="bold"
+                  color={colors.white}
+                  textAlign="center"
+                  textShadow={`2px 2px 4px ${colors.dark}`}
+                  letterSpacing="wider"
+                >
+                  {revealedBox?.content ||
+                    revealedBox?.description ||
+                    "Mystery Reward"}
+                </Text>
+
+                {/* Reward type indicator */}
+                {revealedBox?.itemType && (
+                  <Badge
+                    colorScheme={
+                      revealedBox.itemType === "cash"
+                        ? "green"
+                        : revealedBox.itemType === "resources"
+                        ? "blue"
+                        : revealedBox.itemType === "challenge"
+                        ? "orange"
+                        : "gray"
+                    }
+                    fontSize="md"
+                    p={2}
+                    borderRadius="full"
+                  >
+                    {revealedBox.itemType.toUpperCase()} REWARD
+                  </Badge>
+                )}
+
+                {/* Decorative elements */}
+                <Box
+                  width="80%"
+                  height="2px"
+                  bg={`linear-gradient(90deg, transparent, ${colors.primary[50]}, transparent)`}
+                />
+              </VStack>
+            </Center>
+
+            {/* Corner decorations */}
+            {[...Array(4)].map((_, i) => (
+              <Box
+                key={i}
+                position="absolute"
+                width="30px"
+                height="30px"
+                border={`2px solid ${colors.primary[50]}`}
+                borderRadius="50%"
+                {...{
+                  top: i < 2 ? "15px" : "auto",
+                  bottom: i >= 2 ? "15px" : "auto",
+                  left: i % 2 === 0 ? "15px" : "auto",
+                  right: i % 2 === 1 ? "15px" : "auto",
+                }}
+              />
+            ))}
+          </Box>
+        )}
+
+        {/* Waiting Status - Only when box is not revealed */}
+        {!isRevealed && (
+          <Box
+            bg="rgba(15, 59, 61, 0.7)"
+            backdropFilter="blur(15px)"
+            borderRadius="12"
+            p={4}
+            border="1px solid rgba(255, 255, 255, 0.3)"
+            textAlign="center"
+            boxShadow="0 8px 32px rgba(0, 0, 0, 0.3)"
+          >
+            <Text color="white" fontSize="lg" fontWeight="bold" mb={2}>
+              🎁 Round 2: Mystery Box Reveal
+            </Text>
+            <Text color="white" fontSize="sm" fontWeight="medium">
+              Waiting for Admin to reveal mystery boxes
+            </Text>
+          </Box>
+        )}
+      </VStack>
     </Box>
   );
 };

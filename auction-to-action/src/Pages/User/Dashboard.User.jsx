@@ -1,13 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Flex,
-  useToast,
-  VStack,
-  Heading,
-  Text,
-  Icon,
-} from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
+import { Box, Flex, useToast, VStack, Text, Spinner } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import serverUrl from "../../servercon";
@@ -20,7 +12,7 @@ import TradingMarket from "../../Components/User/TradingMarket.jsx";
 import RoundsUser from "../../Components/User/Rounds.User.jsx";
 import EnterpriseConstruction from "../../Components/User/EnterpriseConstruction.jsx";
 import RulesUser from "../../Components/User/Rules.User.jsx";
-import { FaLock } from "react-icons/fa";
+import dashboardBg from "../../assets/images/dashboardbg.jpg"; // Import the background image
 
 function UserDashboard() {
   const [activeComponent, setActiveComponent] = useState("dashboard");
@@ -30,6 +22,7 @@ function UserDashboard() {
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [isFirstTimeLogin, setIsFirstTimeLogin] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true); // State for preloading
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -38,23 +31,24 @@ function UserDashboard() {
   };
 
   useEffect(() => {
+    // Preload the background image
+    const img = new Image();
+    img.src = dashboardBg;
+    img.onload = () => {
+      setImageLoading(false);
+    };
+
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/");
       return;
     }
 
-    // Set up real-time connection first
     setupRealTimeConnection();
-    
-    // Then fetch initial data
     fetchTeamData();
     fetchCurrentRound();
 
-    // Set up periodic refresh of team data
-    const refreshInterval = setInterval(() => {
-      fetchTeamData();
-    }, 30000); // Refresh every 30 seconds as a fallback
+    const refreshInterval = setInterval(fetchTeamData, 30000);
 
     return () => {
       socketService.disconnect();
@@ -62,13 +56,10 @@ function UserDashboard() {
     };
   }, [navigate]);
 
-  // Check for first-time login after teamData is loaded
   useEffect(() => {
     if (teamData?.teamCode) {
-      // Check if this specific team has seen rules before
       const teamRulesKey = `hasSeenRules_${teamData.teamCode}`;
       const hasSeenRules = localStorage.getItem(teamRulesKey);
-      
       if (!hasSeenRules) {
         setIsFirstTimeLogin(true);
         setShowRules(true);
@@ -114,7 +105,6 @@ function UserDashboard() {
 
     socketService.onTeamUpdate((updatedTeam) => {
       const currentTeamNumber = teamData?.teamNumber;
-      // Update team data even if teamData is not yet set, as long as the team numbers match
       if (currentTeamNumber && updatedTeam.teamNumber === currentTeamNumber) {
         setTeamData(updatedTeam);
         setBalance(updatedTeam.balance || updatedTeam.credit || 0);
@@ -156,8 +146,6 @@ function UserDashboard() {
       const response = await axios.get(`${serverUrl}/api/team/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
-      // Only update if the data has actually changed
       if (JSON.stringify(response.data) !== JSON.stringify(teamData)) {
         setTeamData(response.data);
         setBalance(response.data.balance);
@@ -184,31 +172,28 @@ function UserDashboard() {
 
   const handleLogout = async () => {
     try {
-      // Call backend logout endpoint to set isActive = false
       const token = localStorage.getItem("token");
       if (token) {
-        await axios.post(`${serverUrl}/api/team/logout`, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        await axios.post(
+          `${serverUrl}/api/team/logout`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
       }
     } catch (error) {
       console.error("Error during logout:", error);
-      // Continue with logout even if backend call fails
     }
 
-    // Clean up frontend
     if (teamData?.teamNumber) {
       socketService.leaveTeam(teamData.teamNumber);
     }
     socketService.disconnect();
     localStorage.removeItem("token");
-    
-    // Optional: Uncomment the next line if you want to reset rules for testing
-    // localStorage.removeItem(`hasSeenRules_${teamData?.teamCode}`);
-    
     toast({
       title: "Logged out successfully",
       status: "success",
@@ -220,12 +205,11 @@ function UserDashboard() {
 
   const handleViewRules = () => {
     setShowRules(true);
-    setIsFirstTimeLogin(false); // When manually triggered, it's not first time
+    setIsFirstTimeLogin(false);
   };
 
   const handleCloseRules = () => {
     setShowRules(false);
-    // Mark that this specific team has seen the rules
     if (isFirstTimeLogin && teamData?.teamCode) {
       const teamRulesKey = `hasSeenRules_${teamData.teamCode}`;
       localStorage.setItem(teamRulesKey, "true");
@@ -244,7 +228,13 @@ function UserDashboard() {
   const renderContent = () => {
     switch (activeComponent) {
       case "dashboard":
-        return <DashboardContent teamData={teamData} balance={balance} gameState={gameState} />;
+        return (
+          <DashboardContent
+            teamData={teamData}
+            balance={balance}
+            gameState={gameState}
+          />
+        );
       case "my-bids":
         return <MyBids />;
       case "trading-market":
@@ -254,17 +244,27 @@ function UserDashboard() {
       case "enterprise-construction":
         return <EnterpriseConstruction gameState={gameState} />;
       default:
-        return <DashboardContent teamData={teamData} balance={balance} gameState={gameState} />;
+        return (
+          <DashboardContent
+            teamData={teamData}
+            balance={balance}
+            gameState={gameState}
+          />
+        );
     }
   };
 
   return (
-    <Flex h="100vh" overflow="hidden">
+    <Flex
+      h="100vh"
+      overflow="hidden"
+      bgImage={`url(${dashboardBg})`}
+      bgSize="cover"
+      bgPosition="center"
+      bgRepeat="no-repeat"
+    >
       {showRules && (
-        <RulesUser 
-          onClose={handleCloseRules}
-          isFirstTime={isFirstTimeLogin}
-        />
+        <RulesUser onClose={handleCloseRules} isFirstTime={isFirstTimeLogin} />
       )}
       <Sidebar
         activeComponent={activeComponent}
@@ -276,7 +276,8 @@ function UserDashboard() {
       <Box
         flex="1"
         ml={{ base: 0, md: isSidebarCollapsed ? "80px" : "260px" }}
-        bg="gray.100"
+        bg="rgba(0, 0, 0, 0.3)"
+        backdropFilter="blur(2px)"
         h="100vh"
         overflow="hidden"
         transition="margin-left 0.2s ease-in-out"
@@ -289,16 +290,38 @@ function UserDashboard() {
           currentRound={getRoundDisplayText(gameState)}
           gameState={gameState}
         />
-        <Box
-          p={6}
-          h="calc(100vh - 72px)"
-          display="flex"
-          flexDirection="column"
-          gap={4}
-          overflowY="auto"
-        >
-          {renderContent()}
-        </Box>
+        {imageLoading ? (
+          <Flex h="calc(100vh - 72px)" align="center" justify="center">
+            <VStack>
+              <Spinner size="xl" color="white" thickness="4px" />
+              <Text color="white" mt={4} fontSize="lg">
+                Loading Dashboard...
+              </Text>
+            </VStack>
+          </Flex>
+        ) : (
+          <Box
+            p={6}
+            h="calc(100vh - 72px)"
+            display="flex"
+            flexDirection="column"
+            gap={4}
+            overflowY="auto"
+            css={{
+              "&::-webkit-scrollbar": { width: "8px" },
+              "&::-webkit-scrollbar-track": { background: "transparent" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "rgba(255, 255, 255, 0.2)",
+                borderRadius: "8px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                background: "rgba(255, 255, 255, 0.3)",
+              },
+            }}
+          >
+            {renderContent()}
+          </Box>
+        )}
       </Box>
     </Flex>
   );

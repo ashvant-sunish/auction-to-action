@@ -6,7 +6,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import axios from 'axios';
+import axios from "axios";
 import productsData from "../../../assets/products-data.json";
 import cardsData from "../../../assets/cards-data.json";
 
@@ -15,7 +15,7 @@ import product2 from "../../../assets/images/Products/Product2.png";
 import product3 from "../../../assets/images/Products/Product3.png";
 import product4 from "../../../assets/images/Products/Product4.png";
 import product5 from "../../../assets/images/Products/Product5.png";
-import serverUrl from './../../../servercon';
+import serverUrl from "./../../../servercon";
 
 const imageMap = {
   "Product1.png": product1,
@@ -51,23 +51,30 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   // Fetch team inventory
   const fetchTeamInventory = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await axios.get(`${serverUrl}/api/construction/inventory`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await axios.get(
+        `${serverUrl}/api/construction/inventory`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.data.enterprises) {
-        const enterpriseIds = response.data.enterprises.map(ent => parseInt(ent.id));
-        console.log('Owned enterprises:', enterpriseIds);
+        const enterpriseIds = response.data.enterprises.map((ent) =>
+          parseInt(ent.id)
+        );
+        console.log("Owned enterprises:", enterpriseIds);
         setOwnedEnterprises(enterpriseIds);
       }
       if (response.data.products) {
-        setOwnedProducts(response.data.products.map(prod => parseInt(prod.id)));
+        setOwnedProducts(
+          response.data.products.map((prod) => parseInt(prod.id))
+        );
       }
     } catch (error) {
-      console.error('Error fetching team inventory:', error);
+      console.error("Error fetching team inventory:", error);
     } finally {
       setLoading(false);
     }
@@ -84,8 +91,10 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
         const imageName = (product.imageUrl || "").split("/").pop();
         const requiredId = parseInt(product.requiredEnterpriseId);
         const isAvailable = ownedEnterprises.includes(requiredId);
-        
-        console.log(`Product ${product.title}: requires enterprise ${requiredId}, available: ${isAvailable}`);
+
+        console.log(
+          `Product ${product.title}: requires enterprise ${requiredId}, available: ${isAvailable}`
+        );
 
         return {
           ...product,
@@ -252,7 +261,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
 
   // Individual lock variables for each product (change to false to unlock)
   // Now using availability check instead of hardcoded locks
-  const needsLock1 = !cards[0]?.isAvailable; 
+  const needsLock1 = !cards[0]?.isAvailable;
   const needsLock2 = !cards[1]?.isAvailable;
   const needsLock3 = !cards[2]?.isAvailable;
   const needsLock4 = !cards[3]?.isAvailable;
@@ -271,7 +280,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       if (isScrollingRef.current) return;
 
       const card = cards.find((c) => c.id === cardId);
-      
+
       // Use availability check instead of hardcoded locks
       const isLocked = !card?.isAvailable;
 
@@ -392,7 +401,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
 
   const styles = `
     .page-header { text-align:center; margin-bottom:0.8rem; }
-    .page-title { font-size:1.4rem; font-weight:700; color:#2d3748; margin:0; }
+    .page-title { font-size:1.4rem; font-weight:700; color:white; margin:0; }
 
     .card-container-wrapper { position: relative; width: 100%; }
     .card-container {
@@ -429,9 +438,9 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       background-position: center;
     }
     .card-image.unavailable {
-      opacity: 0.5;
+      opacity: 0.7;
       cursor: not-allowed;
-      filter: grayscale(0.7);
+      filter: grayscale(0.4);
     }
     .card-image::before {
       content: '';
@@ -442,7 +451,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       pointer-events: none;
     }
     .card-image.unavailable::before {
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.3) 70%);
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.2) 70%);
     }
     .card-image.expanded { width: 360px; transform: translateY(-3px); }
     .card-image.unavailable.expanded { transform: translateY(0px); }

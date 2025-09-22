@@ -1,9 +1,9 @@
 import React, { useState, useRef } from "react";
-import axios from 'axios';
+import axios from "axios";
 import SlidingAnimation from "./Construction/SlidingAnimation";
 import SlidingAnimationProduct from "./Construction/SlidingAnimationProduct";
 import SubmitButton from "./Construction/SubmitButton";
-import serverUrl from './../../servercon';
+import serverUrl from "./../../servercon";
 
 const EnterpriseConstruction = ({ gameState }) => {
   const [notification, setNotification] = useState("");
@@ -29,50 +29,51 @@ const EnterpriseConstruction = ({ gameState }) => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         setNotification("Please log in to construct items.");
         setTimeout(() => setNotification(""), 5000);
         return;
       }
 
-      const endpoint = activeTab === "enterprises" 
-        ? `${serverUrl}/api/construction/construct-enterprise`
-        : `${serverUrl}/api/construction/purchase-product`;
+      const endpoint =
+        activeTab === "enterprises"
+          ? `${serverUrl}/api/construction/construct-enterprise`
+          : `${serverUrl}/api/construction/purchase-product`;
 
-      const requestData = activeTab === "enterprises" 
-        ? {
-            enterpriseId: activeCard.id,
-            title: activeCard.title,
-            worth: activeCard.worth,
-            requirements: activeCard.requirements
-          }
-        : {
-            productId: activeCard.id,
-            title: activeCard.title,
-            worth: activeCard.worth,
-            requirements: activeCard.requirements,
-            requiredEnterpriseId: activeCard.requiredEnterpriseId
-          };
+      const requestData =
+        activeTab === "enterprises"
+          ? {
+              enterpriseId: activeCard.id,
+              title: activeCard.title,
+              worth: activeCard.worth,
+              requirements: activeCard.requirements,
+            }
+          : {
+              productId: activeCard.id,
+              title: activeCard.title,
+              worth: activeCard.worth,
+              requirements: activeCard.requirements,
+              requiredEnterpriseId: activeCard.requiredEnterpriseId,
+            };
 
       const response = await axios.post(endpoint, requestData, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.data.success) {
         setNotification(response.data.message);
-        
+
         if (activeRef.current?.refreshComponent) {
           activeRef.current.refreshComponent();
         }
       }
-
     } catch (error) {
-      console.error('Construction error:', error);
-      
+      console.error("Construction error:", error);
+
       if (error.response?.data?.error) {
         setNotification(error.response.data.error);
       } else {
@@ -95,11 +96,13 @@ const EnterpriseConstruction = ({ gameState }) => {
       position: fixed;
       top: 1.25rem;
       right: 1.25rem;
-      background-color: #0C969C;
+      background: rgba(15, 59, 61, 0.9);
+      backdropFilter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       color: white;
       padding: 0.75rem 1.25rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 0.75rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       z-index: 50;
       animation: fadeInOut 5s ease-in-out forwards;
     }
@@ -112,36 +115,41 @@ const EnterpriseConstruction = ({ gameState }) => {
     
     .tab-navigation {
       display: flex;
-      gap: 0;
+      gap: 8px;
       margin-bottom: 1.5rem;
-      border-radius: 8px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     .tab-button {
       flex: 1;
       padding: 12px 24px;
-      border: none;
-      background-color: #f7f9fc;
-      color: #64748b;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(15, 59, 61, 0.3);
+      backdropFilter: blur(10px);
+      color: rgba(255, 255, 255, 0.7);
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
+      border-radius: 8px;
     }
     
     .tab-button:hover {
-      background-color: #e2e8f0;
-      color: #475569;
+      background: rgba(15, 59, 61, 0.5);
+      color: rgba(255, 255, 255, 0.9);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
     }
     
     .tab-button.active {
-      background-color: #0C969C;
+      background: rgba(15, 59, 61, 0.8);
+      backdropFilter: blur(15px);
       color: white;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(12, 150, 156, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 59, 61, 0.4);
     }
     
     .tab-button.active::after {
@@ -151,7 +159,8 @@ const EnterpriseConstruction = ({ gameState }) => {
       left: 0;
       right: 0;
       height: 3px;
-      background-color: #0a7c82;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), rgba(107, 163, 190, 0.8));
+      border-radius: 0 0 8px 8px;
     }
     
     .content-container {

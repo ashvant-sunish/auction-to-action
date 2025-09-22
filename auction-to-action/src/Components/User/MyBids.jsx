@@ -135,20 +135,30 @@ function MyBids() {
   };
 
   const renderBidsTable = (data) => (
-    <Table variant="simple" size="md">
-      <Thead bg="gray.50">
+    <Table variant="simple" size="md" color="white">
+      <Thead bg="rgba(15, 59, 61, 0.7)" position="sticky" top={0} zIndex={1}>
         <Tr>
-          <Th>Items</Th>
-          <Th isNumeric>Amount</Th>
-          <Th>Resources</Th>
+          <Th color="gray.300" borderColor="rgba(255, 255, 255, 0.2)">
+            Items
+          </Th>
+          <Th isNumeric color="gray.300" borderColor="rgba(255, 255, 255, 0.2)">
+            Amount
+          </Th>
+          <Th color="gray.300" borderColor="rgba(255, 255, 255, 0.2)">
+            Resources
+          </Th>
         </Tr>
       </Thead>
       <Tbody>
         {data.map((bid) => (
-          <Tr key={bid._id}>
-            <Td>{formatBidItems(bid)}</Td>
-            <Td isNumeric>₹{bid.bidAmount.toLocaleString()}</Td>
-            <Td>
+          <Tr key={bid._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
+            <Td borderColor="rgba(255, 255, 255, 0.1)">
+              {formatBidItems(bid)}
+            </Td>
+            <Td isNumeric borderColor="rgba(255, 255, 255, 0.1)">
+              ₹{bid.bidAmount.toLocaleString()}
+            </Td>
+            <Td borderColor="rgba(255, 255, 255, 0.1)">
               {bid.resourcesGained ? (
                 <VStack align="start" spacing={1}>
                   {Object.entries(bid.resourcesGained).map(
@@ -170,96 +180,82 @@ function MyBids() {
   );
 
   const renderTradesTable = (data) => (
-    <Table variant="simple" size="md" whiteSpace="nowrap">
-      <Thead bg="gray.50">
+    <Table variant="simple" size="md" whiteSpace="nowrap" color="white">
+      <Thead bg="rgba(15, 59, 61, 0.7)" position="sticky" top={0} zIndex={1}>
         <Tr>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Teams
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Items Exchanged
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Money Exchanged
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Status
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Date
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Action
           </Th>
         </Tr>
       </Thead>
       <Tbody>
         {data.map((trade, index) => (
-          <Tr
-            key={trade._id}
-            bg={index % 2 === 0 ? "white" : "gray.25"}
-            _hover={{ bg: "gray.50" }}
-          >
-            <Td py={4}>
+          <Tr key={trade._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
+            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
               <Text fontSize="sm">
-                <Text as="span" fontWeight="bold" color="blue.600">
+                <Text as="span" fontWeight="bold" color="blue.300">
                   {trade.teamOne?.teamName || "Team 1"}
                 </Text>
                 {" vs "}
-                <Text as="span" fontWeight="bold" color="green.600">
+                <Text as="span" fontWeight="bold" color="green.300">
                   {trade.teamTwo?.teamName || "Team 2"}
                 </Text>
               </Text>
             </Td>
-            <Td py={4}>
+            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
               <Text fontSize="xs">
-                <Text color="blue.600">
+                <Text color="blue.300">
                   {formatTradeItems(trade.teamOneGives?.items) || "No items"}
                 </Text>
-                <Text color="gray.500">↔</Text>
-                <Text color="green.600">
+                <Text color="gray.400">↔</Text>
+                <Text color="green.300">
                   {formatTradeItems(trade.teamTwoGives?.items) || "No items"}
                 </Text>
               </Text>
             </Td>
-            <Td py={4}>
+            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
               <Text fontSize="xs">
-                <Text color="blue.600">
+                <Text color="blue.300">
                   ₹{(trade.teamOneGives?.money || 0).toLocaleString()}
                 </Text>
-                <Text color="gray.500">↔</Text>
-                <Text color="green.600">
+                <Text color="gray.400">↔</Text>
+                <Text color="green.300">
                   ₹{(trade.teamTwoGives?.money || 0).toLocaleString()}
                 </Text>
               </Text>
             </Td>
-            <Td py={4}>
+            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
               <Badge
-                colorScheme={
-                  trade.status === "completed"
-                    ? "green"
-                    : trade.status === "pending"
-                    ? "yellow"
-                    : "red"
-                }
-                px={3}
-                py={1}
-                borderRadius="full"
+                colorScheme={trade.status === "completed" ? "green" : "yellow"}
               >
                 {trade.status}
               </Badge>
             </Td>
-            <Td py={4} color="gray.600">
+            <Td py={4} color="gray.400" borderColor="rgba(255, 255, 255, 0.1)">
               {new Date(trade.createdAt).toLocaleDateString()}
             </Td>
-            <Td py={4}>
+            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
               <ChakraButton
                 size="sm"
                 colorScheme="blue"
                 variant="outline"
-                borderRadius="lg"
                 onClick={() => handleViewTrade(trade)}
-                _hover={{ bg: "blue.50" }}
+                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
               >
                 View Details
               </ChakraButton>
@@ -271,46 +267,56 @@ function MyBids() {
   );
 
   const renderEnterprisesTable = (data) => (
-    <Table variant="simple" size="md">
-      <Thead bg="gray.50">
+    <Table variant="simple" size="md" color="white">
+      <Thead bg="rgba(15, 59, 61, 0.7)" position="sticky" top={0} zIndex={1}>
         <Tr>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Enterprise ID
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Name
           </Th>
           <Th
-            fontSize="sm"
-            fontWeight="semibold"
-            color="gray.700"
-            py={4}
             isNumeric
+            color="gray.300"
+            py={4}
+            borderColor="rgba(255, 255, 255, 0.2)"
           >
             Worth
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Constructed Date
           </Th>
         </Tr>
       </Thead>
       <Tbody>
         {data.map((enterprise, index) => (
-          <Tr
-            key={enterprise._id}
-            bg={index % 2 === 0 ? "white" : "gray.25"}
-            _hover={{ bg: "gray.50" }}
-          >
-            <Td py={4} fontWeight="bold" color="blue.600">
+          <Tr key={enterprise._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
+            <Td
+              py={4}
+              fontWeight="bold"
+              color="blue.300"
+              borderColor="rgba(255, 255, 255, 0.1)"
+            >
               ENT-{enterprise.id}
             </Td>
-            <Td py={4} fontWeight="medium">
+            <Td
+              py={4}
+              fontWeight="medium"
+              borderColor="rgba(255, 255, 255, 0.1)"
+            >
               {enterprise.title}
             </Td>
-            <Td py={4} isNumeric fontWeight="bold" color="green.600">
+            <Td
+              py={4}
+              isNumeric
+              fontWeight="bold"
+              color="green.300"
+              borderColor="rgba(255, 255, 255, 0.1)"
+            >
               ₹{Number(enterprise.worth).toLocaleString()}
             </Td>
-            <Td py={4} color="gray.600">
+            <Td py={4} color="gray.400" borderColor="rgba(255, 255, 255, 0.1)">
               {new Date(enterprise.constructedAt).toLocaleDateString()}
             </Td>
           </Tr>
@@ -320,52 +326,62 @@ function MyBids() {
   );
 
   const renderProductsTable = (data) => (
-    <Table variant="simple" size="md">
-      <Thead bg="gray.50">
+    <Table variant="simple" size="md" color="white">
+      <Thead bg="rgba(15, 59, 61, 0.7)" position="sticky" top={0} zIndex={1}>
         <Tr>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Product ID
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Name
           </Th>
           <Th
-            fontSize="sm"
-            fontWeight="semibold"
-            color="gray.700"
-            py={4}
             isNumeric
+            color="gray.300"
+            py={4}
+            borderColor="rgba(255, 255, 255, 0.2)"
           >
             Worth
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Required Enterprise
           </Th>
-          <Th fontSize="sm" fontWeight="semibold" color="gray.700" py={4}>
+          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
             Purchased Date
           </Th>
         </Tr>
       </Thead>
       <Tbody>
         {data.map((product, index) => (
-          <Tr
-            key={product._id}
-            bg={index % 2 === 0 ? "white" : "gray.25"}
-            _hover={{ bg: "gray.50" }}
-          >
-            <Td py={4} fontWeight="bold" color="blue.600">
+          <Tr key={product._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
+            <Td
+              py={4}
+              fontWeight="bold"
+              color="blue.300"
+              borderColor="rgba(255, 255, 255, 0.1)"
+            >
               PROD-{product.id}
             </Td>
-            <Td py={4} fontWeight="medium">
+            <Td
+              py={4}
+              fontWeight="medium"
+              borderColor="rgba(255, 255, 255, 0.1)"
+            >
               {product.title}
             </Td>
-            <Td py={4} isNumeric fontWeight="bold" color="green.600">
+            <Td
+              py={4}
+              isNumeric
+              fontWeight="bold"
+              color="green.300"
+              borderColor="rgba(255, 255, 255, 0.1)"
+            >
               ₹{Number(product.worth).toLocaleString()}
             </Td>
-            <Td py={4} color="gray.600">
+            <Td py={4} color="gray.400" borderColor="rgba(255, 255, 255, 0.1)">
               ENT-{product.requiredEnterpriseId}
             </Td>
-            <Td py={4} color="gray.600">
+            <Td py={4} color="gray.400" borderColor="rgba(255, 255, 255, 0.1)">
               {new Date(product.purchasedAt).toLocaleDateString()}
             </Td>
           </Tr>
@@ -386,8 +402,7 @@ function MyBids() {
 
   return (
     <>
-      <VStack p={6} spacing={6} align="stretch">
-        {/* Summary Cards */}
+      <VStack spacing={6} align="stretch">
         {!loading && (
           <Flex
             wrap="nowrap"
@@ -397,17 +412,17 @@ function MyBids() {
             direction={{ base: "column", md: "row" }}
           >
             <Box
-              bg="white"
+              bg="rgba(15, 59, 61, 0.5)"
+              backdropFilter="blur(10px)"
               p={5}
               borderRadius="lg"
-              shadow="sm"
+              shadow="md"
               flex="1"
               minW={{ base: "100%", md: "300px" }}
               h="120px"
               border="1px solid"
-              borderColor="gray.200"
-              _hover={{ shadow: "md", transform: "translateY(-2px)" }}
-              transition="all 0.2s"
+              borderColor="rgba(255, 255, 255, 0.2)"
+              color="white"
             >
               <VStack
                 align="start"
@@ -415,13 +430,13 @@ function MyBids() {
                 justifyContent="center"
                 h="100%"
               >
-                <Text fontSize="md" color="gray.500" fontWeight="medium">
+                <Text fontSize="md" color="gray.300" fontWeight="medium">
                   Total Enterprises
                 </Text>
-                <Text fontSize="3xl" fontWeight="bold" color="green.600">
+                <Text fontSize="3xl" fontWeight="bold" color="green.300">
                   {enterprisesData.length}
                 </Text>
-                <Text fontSize="md" color="gray.600">
+                <Text fontSize="md" color="gray.400">
                   Worth:{" "}
                   <Text as="span" fontWeight="semibold">
                     ₹
@@ -432,19 +447,18 @@ function MyBids() {
                 </Text>
               </VStack>
             </Box>
-
             <Box
-              bg="white"
+              bg="rgba(15, 59, 61, 0.5)"
+              backdropFilter="blur(10px)"
               p={5}
               borderRadius="lg"
-              shadow="sm"
+              shadow="md"
               flex="1"
               minW={{ base: "100%", md: "300px" }}
               h="120px"
               border="1px solid"
-              borderColor="gray.200"
-              _hover={{ shadow: "md", transform: "translateY(-2px)" }}
-              transition="all 0.2s"
+              borderColor="rgba(255, 255, 255, 0.2)"
+              color="white"
             >
               <VStack
                 align="start"
@@ -452,13 +466,13 @@ function MyBids() {
                 justifyContent="center"
                 h="100%"
               >
-                <Text fontSize="md" color="gray.500" fontWeight="medium">
+                <Text fontSize="md" color="gray.300" fontWeight="medium">
                   Total Products
                 </Text>
-                <Text fontSize="3xl" fontWeight="bold" color="blue.600">
+                <Text fontSize="3xl" fontWeight="bold" color="blue.300">
                   {productsData.length}
                 </Text>
-                <Text fontSize="md" color="gray.600">
+                <Text fontSize="md" color="gray.400">
                   Worth:{" "}
                   <Text as="span" fontWeight="semibold">
                     ₹
@@ -469,19 +483,18 @@ function MyBids() {
                 </Text>
               </VStack>
             </Box>
-
             <Box
-              bg="white"
+              bg="rgba(15, 59, 61, 0.5)"
+              backdropFilter="blur(10px)"
               p={5}
               borderRadius="lg"
-              shadow="sm"
+              shadow="md"
               flex="1"
               minW={{ base: "100%", md: "300px" }}
               h="120px"
               border="1px solid"
-              borderColor="gray.200"
-              _hover={{ shadow: "md", transform: "translateY(-2px)" }}
-              transition="all 0.2s"
+              borderColor="rgba(255, 255, 255, 0.2)"
+              color="white"
             >
               <VStack
                 align="start"
@@ -489,10 +502,10 @@ function MyBids() {
                 justifyContent="center"
                 h="100%"
               >
-                <Text fontSize="md" color="gray.500" fontWeight="medium">
+                <Text fontSize="md" color="gray.300" fontWeight="medium">
                   Total Portfolio Value
                 </Text>
-                <Text fontSize="3xl" fontWeight="bold" color="purple.600">
+                <Text fontSize="3xl" fontWeight="bold" color="purple.300">
                   ₹
                   {(
                     enterprisesData.reduce(
@@ -505,7 +518,7 @@ function MyBids() {
                     )
                   ).toLocaleString()}
                 </Text>
-                <Text fontSize="md" color="gray.600">
+                <Text fontSize="md" color="gray.400">
                   <Text as="span" fontWeight="semibold">
                     Enterprises + Products
                   </Text>
@@ -515,39 +528,49 @@ function MyBids() {
           </Flex>
         )}
 
-        {/* Header Section */}
-        <Flex
-          justify="space-between"
-          align="center"
-          direction={{ base: "column", md: "row" }}
-          gap={4}
-        >
-          <Menu gutter={0}>
+        <Flex justify="space-between" align="center">
+          <Menu gutter={0} matchWidth={true}>
             <MenuButton
               as={ChakraButton}
               rightIcon={<FiChevronDown />}
-              bg="white"
-              border="1px solid"
-              borderColor="gray.200"
-              borderRadius="xl"
-              px={4}
-              py={3}
-              minW={{ base: "100%", md: "300px" }}
-              justifyContent="space-between"
-              _hover={{ bg: "white" }}
-              _active={{ bg: "white" }}
+              bg="rgba(15, 59, 61, 0.5)"
+              backdropFilter="blur(10px)"
+              color="white"
+              border="1px solid rgba(255,255,255,0.2)"
+              _hover={{ bg: "rgba(15, 59, 61, 0.7)" }}
+              _active={{ bg: "rgba(15, 59, 61, 0.7)" }}
+              borderRadius="lg"
+              width="250px" // Set a specific width
             >
               {ROUND_OPTIONS.find((o) => o.value === selectedRound)?.label ||
                 "Select Round"}
             </MenuButton>
-            <MenuList borderRadius="lg" minW="300px" boxShadow="md">
+            <MenuList
+              bg="rgba(15, 59, 61, 0.8)"
+              backdropFilter="blur(15px)"
+              borderColor="rgba(255,255,255,0.2)"
+              color="white"
+              borderRadius="lg"
+              border="1px solid rgba(255,255,255,0.2)"
+              boxShadow="0 8px 32px rgba(0, 0, 0, 0.3)"
+              width="250px" // Match the MenuButton width
+              minWidth="250px" // Ensure minimum width
+            >
               {ROUND_OPTIONS.map((opt) => (
                 <MenuItem
                   key={opt.value}
                   onClick={() => setSelectedRound(opt.value)}
-                  fontWeight={
-                    selectedRound === opt.value ? "semibold" : "normal"
-                  }
+                  bg="transparent"
+                  _hover={{
+                    bg: "rgba(255,255,255,0.1)",
+                    backdropFilter: "blur(10px)",
+                  }}
+                  _focus={{
+                    bg: "rgba(255,255,255,0.1)",
+                  }}
+                  borderRadius="md"
+                  mx={1}
+                  my={0.5}
                 >
                   {opt.label}
                 </MenuItem>
@@ -556,74 +579,32 @@ function MyBids() {
           </Menu>
         </Flex>
 
-        {/* Error Alert */}
         {error && (
           <Alert
             status="error"
-            borderRadius="lg"
-            p={4}
-            border="1px solid"
-            borderColor="red.200"
+            bg="red.900"
+            color="white"
+            borderColor="red.700"
           >
-            <AlertIcon />
+            <AlertIcon color="white" />
             {error}
           </Alert>
         )}
 
-        {/* Table Container */}
         <TableContainer
-          bg="white"
+          bg="rgba(15, 59, 61, 0.5)"
+          backdropFilter="blur(10px)"
           borderRadius="lg"
-          shadow="sm"
-          border="1px solid"
-          borderColor="gray.200"
-          sx={{
-            overflowX: "auto",
-            "&::-webkit-scrollbar": {
-              height: "8px",
-              backgroundColor: `rgba(0, 0, 0, 0.05)`,
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: `rgba(0, 0, 0, 0.25)`,
-              borderRadius: "10px",
-            },
-          }}
+          border="1px solid rgba(255,255,255,0.2)"
         >
           {loading ? (
             <Flex justify="center" p={12}>
-              <VStack spacing={4}>
-                <Spinner size="lg" color="blue.500" thickness="3px" />
-                <Text color="gray.600" fontWeight="medium">
-                  Loading your data...
-                </Text>
-              </VStack>
+              <Spinner size="xl" color="white" />
             </Flex>
           ) : filteredData.length === 0 ? (
-            <VStack spacing={4} py={12} px={8}>
-              <Text
-                fontSize="lg"
-                color="gray.500"
-                fontWeight="medium"
-                textAlign="center"
-              >
-                No{" "}
-                {selectedRound === "3"
-                  ? "trades"
-                  : selectedRound === "enterprises"
-                  ? "constructed enterprises"
-                  : selectedRound === "products"
-                  ? "purchased products"
-                  : "bids"}{" "}
-                found
-                {selectedRound === "enterprises" || selectedRound === "products"
-                  ? ""
-                  : ` for Round ${selectedRound}`}
-              </Text>
-              <Text fontSize="sm" color="gray.400" textAlign="center" maxW="md">
-                Your transaction history will appear here once you start
-                participating in the activities
-              </Text>
-            </VStack>
+            <Text p={12} textAlign="center" color="gray.400">
+              No data available for this selection.
+            </Text>
           ) : selectedRound === "3" ? (
             renderTradesTable(filteredData)
           ) : selectedRound === "enterprises" ? (
@@ -636,195 +617,52 @@ function MyBids() {
         </TableContainer>
       </VStack>
 
-      {/* Trade Details Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
-        <ModalOverlay bg="blackAlpha.600" />
-        <ModalContent borderRadius="lg" p={2}>
-          <ModalHeader
-            textAlign="center"
-            pb={4}
-            fontSize="xl"
-            fontWeight="bold"
-          >
-            Trade Details - {selectedTrade?.tradeId || "Unknown"}
-          </ModalHeader>
+      <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
+        <ModalContent
+          bg="#0f3b3d"
+          color="white"
+          borderColor="rgba(255,255,255,0.2)"
+        >
+          <ModalHeader>Trade Details</ModalHeader>
           <ModalCloseButton />
-          <ModalBody p={6}>
+          <ModalBody>
             {selectedTrade && (
-              <VStack spacing={6} align="stretch">
+              <VStack spacing={4} align="stretch">
                 <HStack justify="space-between">
-                  <Text fontWeight="bold">Status:</Text>
-                  <Badge
-                    colorScheme={
-                      selectedTrade.status === "completed"
-                        ? "green"
-                        : selectedTrade.status === "pending"
-                        ? "yellow"
-                        : "red"
-                    }
-                    px={3}
-                    py={1}
-                    borderRadius="full"
-                    fontSize="sm"
-                  >
-                    {selectedTrade.status}
-                  </Badge>
+                  <Text>
+                    <strong>Trade ID:</strong>
+                  </Text>
+                  <Badge colorScheme="blue">{selectedTrade.tradeId}</Badge>
                 </HStack>
-
-                <Divider />
-
+                <Divider borderColor="rgba(255,255,255,0.2)" />
                 <Box>
-                  <Text fontWeight="bold" mb={4} fontSize="lg">
-                    Team Details:
+                  <Text fontWeight="bold" color="blue.300">
+                    Team One: {selectedTrade.teamOne?.teamName}
                   </Text>
-                  <HStack
-                    justify="space-between"
-                    mb={2}
-                    align="start"
-                    spacing={4}
-                  >
-                    <Box flex={1} p={4} bg="blue.50" borderRadius="lg">
-                      <Text
-                        fontSize="sm"
-                        color="blue.600"
-                        fontWeight="medium"
-                        mb={1}
-                      >
-                        Team One:
-                      </Text>
-                      <Text fontWeight="bold">
-                        {selectedTrade?.teamOne?.teamName || "Unknown"}
-                      </Text>
-                      <Text fontSize="sm" color="gray.600">
-                        ({selectedTrade?.teamOne?.teamCode || "N/A"})
-                      </Text>
-                    </Box>
-                    <Box flex={1} p={4} bg="green.50" borderRadius="lg">
-                      <Text
-                        fontSize="sm"
-                        color="green.600"
-                        fontWeight="medium"
-                        mb={1}
-                      >
-                        Team Two:
-                      </Text>
-                      <Text fontWeight="bold">
-                        {selectedTrade?.teamTwo?.teamName || "Unknown"}
-                      </Text>
-                      <Text fontSize="sm" color="gray.600">
-                        ({selectedTrade?.teamTwo?.teamCode || "N/A"})
-                      </Text>
-                    </Box>
-                  </HStack>
+                  <Text ml={4}>
+                    <strong>Gives:</strong>{" "}
+                    {formatTradeItems(selectedTrade.teamOneGives?.items)} & ₹
+                    {(selectedTrade.teamOneGives?.money || 0).toLocaleString()}
+                  </Text>
                 </Box>
-
-                <Divider />
-
                 <Box>
-                  <Text fontWeight="bold" mb={4} fontSize="lg">
-                    Trade Exchange:
+                  <Text fontWeight="bold" color="green.300">
+                    Team Two: {selectedTrade.teamTwo?.teamName}
                   </Text>
-                  <HStack align="start" justify="space-between" spacing={4}>
-                    <Box flex={1} p={4} bg="blue.50" borderRadius="lg">
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="blue.600"
-                        mb={2}
-                      >
-                        {selectedTrade?.teamOne?.teamName || "Team One"} gives:
-                      </Text>
-                      <Text fontSize="sm" mb={1}>
-                        <Text as="span" fontWeight="medium">
-                          Items:
-                        </Text>{" "}
-                        {formatTradeItems(selectedTrade?.teamOneGives?.items)}
-                      </Text>
-                      {(selectedTrade?.teamOneGives?.money || 0) > 0 && (
-                        <Text fontSize="sm">
-                          <Text as="span" fontWeight="medium">
-                            Money:
-                          </Text>{" "}
-                          ₹
-                          {(
-                            selectedTrade?.teamOneGives?.money || 0
-                          ).toLocaleString()}
-                        </Text>
-                      )}
-                    </Box>
-                    <Box flex={1} p={4} bg="green.50" borderRadius="lg">
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="green.600"
-                        mb={2}
-                      >
-                        {selectedTrade?.teamTwo?.teamName || "Team Two"} gives:
-                      </Text>
-                      <Text fontSize="sm" mb={1}>
-                        <Text as="span" fontWeight="medium">
-                          Items:
-                        </Text>{" "}
-                        {formatTradeItems(selectedTrade?.teamTwoGives?.items)}
-                      </Text>
-                      {(selectedTrade?.teamTwoGives?.money || 0) > 0 && (
-                        <Text fontSize="sm">
-                          <Text as="span" fontWeight="medium">
-                            Money:
-                          </Text>{" "}
-                          ₹
-                          {(
-                            selectedTrade?.teamTwoGives?.money || 0
-                          ).toLocaleString()}
-                        </Text>
-                      )}
-                    </Box>
-                  </HStack>
+                  <Text ml={4}>
+                    <strong>Gives:</strong>{" "}
+                    {formatTradeItems(selectedTrade.teamTwoGives?.items)} & ₹
+                    {(selectedTrade.teamTwoGives?.money || 0).toLocaleString()}
+                  </Text>
                 </Box>
-
-                <Divider />
-
-                <HStack justify="space-between">
-                  <Text fontSize="sm" color="gray.600">
-                    <Text as="span" fontWeight="medium">
-                      Round:
-                    </Text>{" "}
-                    {selectedTrade?.roundNumber || "N/A"}
-                  </Text>
-                  <Text fontSize="sm" color="gray.600">
-                    <Text as="span" fontWeight="medium">
-                      Date:
-                    </Text>{" "}
-                    {selectedTrade?.createdAt
-                      ? new Date(selectedTrade.createdAt).toLocaleString()
-                      : "N/A"}
-                  </Text>
-                </HStack>
-
-                {selectedTrade?.executedBy && (
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    textAlign="center"
-                    p={3}
-                    bg="gray.50"
-                    borderRadius="lg"
-                  >
-                    <Text as="span" fontWeight="medium">
-                      Executed by:
-                    </Text>{" "}
-                    {selectedTrade.executedBy}
-                  </Text>
-                )}
               </VStack>
             )}
           </ModalBody>
-          <ModalFooter pt={4}>
+          <ModalFooter>
             <ChakraButton
-              colorScheme="blue"
               onClick={onClose}
-              borderRadius="lg"
-              px={8}
+              bg="rgba(255,255,255,0.1)"
+              _hover={{ bg: "rgba(255,255,255,0.2)" }}
             >
               Close
             </ChakraButton>
