@@ -116,11 +116,12 @@ exports.addTeam = async (req, res) => {
 exports.updateTeam = async (req, res) => {
   try {
     const { id } = req.params;
-    const { teamName, password, credit, debit } = req.body;
+    const { teamName, password, credit, debit, resources } = req.body;
     const updateData = {};
     if (teamName) updateData.teamName = teamName;
     if (credit) updateData.credit = credit;
     if (debit) updateData.debit = debit;
+    if (resources) updateData.resources = resources;
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);
     }

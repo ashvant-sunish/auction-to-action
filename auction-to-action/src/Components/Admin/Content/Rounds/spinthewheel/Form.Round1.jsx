@@ -83,8 +83,6 @@ function FormRound1() {
           timestamp: new Date(data.timestamp),
         });
 
-        // Fetch resources for the selected item
-        fetchItemResources(data.itemDetails?.itemCode);
 
         if (autoFillEnabled) {
           setFormData((prev) => ({
@@ -604,7 +602,7 @@ function FormRound1() {
             <Text fontSize="xs" color="gray.500">
               {wheelSelection.timestamp?.toLocaleString()}
             </Text>
-            {(wheelSelection.status === "SELECTED" && autoFillEnabled) || (wheelSelection.status === "CONFIRMED" && autoFillEnabled) && (
+            {(((wheelSelection.status === "SELECTED") || (wheelSelection.status === "CONFIRMED")) && autoFillEnabled) && (
               <Button
                 size="sm"
                 mt={2}

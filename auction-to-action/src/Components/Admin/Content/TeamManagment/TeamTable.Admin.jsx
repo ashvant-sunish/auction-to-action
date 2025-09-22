@@ -5,12 +5,20 @@ import {
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
     Text, VStack, HStack, Badge, useDisclosure, Input, FormControl, FormLabel,
     AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
-    Flex, Spinner, Center, useToast, Alert, AlertIcon
+    Flex, Spinner, Center, useToast, Alert, AlertIcon,
+    GridItem,
+    CardHeader,
+    Card,
+    Heading,
+    CardBody,
+    Grid,
+    IconButton
 } from '@chakra-ui/react';
 import { IoIosAdd } from "react-icons/io";
-import { GoTriangleUp,GoTriangleDown } from "react-icons/go";
+import { GoTriangleUp, GoTriangleDown } from "react-icons/go";
 import axios from 'axios';
 import serverUrl from '../../../../servercon';
+import { FaMinus, FaPlus } from 'react-icons/fa';
 
 function TeamTableAdmin() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -36,7 +44,7 @@ function TeamTableAdmin() {
         setIsLoading(true);
         try {
             const token = localStorage.getItem('adminToken');
-            
+
             if (!token) {
                 toast({
                     title: "Authentication Required",
@@ -57,7 +65,7 @@ function TeamTableAdmin() {
             const teamsArray = Array.isArray(response.data) ? response.data : [];
             console.log('📊 Fetched teams:', teamsArray);
             setTeams(teamsArray);
-            
+
             toast({
                 title: "Teams Loaded",
                 description: `Successfully loaded ${teamsArray.length} teams`,
@@ -80,13 +88,26 @@ function TeamTableAdmin() {
         }
     };
 
+    // Get admin user data from localStorage
+    const getAdminUser = () => {
+        try {
+            const userData = localStorage.getItem('adminUser');
+            return userData ? JSON.parse(userData) : null;
+        } catch {
+            return null;
+        }
+    };
+
+    const adminUser = getAdminUser();
+    const adminRole = adminUser?.role;
+
     const handleView = (teamId) => {
         console.log('🔍 handleView called with teamId:', teamId);
         console.log('🔍 Current teams array:', teams);
-        
+
         const team = teams.find(team => team._id === teamId || team.id === teamId);
         console.log('🔍 Found team:', team);
-        
+
         if (team) {
             // Use actual backend field names
             const displayTeam = {
@@ -116,7 +137,10 @@ function TeamTableAdmin() {
     };
 
     const handleEdit = () => {
-        setEditingTeam({ ...selectedTeam });
+        setEditingTeam({ 
+            ...selectedTeam,
+            resources: selectedTeam.resources || {} // Ensure resources exist
+        });
         onClose();
         onEditOpen();
     };
@@ -133,7 +157,7 @@ function TeamTableAdmin() {
                 await axios.delete(`${serverUrl}/api/admin/teams/${selectedTeam._id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
+
                 toast({
                     title: "Team Deleted",
                     description: `Team ${selectedTeam.teamCode} deleted successfully`,
@@ -152,7 +176,7 @@ function TeamTableAdmin() {
                 isClosable: true,
             });
         }
-        
+
         // Refresh data from backend
         await fetchTeamsData();
         onDeleteClose();
@@ -166,18 +190,19 @@ function TeamTableAdmin() {
                 const updateData = {
                     teamName: editingTeam.teamName,
                     credit: Number(editingTeam.credit),
-                    debit: Number(editingTeam.debit || 0)
+                    debit: Number(editingTeam.debit || 0),
+                    resources: editingTeam.resources || {}
                 };
-                
+
                 // Only include password if it was changed
                 if (editingTeam.newPassword && editingTeam.newPassword.trim()) {
                     updateData.password = editingTeam.newPassword;
                 }
-                
+
                 await axios.put(`${serverUrl}/api/admin/teams/${editingTeam._id}`, updateData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
+
                 toast({
                     title: "Team Updated",
                     description: `Team ${editingTeam.teamCode} updated successfully`,
@@ -196,7 +221,7 @@ function TeamTableAdmin() {
                 isClosable: true,
             });
         }
-        
+
         // Refresh data from backend
         await fetchTeamsData();
         onEditClose();
@@ -239,11 +264,11 @@ function TeamTableAdmin() {
                     password: newTeam.password,
                     initialBalance: Number(newTeam.credit) || 20000
                 };
-                
+
                 await axios.post(`${serverUrl}/api/admin/teams`, addData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
+
                 toast({
                     title: "Team Added",
                     description: `Team ${newTeam.teamCode} created successfully`,
@@ -262,7 +287,7 @@ function TeamTableAdmin() {
                 isClosable: true,
             });
         }
-        
+
         // Refresh data from backend
         await fetchTeamsData();
         setNewTeam({ teamCode: '', teamName: '', password: '', credit: 20000 });
@@ -297,24 +322,67 @@ function TeamTableAdmin() {
     const sortedData = [...displayTeams].sort((a, b) => {
         if (sortField === 'balance') {
             // Sort by balance
-            return sortOrder === 'asc' ? 
-                a.balance - b.balance : 
+            return sortOrder === 'asc' ?
+                a.balance - b.balance :
                 b.balance - a.balance;
         } else {
             // Sort by team code
             const aCode = a.teamCode || '';
             const bCode = b.teamCode || '';
-            return sortOrder === 'asc' ? 
-                aCode.localeCompare(bCode) : 
+            return sortOrder === 'asc' ?
+                aCode.localeCompare(bCode) :
                 bCode.localeCompare(aCode);
         }
     });
+
+    // Handle direct input change for resource quantity
+    const handleResourceChange = (resource, value) => {
+        if (!editingTeam) return;
+        const newValue = Math.max(0, parseInt(value) || 0);
+        setEditingTeam(prev => ({
+            ...prev,
+            resources: {
+                ...(prev.resources || {}),
+                [resource]: newValue
+            }
+        }));
+    };
+
+    // Increment resource count
+    const incrementResource = (resource) => {
+        if (!editingTeam) return;
+        setEditingTeam(prev => ({
+            ...prev,
+            resources: {
+                ...(prev.resources || {}),
+                [resource]: (prev.resources?.[resource] || 0) + 1
+            }
+        }));
+    };
+
+    // Decrement resource count, ensuring it doesn't go below zero
+    const decrementResource = (resource) => {
+        if (!editingTeam) return;
+        setEditingTeam(prev => ({
+            ...prev,
+            resources: {
+                ...(prev.resources || {}),
+                [resource]: Math.max(0, (prev.resources?.[resource] || 0) - 1)
+            }
+        }));
+    };
+
+    // Calculate total resources
+    const calculateTotalResources = () => {
+        if (!editingTeam?.resources) return 0;
+        return Object.values(editingTeam.resources).reduce((sum, val) => sum + (val || 0), 0);
+    };
 
     return (
         <Box bg="white" p={4} mt={2} mb={2} borderRadius="md">
             {/* Add New Team Button */}
             <Flex mb={4} justify="space-between" align="center">
-                <Button 
+                <Button
                     size="sm"
                     colorScheme="gray"
                     onClick={fetchTeamsData}
@@ -322,9 +390,9 @@ function TeamTableAdmin() {
                 >
                     Refresh Data
                 </Button>
-                <Button 
-                    leftIcon={<IoIosAdd />} 
-                    colorScheme="blue" 
+                <Button
+                    leftIcon={<IoIosAdd />}
+                    colorScheme="blue"
                     onClick={onAddOpen}
                     size="sm"
                     title="Add a new team"
@@ -340,83 +408,83 @@ function TeamTableAdmin() {
                 </Center>
             ) : (
                 <TableContainer>
-                <Table variant='striped' colorScheme='teal'>
-                    <TableCaption>Team Management Table</TableCaption>
-                    <Thead>
-                        <Tr>
-                            <Th 
-                                cursor="pointer" 
-                                _hover={{ bg: "gray.50" }}
-                                onClick={() => toggleSortOrder('teamCode')}
-                            >
-                                <HStack spacing={1}>
-                                    <Text>Team Code</Text>
-                                    {sortField === 'teamCode' && (sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />)}
-                                </HStack>
-                            </Th>
-                            <Th>Team Name</Th>
-                            <Th>Status</Th>
-                            <Th>Debit</Th>
-                            <Th 
-                                cursor="pointer" 
-                                _hover={{ bg: "gray.50" }}
-                                onClick={() => toggleSortOrder('balance')}
-                            >
-                                <HStack spacing={1}>
-                                    <Text>Balance</Text>
-                                    {sortField === 'balance' && (sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />)}
-                                </HStack>
-                            </Th>
-                            <Th>Action</Th>
-                        </Tr>
-                    </Thead>
-                    <Tbody>
-                        {sortedData.length === 0 ? (
+                    <Table variant='striped' colorScheme='teal'>
+                        <TableCaption>Team Management Table</TableCaption>
+                        <Thead>
                             <Tr>
-                                <Td colSpan="6" textAlign="center" py={8}>
-                                    <Text color="gray.500" fontSize="lg">
-                                        No teams found. Click "Add New Team" to create one.
-                                    </Text>
-                                </Td>
+                                <Th
+                                    cursor="pointer"
+                                    _hover={{ bg: "gray.50" }}
+                                    onClick={() => toggleSortOrder('teamCode')}
+                                >
+                                    <HStack spacing={1}>
+                                        <Text>Team Code</Text>
+                                        {sortField === 'teamCode' && (sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />)}
+                                    </HStack>
+                                </Th>
+                                <Th>Team Name</Th>
+                                <Th>Status</Th>
+                                <Th>Debit</Th>
+                                <Th
+                                    cursor="pointer"
+                                    _hover={{ bg: "gray.50" }}
+                                    onClick={() => toggleSortOrder('balance')}
+                                >
+                                    <HStack spacing={1}>
+                                        <Text>Balance</Text>
+                                        {sortField === 'balance' && (sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />)}
+                                    </HStack>
+                                </Th>
+                                <Th>Action</Th>
                             </Tr>
-                        ) : (
-                            sortedData.map((team) => (
-                                <Tr key={team._id}>
-                                    <Td fontWeight="semibold">{team.teamCode}</Td>
-                                    <Td>{team.teamName}</Td>
-                                    <Td>
-                                        <Badge 
-                                            colorScheme={team.original?.isActive ? "green" : "red"}
-                                            variant="solid"
-                                        >
-                                            {team.original?.isActive ? "Active" : "Inactive"}
-                                        </Badge>
-                                    </Td>
-                                    <Td color="red.600" fontWeight="semibold">
-                                        {team.debit.toLocaleString()}
-                                    </Td>
-                                    <Td color={team.balance >= 0 ? "green.600" : "red.600"} fontWeight="bold">
-                                        {team.balance.toLocaleString()}
-                                    </Td>
-                                    <Td>
-                                        <Button colorScheme='teal' size='sm' onClick={() => handleView(team._id)}>View</Button>
+                        </Thead>
+                        <Tbody>
+                            {sortedData.length === 0 ? (
+                                <Tr>
+                                    <Td colSpan="6" textAlign="center" py={8}>
+                                        <Text color="gray.500" fontSize="lg">
+                                            No teams found. Click "Add New Team" to create one.
+                                        </Text>
                                     </Td>
                                 </Tr>
-                            ))
-                        )}
-                    </Tbody>
-                    <Tfoot>
-                        <Tr>
-                            <Th>Team Code</Th>
-                            <Th>Team Name</Th>
-                            <Th>Status</Th>
-                            <Th>Debit</Th>
-                            <Th>Balance</Th>
-                            <Th>Action</Th>
-                        </Tr>
-                    </Tfoot>
-                </Table>
-            </TableContainer>
+                            ) : (
+                                sortedData.map((team) => (
+                                    <Tr key={team._id}>
+                                        <Td fontWeight="semibold">{team.teamCode}</Td>
+                                        <Td>{team.teamName}</Td>
+                                        <Td>
+                                            <Badge
+                                                colorScheme={team.original?.isActive ? "green" : "red"}
+                                                variant="solid"
+                                            >
+                                                {team.original?.isActive ? "Active" : "Inactive"}
+                                            </Badge>
+                                        </Td>
+                                        <Td color="red.600" fontWeight="semibold">
+                                            {team.debit.toLocaleString()}
+                                        </Td>
+                                        <Td color={team.balance >= 0 ? "green.600" : "red.600"} fontWeight="bold">
+                                            {team.balance.toLocaleString()}
+                                        </Td>
+                                        <Td>
+                                            <Button colorScheme='teal' size='sm' onClick={() => handleView(team._id)}>View</Button>
+                                        </Td>
+                                    </Tr>
+                                ))
+                            )}
+                        </Tbody>
+                        <Tfoot>
+                            <Tr>
+                                <Th>Team Code</Th>
+                                <Th>Team Name</Th>
+                                <Th>Status</Th>
+                                <Th>Debit</Th>
+                                <Th>Balance</Th>
+                                <Th>Action</Th>
+                            </Tr>
+                        </Tfoot>
+                    </Table>
+                </TableContainer>
             )}
 
             {/* Modal for Team Details */}
@@ -482,19 +550,21 @@ function TeamTableAdmin() {
                         )}
                     </ModalBody>
                     <ModalFooter>
-                        <Button 
-                            colorScheme="green" 
-                            mr={3} 
+                        <Button
+                            colorScheme="green"
+                            mr={3}
                             onClick={handleEdit}
                             title="Edit this team"
+                            isDisabled={adminRole !== "superadmin"}
                         >
                             Edit
                         </Button>
-                        <Button 
-                            colorScheme="red" 
-                            mr={3} 
+                        <Button
+                            colorScheme="red"
+                            mr={3}
                             onClick={handleDelete}
                             title="Delete this team"
+                            isDisabled={adminRole !== "superadmin"}
                         >
                             Delete
                         </Button>
@@ -550,6 +620,54 @@ function TeamTableAdmin() {
                                         placeholder="Enter debit amount"
                                     />
                                 </FormControl>
+                                {/* Resources */}
+                                <GridItem colSpan={12}>
+                                    <Card>
+                                        <CardHeader>
+                                            <Flex justify="space-between" align="center">
+                                                <Heading size="md">Resources</Heading>
+                                                <Badge colorScheme="blue" fontSize="sm">
+                                                    Total: {calculateTotalResources()} items
+                                                </Badge>
+                                            </Flex>
+                                        </CardHeader>
+                                        <CardBody>
+                                            <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+                                                {Object.entries(editingTeam.resources).map(([resource, amount]) => (
+                                                    <GridItem key={resource}>
+                                                        <FormControl>
+                                                            <FormLabel fontSize="sm">{resource}</FormLabel>
+                                                            <HStack>
+                                                                <IconButton
+                                                                    icon={<FaMinus />}
+                                                                    size="sm"
+                                                                    onClick={() => decrementResource(resource)}
+                                                                    colorScheme="red"
+                                                                    variant="outline"
+                                                                />
+                                                                <Input
+                                                                    type="number"
+                                                                    value={editingTeam.resources[resource]}
+                                                                    onChange={(e) => handleResourceChange(resource, e.target.value)}
+                                                                    textAlign="center"
+                                                                    min="0"
+                                                                    size="sm"
+                                                                />
+                                                                <IconButton
+                                                                    icon={<FaPlus />}
+                                                                    size="sm"
+                                                                    onClick={() => incrementResource(resource)}
+                                                                    colorScheme="green"
+                                                                    variant="outline"
+                                                                />
+                                                            </HStack>
+                                                        </FormControl>
+                                                    </GridItem>
+                                                ))}
+                                            </Grid>
+                                        </CardBody>
+                                    </Card>
+                                </GridItem>
                                 <FormControl>
                                     <FormLabel>New Password (leave blank to keep current)</FormLabel>
                                     <Input
