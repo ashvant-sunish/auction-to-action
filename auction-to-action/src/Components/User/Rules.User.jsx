@@ -163,10 +163,10 @@ function RulesUser({ onClose, isFirstTime }) {
                   </Heading>
                   <UnorderedList spacing={2} fontSize="sm">
                     <ListItem>
-                      <strong>Minimum Bid:</strong> ₹5,000
+                      <strong>Minimum Base Price:</strong> ₹5,000
                     </ListItem>
                     <ListItem>
-                      <strong>Maximum Bid:</strong> ₹9,500
+                      <strong>Maximum Base Price:</strong> ₹9,500
                     </ListItem>
                     <ListItem>
                       <strong>No ceiling</strong> on total bidding amount
