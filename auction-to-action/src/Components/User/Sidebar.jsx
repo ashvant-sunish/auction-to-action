@@ -10,6 +10,7 @@ import {
   Flex,
   IconButton,
   Tooltip,
+  Img,
 } from "@chakra-ui/react";
 import {
   MdDashboard,
@@ -20,10 +21,12 @@ import {
 } from "react-icons/md";
 import { RiAuctionLine } from "react-icons/ri";
 import { FaHardHat } from "react-icons/fa";
+import logo from "../../assets/images/csedlogo/csedwhite.png"; // Import the logo image
+
 
 const CsedLogo = () => (
   <Heading size="md" color="white" letterSpacing="wider">
-    CSED
+    <Img src={logo} alt="CSED Logo" />
   </Heading>
 );
 
