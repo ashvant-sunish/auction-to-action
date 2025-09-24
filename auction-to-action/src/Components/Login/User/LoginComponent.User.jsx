@@ -25,9 +25,8 @@ import {
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import serverUrl from './../../../servercon';
-import csedLogo from '../../../assets/images/csed.png';
-
+import serverUrl from "./../../../servercon";
+import csedLogo from "../../../assets/images/csed.png";
 
 function LoginComponentUser() {
   const [formData, setFormData] = useState({
@@ -72,13 +71,10 @@ function LoginComponentUser() {
     setMessage("");
 
     try {
-      const response = await axios.post(
-        `${serverUrl}/api/team/login`,
-        {
-          teamCode: formData.teamNumber,
-          password: formData.teamCredential,
-        }
-      );
+      const response = await axios.post(`${serverUrl}/api/team/login`, {
+        teamCode: formData.teamNumber,
+        password: formData.teamCredential,
+      });
 
       setMessageType("success");
       setMessage(response.data.message);
@@ -97,8 +93,6 @@ function LoginComponentUser() {
       setIsLoading(false);
     }
   };
-
-
 
   const CustomAlert = ({ status, children }) => {
     const cfg = {
@@ -140,9 +134,9 @@ function LoginComponentUser() {
 
   return (
     <>
-      <Image 
-        src={csedLogo} 
-        alt="CSED Logo" 
+      <Image
+        src={csedLogo}
+        alt="CSED Logo"
         position="absolute"
         top="20px"
         left="20px"
