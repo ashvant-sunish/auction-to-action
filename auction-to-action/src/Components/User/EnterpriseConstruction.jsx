@@ -116,7 +116,7 @@ const EnterpriseConstruction = ({ gameState }) => {
     .tab-navigation {
       display: flex;
       gap: 8px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.75rem;
       border-radius: 12px;
       overflow: hidden;
     }

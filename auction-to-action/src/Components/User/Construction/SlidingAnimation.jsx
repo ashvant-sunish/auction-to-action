@@ -367,9 +367,6 @@ const SlidingAnimation = forwardRef((props, ref) => {
   }, [cards]);
 
   const styles = `
-    .page-header { text-align:center; margin-bottom:0.8rem; }
-    .page-title { font-size:1.4rem; font-weight:700; color:white; margin:0; }
-
     .card-container-wrapper { position: relative; width: 100%; }
     .card-container {
       width: 100%;
@@ -446,9 +443,6 @@ const SlidingAnimation = forwardRef((props, ref) => {
   return (
     <div>
       <style>{styles}</style>
-      <div className="page-header">
-        <h2 className="page-title">Enterprise Construction</h2>
-      </div>
 
       <div className="card-container-wrapper">
         <div

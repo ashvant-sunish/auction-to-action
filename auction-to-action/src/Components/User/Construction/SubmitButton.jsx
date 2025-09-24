@@ -6,7 +6,7 @@ const SubmitButton = ({ gameState, onClick, buttonText = "Construct" }) => {
       width: 100%; 
       display:flex; 
       justify-content: center; 
-      margin-top: 24px; 
+      margin-top: 12px; 
     }
     .construct-btn {
       background: rgba(15, 59, 61, 0.8);
