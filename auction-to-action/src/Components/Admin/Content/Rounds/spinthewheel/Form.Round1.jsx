@@ -60,7 +60,6 @@ function FormRound1() {
 
     // Listen for live bid selections
     newSocket.on("bidSelected", (data) => {
-      console.log("🔴 Live bid selected:", data);
       if (data.round === 1) {
         setLiveGameState(data);
         toast({
@@ -75,7 +74,6 @@ function FormRound1() {
 
     // Listen for wheel random selections
     newSocket.on("wheelRandomSelection", (data) => {
-      console.log("🎯 Wheel random selection:", data);
       if (data.round === 1) {
         setWheelSelection({
           ...data,
@@ -106,7 +104,6 @@ function FormRound1() {
 
     // Listen for wheel confirmations
     newSocket.on("wheelConfirmation", (data) => {
-      console.log("✅ Wheel confirmation:", data);
       if (data.round === 1) {
         setWheelSelection({
           ...data,
@@ -126,7 +123,6 @@ function FormRound1() {
 
     // Listen for wheel skips
     newSocket.on("wheelSkip", (data) => {
-      console.log("⏭️ Wheel skip:", data);
       if (data.round === 1) {
         setWheelSelection({
           ...data,

@@ -42,14 +42,18 @@ function RoundThreeBidHistory() {
                 }
             });
             
-            console.log('Trade history data:', response.data);
             // Extract trades from response.data.trades if the API returns { success: true, trades: [...] }
             const tradesData = response.data.trades || response.data;
-            console.log('Processed trades data:', tradesData);
-            if (tradesData.length > 0) {
-                console.log('Sample trade structure:', JSON.stringify(tradesData[0], null, 2));
-            }
-            setData(tradesData);
+            
+            // Filter to show only Round 3 trades
+            const round3Trades = tradesData.filter(trade => 
+                trade.round === 3 || 
+                trade.round === '3' || 
+                (trade.tradeId && trade.tradeId.toLowerCase().includes('round3')) ||
+                (trade.tradeId && trade.tradeId.toLowerCase().includes('r3'))
+            );
+            
+            setData(round3Trades);
         } catch (error) {
             console.error('Error fetching trade history:', error);
             setError(error.response?.data?.message || 'Failed to fetch trade history');
@@ -255,24 +259,34 @@ function RoundThreeBidHistory() {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {data.map((trade, index) => (
-                            <Tr key={trade._id}>
-                                <Td>{index + 1}</Td>
-                                <Td>
-                                    <Badge colorScheme="green">
-                                        {trade.teamOne?.teamName} ({trade.teamOne?.teamCode})
-                                    </Badge>
-                                </Td>
-                                <Td>
-                                    <Badge colorScheme="blue">
-                                        {trade.teamTwo?.teamName} ({trade.teamTwo?.teamCode})
-                                    </Badge>
-                                </Td>
-                                <Td>
-                                    <Button colorScheme='teal' size='sm' onClick={() => handleView(trade._id)}>View</Button>
+                        {data.length === 0 ? (
+                            <Tr>
+                                <Td colSpan="4" textAlign="center" py={8}>
+                                    <Text color="gray.500" fontSize="lg">
+                                        No Round 3 trades found.
+                                    </Text>
                                 </Td>
                             </Tr>
-                        ))}
+                        ) : (
+                            data.map((trade, index) => (
+                                <Tr key={trade._id}>
+                                    <Td>{index + 1}</Td>
+                                    <Td>
+                                        <Badge colorScheme="green">
+                                            {trade.teamOne?.teamName} ({trade.teamOne?.teamCode})
+                                        </Badge>
+                                    </Td>
+                                    <Td>
+                                        <Badge colorScheme="blue">
+                                            {trade.teamTwo?.teamName} ({trade.teamTwo?.teamCode})
+                                        </Badge>
+                                    </Td>
+                                    <Td>
+                                        <Button colorScheme='teal' size='sm' onClick={() => handleView(trade._id)}>View</Button>
+                                    </Td>
+                                </Tr>
+                            ))
+                        )}
                     </Tbody>
                     <Tfoot>
                         <Tr>

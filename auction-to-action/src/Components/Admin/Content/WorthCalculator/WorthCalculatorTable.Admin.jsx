@@ -43,7 +43,6 @@ function WorthCalculatorTableAdmin() {
 
             // Backend returns array of teams directly
             const teamsArray = Array.isArray(response.data) ? response.data : [];
-            console.log('📊 Fetched teams:', teamsArray);
             setTeams(teamsArray);
 
             toast({

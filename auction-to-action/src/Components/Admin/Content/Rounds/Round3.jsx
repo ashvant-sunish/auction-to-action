@@ -58,7 +58,8 @@ function Round3() {
     "Technology",
     "Electricity Supply",
     "Utilities",
-    "Office Space"
+    "Office Space",
+    "Transportation"
   ];
 
   // Auto-fetch team data when team code is entered
@@ -108,9 +109,6 @@ function Round3() {
       if (response.data && response.data.length > 0) {
         const teamData = response.data[0]; // Get first matching team
         
-        // Debug log to check what's happening
-        console.log(`Fetching team data for ${teamType}:`, teamData);
-        
         setFormData(prev => {
           const newFormData = { ...prev };
           newFormData[teamType] = {
@@ -118,7 +116,6 @@ function Round3() {
             teamName: teamData.teamName,
             teamNumber: teamData.teamNumber || teamData._id
           };
-          console.log(`Updated ${teamType}:`, newFormData[teamType]);
           return newFormData;
         });
 
@@ -236,7 +233,6 @@ function Round3() {
     
     // Update form data - only include items with both name and quantity > 0
     const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
-    console.log('Team One valid items:', validItems);
     
     setFormData(prev => ({
       ...prev,
@@ -255,7 +251,6 @@ function Round3() {
     
     // Update form data - only include items with both name and quantity > 0
     const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
-    console.log('Team Two valid items:', validItems);
     
     setFormData(prev => ({
       ...prev,
@@ -320,6 +315,56 @@ function Round3() {
     }));
   };
 
+  // Update wishlists after trade
+  const updateWishlists = async (tradeData, adminToken) => {
+    try {
+      
+      // Update Team 1's wishlist - remove items they gave
+      if (tradeData.teamOneGives.items.length > 0) {
+        await axios.put(
+          `${serverUrl}/api/admin/update-team-wishlist`,
+          {
+            teamCode: tradeData.teamOne.teamCode,
+            itemsToRemove: tradeData.teamOneGives.items
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
+
+      // Update Team 2's wishlist - remove items they gave
+      if (tradeData.teamTwoGives.items.length > 0) {
+        await axios.put(
+          `${serverUrl}/api/admin/update-team-wishlist`,
+          {
+            teamCode: tradeData.teamTwo.teamCode,
+            itemsToRemove: tradeData.teamTwoGives.items
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
+      
+    } catch (error) {
+      console.error('❌ Error updating wishlists:', error);
+      toast({
+        title: "Wishlist Update Warning",
+        description: "Trade completed but wishlist update failed. Please refresh manually.",
+        status: "warning",
+        duration: 4000,
+        isClosable: true,
+      });
+    }
+  };
+
   // Execute trade
   const handleExecuteTrade = async () => {
     try {
@@ -382,6 +427,7 @@ function Round3() {
       // Prepare trade data in the expected format
       const tradeData = {
         tradeId: updatedFormData.tradeId,
+        round: 3, // Add round number for Round 3 trades
         teamOne: {
           teamCode: updatedFormData.teamOne.teamCode,
           teamName: updatedFormData.teamOne.teamName
@@ -400,14 +446,6 @@ function Round3() {
         },
         executedBy: JSON.parse(localStorage.getItem('adminUser'))?.username || 'Admin'
       };
-
-      console.log('Sending trade data:', tradeData); // Debug log
-      console.log('Original form data:', formData); // Debug log
-      console.log('Updated form data:', updatedFormData); // Debug log
-      console.log('teamOneItems state:', teamOneItems);
-      console.log('teamTwoItems state:', teamTwoItems);
-      console.log('Final Team One Items:', finalTeamOneItems);
-      console.log('Final Team Two Items:', finalTeamTwoItems);
 
       // Execute trade via API
       const response = await axios.post(
@@ -429,6 +467,9 @@ function Round3() {
           duration: 5000,
           isClosable: true,
         });
+
+        // Update wishlists - remove traded items from giving teams
+        await updateWishlists(updatedFormData, adminToken);
 
         // Reset form with new auto-generated trade ID
         setFormData({

@@ -87,16 +87,6 @@ export default function Spin3DCards({
         }));
 
         setAvailableItems(items);
-        console.log("📦 Fetched real available items:", items.length);
-        console.log(
-          "📦 Sample items:",
-          items.slice(0, 3).map((i) => ({
-            id: i.id,
-            itemCode: i.itemCode,
-            bidNo: i.bidNo,
-            title: i.title,
-          }))
-        );
       } else {
         console.error("❌ Failed to fetch items: Invalid response structure");
         throw new Error("API response not successful");
@@ -133,7 +123,6 @@ export default function Spin3DCards({
         },
       }));
       setAvailableItems(fallbackItems);
-      console.log("📦 Using fallback items due to server error");
     } finally {
       setLoading(false);
     }
@@ -144,7 +133,6 @@ export default function Spin3DCards({
     const loadData = async () => {
       // First try to restore from localStorage
       if (wheelState) {
-        console.log("🔄 Restoring wheel state from localStorage:", wheelState);
         setCurrentSelectedBid(wheelState.selectedBid);
         setWheelStopped(wheelState.stopped);
         setSpinning(!wheelState.stopped);
@@ -174,57 +162,40 @@ export default function Spin3DCards({
         `wheel_state_round_${round}`,
         JSON.stringify(stateToSave)
       );
-      console.log("💾 Saved wheel state to localStorage:", stateToSave);
     }
   }, [currentSelectedBid, wheelStopped, round]);
 
   // Clear localStorage on explicit admin actions
   const clearSavedState = () => {
     localStorage.removeItem(`wheel_state_round_${round}`);
-    console.log("🧹 Cleared saved wheel state");
   };
 
   // Reset wheel state
   const resetWheel = () => {
     clearSavedState();
-    console.log("🔄 Resetting user wheel - resuming normal spinning");
-    console.log("🔄 Previous state:", {
-      currentSelectedBid: !!currentSelectedBid,
-      isSelecting,
-      wheelStopped,
-      spinning,
-    });
-
     setCurrentSelectedBid(null);
     setIsSelecting(false);
     setWheelStopped(false);
     setSpinning(true);
     speedRef.current = initialSpeed;
     animatingToPosition.current = false;
-
-    console.log("🔄 Reset completed");
   };
 
   // Enhanced animateToPosition function with detailed logging
   const animateToPosition = (targetAngle) => {
-    console.log("🎬 animateToPosition called with targetAngle:", targetAngle);
 
     return new Promise((resolve) => {
       const startAngle = angleRef.current;
       let angleDiff = targetAngle - startAngle;
-      console.log("🎬 Start angle:", startAngle, "Angle diff:", angleDiff);
 
       // Normalize angleDiff to the shortest path (handle wrap-around)
       if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
       if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-      console.log("🎬 Normalized angle diff:", angleDiff);
 
       const duration = 2000;
       const startTime = Date.now();
-      console.log("🎬 Animation started at:", startTime);
 
       animatingToPosition.current = true;
-      console.log("🎬 Set animatingToPosition.current to true");
 
       function animate() {
         const elapsed = Date.now() - startTime;
@@ -236,12 +207,6 @@ export default function Spin3DCards({
         if (elapsed % 200 < 16) {
           // Log every ~200ms
           const progressPercent = (progress * 100).toFixed(1);
-          console.log(
-            "🎬 Animation progress:",
-            progressPercent + "%",
-            "Current angle:",
-            angleRef.current.toFixed(3)
-          );
         }
 
         // Force a re-render of the carousel by updating state
@@ -612,15 +577,12 @@ export default function Spin3DCards({
       .spin3d-stage{ perspective:1200px; width:100%; height:600px; display:flex; align-items:center; justify-content:center; position:relative; }
       .spin3d-wrapper{ position:relative; width:100%; height:100%; max-width:1100px; }
       .carousel{ position:absolute; left:50%; top:50%; transform-style:preserve-3d; transform:translate(-50%, -50%) rotateX(-10deg); }
-      .card{ position:absolute; width: ${safeCardWidth}px; height: ${safeCardHeight}px; left:50%; top:50%; transform-origin:center center; transform-style:preserve-3d; margin:-${
-      safeCardHeight / 2
-    }px 0 0 -${
-      safeCardWidth / 2
-    }px; cursor:pointer; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms, opacity 300ms, z-index 0ms; overflow: hidden; }
+      .card{ position:absolute; width: ${safeCardWidth}px; height: ${safeCardHeight}px; left:50%; top:50%; transform-origin:center center; transform-style:preserve-3d; margin:-${safeCardHeight / 2
+      }px 0 0 -${safeCardWidth / 2
+      }px; cursor:pointer; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms, opacity 300ms, z-index 0ms; overflow: hidden; }
       .card-inner{ width:100%; height:100%; border-radius:12px; overflow:hidden; backface-visibility:hidden; display:flex; align-items:flex-end; justify-content:center; font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0.15)); box-shadow: 0 8px 18px rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); }
       .card .face{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px; color:#fff; padding:16px; box-sizing:border-box; }
-      .card.front{ transform: translateZ(${
-        safeRadius + 40
+      .card.front{ transform: translateZ(${safeRadius + 40
       }px) scale(1.08); z-index:50; box-shadow: 0 18px 40px rgba(0,0,0,0.5); }
     `;
 
@@ -910,7 +872,7 @@ export default function Spin3DCards({
                 (currentSelectedBid.id === item.id ||
                   String(currentSelectedBid.bidNo) === String(item.bidNo) ||
                   String(currentSelectedBid.bidNumber) ===
-                    String(item.bidNumber)) &&
+                  String(item.bidNumber)) &&
                 wheelStopped;
 
               // Use image if selected, else normal background
@@ -938,11 +900,9 @@ export default function Spin3DCards({
                     style={{
                       background: isSelected
                         ? `url(${frameImg}) center center / cover no-repeat`
-                        : `linear-gradient(180deg, hsl(${
-                            (i / availableItems.length) * 360
-                          } 60% 60% / 0.85), hsl(${
-                            (i / availableItems.length) * 360
-                          } 60% 35% / 0.9))`,
+                        : `linear-gradient(180deg, hsl(${(i / availableItems.length) * 360
+                        } 60% 60% / 0.85), hsl(${(i / availableItems.length) * 360
+                        } 60% 35% / 0.9))`,
                       border: isSelected
                         ? "3px solid gold"
                         : "1px solid rgba(255,255,255,0.06)",

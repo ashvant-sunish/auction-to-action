@@ -29,6 +29,15 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`📡 ${req.method} ${req.url} - Headers:`, JSON.stringify(req.headers, null, 2));
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log(`📡 Request Body:`, JSON.stringify(req.body, null, 2));
+  }
+  next();
+});
+
 // Make the io instance available to all routes
 app.set('socketio', io);
 app.set('io', io); // Also set as 'io' for the wheel routes

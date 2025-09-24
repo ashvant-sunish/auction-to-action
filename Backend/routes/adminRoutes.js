@@ -59,4 +59,7 @@ router.get('/public/game-items/round/:round', adminController.getGameItemsByRoun
 // Live auction status for dashboard
 router.get('/live-auction-status', adminController.getLiveAuctionStatus);
 
+// Update team wishlist (admin only)
+router.put('/update-team-wishlist', protectAdmin, adminController.updateTeamWishlist);
+
 module.exports = router;

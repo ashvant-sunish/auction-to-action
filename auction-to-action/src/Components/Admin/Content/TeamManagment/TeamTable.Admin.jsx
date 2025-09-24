@@ -12,13 +12,18 @@ import {
     Heading,
     CardBody,
     Grid,
-    IconButton
+    IconButton,
+    InputRightElement,
+    Icon,
+    InputGroup,
+    Select
 } from '@chakra-ui/react';
 import { IoIosAdd } from "react-icons/io";
 import { GoTriangleUp, GoTriangleDown } from "react-icons/go";
 import axios from 'axios';
 import serverUrl from '../../../../servercon';
 import { FaMinus, FaPlus } from 'react-icons/fa';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 function TeamTableAdmin() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -32,8 +37,25 @@ function TeamTableAdmin() {
     const [sortField, setSortField] = useState('teamCode'); // 'teamCode' or 'balance'
     const [isLoading, setIsLoading] = useState(true);
     const [teams, setTeams] = useState([]); // This will hold current display data
+    const [selectedResourceType, setSelectedResourceType] = useState('');
     const cancelRef = useRef();
     const toast = useToast();
+    const [showCode, setShowCode] = useState(false);
+
+    // Predefined resource types
+    const availableResourceTypes = [
+        'Transportation',
+        'Property',
+        'Skilled Labour',
+        'Machinery & Tools',
+        'Utilities',
+        'Electricity Supply',
+        'Office Space',
+        'Construction Material',
+        'Technology'
+    ];
+
+    const toggleCodeVisibility = () => setShowCode(!showCode);
 
     // Fetch teams data from backend
     useEffect(() => {
@@ -63,7 +85,6 @@ function TeamTableAdmin() {
 
             // Backend returns array of teams directly
             const teamsArray = Array.isArray(response.data) ? response.data : [];
-            console.log('📊 Fetched teams:', teamsArray);
             setTeams(teamsArray);
 
             toast({
@@ -102,11 +123,8 @@ function TeamTableAdmin() {
     const adminRole = adminUser?.role;
 
     const handleView = (teamId) => {
-        console.log('🔍 handleView called with teamId:', teamId);
-        console.log('🔍 Current teams array:', teams);
-
+        
         const team = teams.find(team => team._id === teamId || team.id === teamId);
-        console.log('🔍 Found team:', team);
 
         if (team) {
             // Use actual backend field names
@@ -121,11 +139,9 @@ function TeamTableAdmin() {
                 resources: team.resources || {},
                 original: team
             };
-            console.log('🔍 Display team for modal:', displayTeam);
             setSelectedTeam(displayTeam);
             onOpen();
         } else {
-            console.log('❌ Team not found for ID:', teamId);
             toast({
                 title: "Team Not Found",
                 description: "Could not find the selected team",
@@ -137,10 +153,12 @@ function TeamTableAdmin() {
     };
 
     const handleEdit = () => {
-        setEditingTeam({ 
+        setEditingTeam({
             ...selectedTeam,
+            debit: selectedTeam.debit || 0, // Ensure debit is properly initialized
             resources: selectedTeam.resources || {} // Ensure resources exist
         });
+        setSelectedResourceType(''); // Reset resource selection
         onClose();
         onEditOpen();
     };
@@ -226,12 +244,14 @@ function TeamTableAdmin() {
         await fetchTeamsData();
         onEditClose();
         setEditingTeam(null);
+        setSelectedResourceType(''); // Reset resource selection
     };
 
     const handleEditChange = (field, value) => {
         setEditingTeam(prev => ({
             ...prev,
-            [field]: value
+            [field]: (field === 'credit' || field === 'debit') ? 
+                (value === '' ? 0 : Number(value)) : value
         }));
     };
 
@@ -376,6 +396,60 @@ function TeamTableAdmin() {
     const calculateTotalResources = () => {
         if (!editingTeam?.resources) return 0;
         return Object.values(editingTeam.resources).reduce((sum, val) => sum + (val || 0), 0);
+    };
+
+    // Add new resource type
+    const addNewResource = () => {
+        if (!selectedResourceType || !editingTeam) {
+            toast({
+                title: "Please select a resource type",
+                status: "warning",
+                duration: 2000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        // Check if resource already exists
+        if (editingTeam.resources && editingTeam.resources.hasOwnProperty(selectedResourceType)) {
+            toast({
+                title: "Resource already exists",
+                description: "This resource type is already added to the team",
+                status: "warning",
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        // Add the new resource with initial quantity of 0
+        setEditingTeam(prev => ({
+            ...prev,
+            resources: {
+                ...(prev.resources || {}),
+                [selectedResourceType]: 0
+            }
+        }));
+
+        // Reset the selection
+        setSelectedResourceType('');
+        
+        toast({
+            title: "Resource Added",
+            description: `${selectedResourceType} added successfully`,
+            status: "success",
+            duration: 2000,
+            isClosable: true,
+        });
+    };
+
+    // Get available resource types that haven't been added yet
+    const getAvailableResourceTypes = () => {
+        if (!editingTeam?.resources) return availableResourceTypes;
+        
+        return availableResourceTypes.filter(resourceType => 
+            !editingTeam.resources.hasOwnProperty(resourceType)
+        );
     };
 
     return (
@@ -576,7 +650,7 @@ function TeamTableAdmin() {
             </Modal>
 
             {/* Edit Modal */}
-            <Modal isOpen={isEditOpen} onClose={onEditClose} size="lg">
+            <Modal isOpen={isEditOpen} onClose={() => { onEditClose(); setSelectedResourceType(''); }} size="lg">
                 <ModalOverlay />
                 <ModalContent>
                     <ModalHeader>Edit Team</ModalHeader>
@@ -615,9 +689,10 @@ function TeamTableAdmin() {
                                     <FormLabel>Debit</FormLabel>
                                     <Input
                                         type="number"
-                                        value={editingTeam.debit}
+                                        value={editingTeam.debit || 0}
                                         onChange={(e) => handleEditChange('debit', e.target.value)}
                                         placeholder="Enter debit amount"
+                                        min="0"
                                     />
                                 </FormControl>
                                 {/* Resources */}
@@ -632,39 +707,85 @@ function TeamTableAdmin() {
                                             </Flex>
                                         </CardHeader>
                                         <CardBody>
+                                            {/* Add New Resource Section */}
+                                            <Box mb={4} p={3} bg="gray.50" borderRadius="md">
+                                                <Text fontWeight="medium" mb={2}>Add New Resource</Text>
+                                                <HStack>
+                                                    <Select
+                                                        placeholder="Select resource type to add"
+                                                        value={selectedResourceType}
+                                                        onChange={(e) => setSelectedResourceType(e.target.value)}
+                                                        flex={1}
+                                                    >
+                                                        {getAvailableResourceTypes().map(resourceType => (
+                                                            <option key={resourceType} value={resourceType}>
+                                                                {resourceType}
+                                                            </option>
+                                                        ))}
+                                                    </Select>
+                                                    <Button
+                                                        colorScheme="green"
+                                                        onClick={addNewResource}
+                                                        isDisabled={!selectedResourceType}
+                                                        leftIcon={<FaPlus />}
+                                                    >
+                                                        Add
+                                                    </Button>
+                                                </HStack>
+                                                {getAvailableResourceTypes().length === 0 && (
+                                                    <Text fontSize="sm" color="gray.500" mt={2}>
+                                                        All resource types have been added
+                                                    </Text>
+                                                )}
+                                            </Box>
+
+                                            {/* Existing Resources Grid */}
                                             <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-                                                {Object.entries(editingTeam.resources).map(([resource, amount]) => (
-                                                    <GridItem key={resource}>
-                                                        <FormControl>
-                                                            <FormLabel fontSize="sm">{resource}</FormLabel>
-                                                            <HStack>
-                                                                <IconButton
-                                                                    icon={<FaMinus />}
-                                                                    size="sm"
-                                                                    onClick={() => decrementResource(resource)}
-                                                                    colorScheme="red"
-                                                                    variant="outline"
-                                                                />
-                                                                <Input
-                                                                    type="number"
-                                                                    value={editingTeam.resources[resource]}
-                                                                    onChange={(e) => handleResourceChange(resource, e.target.value)}
-                                                                    textAlign="center"
-                                                                    min="0"
-                                                                    size="sm"
-                                                                />
-                                                                <IconButton
-                                                                    icon={<FaPlus />}
-                                                                    size="sm"
-                                                                    onClick={() => incrementResource(resource)}
-                                                                    colorScheme="green"
-                                                                    variant="outline"
-                                                                />
-                                                            </HStack>
-                                                        </FormControl>
-                                                    </GridItem>
-                                                ))}
+                                                {availableResourceTypes.map(resource => {
+                                                    // Only show resources that exist in the team's resources
+                                                    if (!editingTeam.resources || !editingTeam.resources.hasOwnProperty(resource)) {
+                                                        return null;
+                                                    }
+                                                    
+                                                    return (
+                                                        <GridItem key={resource}>
+                                                            <FormControl>
+                                                                <FormLabel fontSize="sm">{resource}</FormLabel>
+                                                                <HStack>
+                                                                    <IconButton
+                                                                        icon={<FaMinus />}
+                                                                        size="sm"
+                                                                        onClick={() => decrementResource(resource)}
+                                                                        colorScheme="red"
+                                                                        variant="outline"
+                                                                    />
+                                                                    <Input
+                                                                        type="number"
+                                                                        value={editingTeam.resources[resource]}
+                                                                        onChange={(e) => handleResourceChange(resource, e.target.value)}
+                                                                        textAlign="center"
+                                                                        min="0"
+                                                                        size="sm"
+                                                                    />
+                                                                    <IconButton
+                                                                        icon={<FaPlus />}
+                                                                        size="sm"
+                                                                        onClick={() => incrementResource(resource)}
+                                                                        colorScheme="green"
+                                                                        variant="outline"
+                                                                    />
+                                                                </HStack>
+                                                            </FormControl>
+                                                        </GridItem>
+                                                    );
+                                                })}
                                             </Grid>
+                                            
+                                            {Object.keys(editingTeam?.resources || {}).length === 0 && (
+                                                <Text color="gray.500" fontSize="sm" textAlign="center" py={4}>
+                                                    No resources added yet. Select a resource type above to add one.
+                                                </Text>
+                                            )}
                                         </CardBody>
                                     </Card>
                                 </GridItem>
@@ -684,7 +805,7 @@ function TeamTableAdmin() {
                         <Button colorScheme="blue" mr={3} onClick={saveEdit}>
                             Save Changes
                         </Button>
-                        <Button variant="ghost" onClick={onEditClose}>
+                        <Button variant="ghost" onClick={() => { onEditClose(); setSelectedResourceType(''); }}>
                             Cancel
                         </Button>
                     </ModalFooter>
@@ -751,18 +872,34 @@ function TeamTableAdmin() {
                             </Box>
                             <Box>
                                 <Text mb={1} fontWeight="medium">Password *</Text>
-                                <Input
-                                    type="password"
-                                    placeholder="Enter team password"
-                                    value={newTeam.password}
-                                    onChange={(e) => handleNewTeamChange('password', e.target.value)}
-                                />
+                                <InputGroup>
+                                    <Input
+                                        type={showCode ? "text" : "password"}
+                                        placeholder="Enter team password"
+                                        value={newTeam.password}
+                                        onChange={(e) => handleNewTeamChange('password', e.target.value)}
+                                    />
+                                    <InputRightElement h="full">
+                                        <IconButton
+                                            aria-label={showCode ? "Hide code" : "Show code"}
+                                            icon={
+                                                <Icon
+                                                    as={showCode ? AiOutlineEyeInvisible : AiOutlineEye}
+                                                    color="gray.300"
+                                                />
+                                            }
+                                            variant="ghost"
+                                            onClick={toggleCodeVisibility}
+                                            _hover={{ bg: "transparent" }}
+                                        />
+                                    </InputRightElement>
+                                </InputGroup>
                             </Box>
                             <Box>
                                 <Text mb={1} fontWeight="medium">Initial Credits</Text>
                                 <Input
                                     type="number"
-                                    placeholder="Enter initial credits (default: 20000)"
+                                    placeholder="Enter initial credits (default: 150000)"
                                     value={newTeam.credit}
                                     onChange={(e) => handleNewTeamChange('credit', e.target.value)}
                                 />

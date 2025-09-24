@@ -16,8 +16,9 @@ import {
   Spinner,
   Alert,
   AlertIcon,
+  IconButton,
 } from "@chakra-ui/react";
-import { FaSearch, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaSearch, FaChevronDown, FaChevronUp, FaSync } from "react-icons/fa";
 import axios from "axios";
 import socketService from "../../services/socket";
 import serverUrl from "./../../servercon";
@@ -27,6 +28,7 @@ const TradingMarket = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleDetails, setVisibleDetails] = useState(new Set());
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   // Get current user's team code to exclude from the list
@@ -43,16 +45,18 @@ const TradingMarket = () => {
     return null;
   };
 
-  const fetchTeamsData = async () => {
+  const fetchTeamsData = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
-
-      console.log("=== FETCHING TEAMS DATA FOR TRADING MARKET ===");
 
       // Fetch all teams with their trade wishlists
       const response = await axios.get(
-        `${serverUrl}/api/team/all-trade-offers`,
+        `${serverUrl}/api/team/all-trade-offers?t=${Date.now()}`, // Add cache-busting timestamp
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -60,23 +64,20 @@ const TradingMarket = () => {
         }
       );
 
-      console.log("TradingMarket response:", response.data);
-
       if (response.data.success) {
         const currentTeamCode = getCurrentTeamCode();
-        console.log("Current team code:", currentTeamCode);
         // Filter out current team from the list
         const otherTeams = response.data.teams.filter(
           (team) => team.teamCode !== currentTeamCode
         );
-        console.log("Other teams after filtering:", otherTeams.length);
-        console.log(
-          "Teams with wishlists:",
-          otherTeams.map((t) => ({
-            teamCode: t.teamCode,
-            wishlistCount: t.tradeWishlist?.length || 0,
-          }))
-        );
+        
+        // Log detailed wishlist data for debugging
+        otherTeams.forEach(team => {
+          if (team.tradeWishlist && team.tradeWishlist.length > 0) {
+            console.log(`📋 ${team.teamCode} (${team.teamName}) wishlist:`, 
+              team.tradeWishlist.map(item => `${item.name}: ${item.count}`).join(', '));
+          }
+        });
         setTeams(otherTeams);
       } else {
         setError("Failed to fetch teams data");
@@ -85,31 +86,104 @@ const TradingMarket = () => {
       console.error("Error fetching teams data:", err);
       setError("Failed to load trading offers");
     } finally {
-      setLoading(false);
+      if (isRefresh) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     fetchTeamsData();
 
-    // Listen for real-time trade wishlist updates
-    const handleWishlistUpdate = (data) => {
-      console.log("Trade wishlist updated:", data);
-      // Refresh teams data when someone submits/updates their wishlist
-      fetchTeamsData();
+    // Ensure socket is connected
+    const initializeSocket = () => {
+      try {
+        // Check if socket is already connected
+        if (!socketService.isSocketConnected()) {
+          socketService.connect();
+        }
+        
+        // Wait a bit for connection to establish
+        setTimeout(() => {
+          if (socketService.isSocketConnected()) {
+            console.log("✅ Socket connection confirmed for TradingMarket");
+          } else {
+            console.log("⚠️ Socket connection not established, but will still try to listen");
+          }
+        }, 1000);
+      } catch (error) {
+        console.error("❌ Error initializing socket:", error);
+      }
     };
 
-    if (socketService.getSocket()) {
-      socketService
-        .getSocket()
-        .on("tradeWishlistSubmitted", handleWishlistUpdate);
+    initializeSocket();
+
+    // Listen for real-time trade wishlist updates
+    const handleWishlistUpdate = (data) => {
+      // Add a small delay to ensure backend processing is complete
+      setTimeout(() => fetchTeamsData(true), 500);
+    };
+
+    const handleWishlistUpdatedAfterTrade = (data) => {
+      // Refresh teams data when wishlists are updated after a trade
+      setTimeout(() => fetchTeamsData(true), 500);
+    };
+
+    const handleWishlistRefresh = (data) => {
+      setTimeout(() => fetchTeamsData(true), 300);
+    };
+
+    const handleTeamDataUpdated = (data) => {
+      setTimeout(() => fetchTeamsData(true), 300);
+    };
+
+    const handleForceWishlistReload = (data) => {
+      setTimeout(() => fetchTeamsData(true), 300);
+    };
+
+    const handleTradeExecuted = (data) => {
+      // Immediate refresh plus a delayed one to catch any async updates
+      fetchTeamsData(true);
+      setTimeout(() => fetchTeamsData(true), 1000);
+    };
+
+    // Set up socket listeners with retry logic
+    const setupSocketListeners = () => {
+      const socket = socketService.getSocket();
+      if (socket) {
+        socket.on("tradeWishlistSubmitted", handleWishlistUpdate);
+        socket.on("tradeWishlistUpdated", handleWishlistUpdatedAfterTrade);
+        socket.on("wishlistRefresh", handleWishlistRefresh);
+        socket.on("teamDataUpdated", handleTeamDataUpdated);
+        socket.on("forceWishlistReload", handleForceWishlistReload);
+        socket.on("tradeExecuted", handleTradeExecuted);
+        
+        return true;
+      } else {
+        console.log("❌ Socket service not available");
+        return false;
+      }
+    };
+
+    // Try to set up listeners, with retry
+    if (!setupSocketListeners()) {
+      console.log("🔄 Retrying socket listener setup in 2 seconds...");
+      setTimeout(() => {
+        setupSocketListeners();
+      }, 2000);
     }
 
     return () => {
-      if (socketService.getSocket()) {
-        socketService
-          .getSocket()
-          .off("tradeWishlistSubmitted", handleWishlistUpdate);
+      const socket = socketService.getSocket();
+      if (socket) {
+        socket.off("tradeWishlistSubmitted", handleWishlistUpdate);
+        socket.off("tradeWishlistUpdated", handleWishlistUpdatedAfterTrade);
+        socket.off("wishlistRefresh", handleWishlistRefresh);
+        socket.off("teamDataUpdated", handleTeamDataUpdated);
+        socket.off("forceWishlistReload", handleForceWishlistReload);
+        socket.off("tradeExecuted", handleTradeExecuted);
       }
     };
   }, []);
@@ -226,15 +300,41 @@ const TradingMarket = () => {
       fontFamily="Inter, sans-serif"
     >
       <Box maxW="1200px" w="full">
-        <Heading
-          size="xl"
-          textAlign="center"
-          color="white"
-          mb={8}
-          fontFamily="Inter, sans-serif"
-        >
-          Trading Offers
-        </Heading>
+        <Flex justify="space-between" align="center" mb={8}>
+          <Heading
+            size="xl"
+            color="white"
+            fontFamily="Inter, sans-serif"
+          >
+            Trading Offers
+          </Heading>
+          <Flex align="center" gap={3}>
+            {refreshing && (
+              <Flex align="center" gap={2} color="blue.300">
+                <Spinner size="sm" />
+                <Text fontSize="sm" fontFamily="Inter, sans-serif">
+                  Updating...
+                </Text>
+              </Flex>
+            )}
+            <IconButton
+              icon={<FaSync />}
+              aria-label="Refresh trading offers"
+              size="md"
+              bg="rgba(59, 130, 246, 0.2)"
+              color="blue.300"
+              border="1px solid"
+              borderColor="rgba(59, 130, 246, 0.3)"
+              _hover={{
+                bg: "rgba(59, 130, 246, 0.3)",
+                borderColor: "rgba(59, 130, 246, 0.5)",
+              }}
+              onClick={() => fetchTeamsData(true)}
+              isLoading={refreshing}
+              title="Manually refresh trading offers"
+            />
+          </Flex>
+        </Flex>
 
         {/* Search Bar - matching dashboard style */}
         <Box mb={8}>

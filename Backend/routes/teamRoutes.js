@@ -28,6 +28,7 @@ router.get('/profile', protectTeam, teamController.getTeamProfile);
 // Trade wishlist routes
 router.post('/trade-wishlist', protectTeam, teamController.submitTradeWishlist);
 router.get('/trade-wishlist', protectTeam, teamController.getTradeWishlist);
+router.put('/update-wishlist', protectTeam, teamController.updateWishlist);
 
 // All teams trade offers for the trading market view
 router.get('/all-trade-offers', protectTeam, teamController.getAllTeamsTradeOffers);

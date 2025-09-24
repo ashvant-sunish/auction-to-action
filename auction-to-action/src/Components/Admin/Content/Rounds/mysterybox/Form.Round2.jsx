@@ -61,17 +61,29 @@ const FormRound2 = () => {
 
     // Listen for mystery box reveals
     newSocket.on('mysteryBoxRevealed', (boxData) => {
-      console.log('Mystery box revealed:', boxData);
       setLastRevealedBox(boxData);
       
-      // Parse cash multiplier from content
+      // Parse cash multiplier from content or reward details
       let multiplier = 1;
-      if (boxData.content && boxData.itemType === 'cash') {
+      
+      // Check for multiplier in different places
+      if (boxData.content) {
         const cashMatch = boxData.content.match(/(\d+(?:\.\d+)?)[×x]/i);
         if (cashMatch) {
           multiplier = parseFloat(cashMatch[1]);
         }
       }
+      
+      // For challenge types, check reward details
+      if (boxData.itemType === 'challenge' && boxData.reward?.details?.multiplier) {
+        multiplier = parseFloat(boxData.reward.details.multiplier);
+      }
+      
+      // For direct cash rewards
+      if (boxData.itemType === 'cash' && boxData.reward?.details?.multiplier) {
+        multiplier = parseFloat(boxData.reward.details.multiplier);
+      }
+      
       
       // Auto-fill form based on revealed box
       setFormData(prev => ({
@@ -82,9 +94,16 @@ const FormRound2 = () => {
         calculatedCashReward: prev.bidAmount ? parseFloat(prev.bidAmount) * multiplier : 0
       }));
 
-      // Parse resources from content if it's a resource type or challenge type
-      if ((boxData.itemType === 'resources' || boxData.itemType === 'challenge') && boxData.content) {
-        parseResourcesFromContent(boxData.content);
+      // Parse resources from content or reward details
+      if (boxData.itemType === 'resources' || boxData.itemType === 'challenge') {
+        
+        if (boxData.reward?.details?.resources) {
+          // Use structured resource data if available
+          parseResourcesFromStructuredData(boxData.reward.details.resources);
+        } else if (boxData.content) {
+          // Fallback to content parsing
+          parseResourcesFromContent(boxData.content);
+        }
       }
 
       toast({
@@ -141,7 +160,6 @@ const FormRound2 = () => {
 
       if (response.ok) {
         const teamsData = await response.json();
-        console.log('Fetched teams data:', teamsData);
         setTeams(teamsData);
       } else {
         console.error('Failed to fetch teams');
@@ -151,7 +169,8 @@ const FormRound2 = () => {
     }
   };
 
-  const parseResourcesFromContent = (content) => {
+  const parseResourcesFromStructuredData = (resourcesData) => {
+    
     const resourceMap = {
       'Technology': 0,
       'Transportation': 0,
@@ -164,24 +183,81 @@ const FormRound2 = () => {
       'Construction Material': 0
     };
 
-    // Parse content like "Gain 6 Technology, 2 Utilities" or "Say phrase 5 times to get 5 Property, 3 Skilled Labour"
-    const matches = content.match(/(\d+)\s+([^,]+)/g);
-    if (matches) {
-      matches.forEach(match => {
-        const [, amount, resource] = match.match(/(\d+)\s+(.+)/);
-        const cleanResource = resource.trim();
+    // Direct mapping from structured data
+    Object.entries(resourcesData).forEach(([resource, amount]) => {
+      const normalizedResource = resource.trim();
+      
+      // Find matching resource in our map
+      const matchingResource = Object.keys(resourceMap).find(key => 
+        key.toLowerCase() === normalizedResource.toLowerCase() ||
+        normalizedResource.toLowerCase().includes(key.toLowerCase()) ||
+        key.toLowerCase().includes(normalizedResource.toLowerCase())
+      );
+      
+      if (matchingResource && typeof amount === 'number') {
+        resourceMap[matchingResource] = amount;
+      } else {
+        console.log(`❌ Could not map "${normalizedResource}" (amount: ${amount}, type: ${typeof amount})`);
+      }
+    });
+
+
+    setFormData(prev => ({
+      ...prev,
+      resources: resourceMap
+    }));
+  };
+
+  const parseResourcesFromContent = (content) => {
+
+    const resourceMap = {
+      'Technology': 0,
+      'Transportation': 0,
+      'Property': 0,
+      'Skilled Labour': 0,
+      'Machinery & Tools': 0,
+      'Utilities': 0,
+      'Electricity Supply': 0,
+      'Office Space': 0,
+      'Construction Material': 0
+    };
+
+    // Remove the challenge instruction part and focus on the rewards
+    let rewardsText = content;
+    
+    // Remove common challenge prefixes
+    rewardsText = rewardsText.replace(/say\s+(?:a\s+)?phrase\s+\d+\s+times?\s+to\s+(?:get|win|gain)\s+/gi, '');
+    rewardsText = rewardsText.replace(/complete\s+(?:the\s+)?challenge\s+to\s+(?:get|win|gain)\s+/gi, '');
+    rewardsText = rewardsText.replace(/(?:get|win|gain)\s+/gi, '');
+    
+    
+    // Split by comma and parse each reward
+    const rewardParts = rewardsText.split(',').map(part => part.trim());
+    
+    rewardParts.forEach(part => {
+      // Look for pattern: "number resource_name"
+      const match = part.match(/(\d+)\s+(.+)/);
+      if (match) {
+        const [, amount, resourceName] = match;
+        const cleanResourceName = resourceName.trim();
         
-        // Check if this resource exists in our map
+        // Find matching resource
         const matchingResource = Object.keys(resourceMap).find(key => 
-          cleanResource.toLowerCase().includes(key.toLowerCase()) ||
-          key.toLowerCase().includes(cleanResource.toLowerCase())
+          key.toLowerCase() === cleanResourceName.toLowerCase() ||
+          cleanResourceName.toLowerCase().includes(key.toLowerCase()) ||
+          key.toLowerCase().includes(cleanResourceName.toLowerCase())
         );
         
         if (matchingResource) {
           resourceMap[matchingResource] = parseInt(amount);
+        } else {
+          console.log(`❌ Could not map "${cleanResourceName}" to any known resource`);
+          console.log('Available resources:', Object.keys(resourceMap));
         }
-      });
-    }
+      } else {
+        console.log(`❌ Could not parse reward part: "${part}"`);
+      }
+    });
 
     setFormData(prev => ({
       ...prev,
@@ -208,7 +284,6 @@ const FormRound2 = () => {
         
         if (selectedTeam) {
           newData.teamName = selectedTeam.teamName;
-          console.log('Found team:', selectedTeam);
         } else {
           newData.teamName = '';
           console.log('No team found for:', value, 'Available teams:', teams);
@@ -216,8 +291,14 @@ const FormRound2 = () => {
       }
 
       // Recalculate cash reward when bid amount changes
-      if (field === 'bidAmount' && prev.rewardType === 'cash') {
-        newData.calculatedCashReward = parseFloat(value || 0) * prev.cashMultiplier;
+      if (field === 'bidAmount') {
+        if (prev.rewardType === 'cash') {
+          newData.calculatedCashReward = parseFloat(value || 0) * prev.cashMultiplier;
+        } else if (prev.rewardType === 'challenge' && prev.cashMultiplier > 1) {
+          newData.calculatedCashReward = parseFloat(value || 0) * prev.cashMultiplier;
+        } else {
+          newData.calculatedCashReward = 0; // No cash reward for resource-only challenges
+        }
       }
 
       return newData;
@@ -289,9 +370,14 @@ const FormRound2 = () => {
       let finalCashReward = 0;
       let deductionAmount = bidAmount; // Always deduct the bid amount
       
+      // Only award cash if it's a direct cash reward OR a challenge with multiplier > 1
       if (formData.rewardType === 'cash') {
         finalCashReward = bidAmount * formData.cashMultiplier;
+      } else if (formData.rewardType === 'challenge' && formData.cashMultiplier > 1) {
+        // Challenge with cash reward (multiplier > 1)
+        finalCashReward = bidAmount * formData.cashMultiplier;
       }
+
       
       const tradeData = {
         teamId: formData.teamId,
@@ -302,7 +388,7 @@ const FormRound2 = () => {
         cashMultiplier: formData.cashMultiplier,
         mysteryBoxReward: formData.mysteryBoxReward,
         rewardType: formData.rewardType,
-        resources: formData.resources,
+        resources: formData.resources, // Include resources for all types
         round: 2,
         tradeType: 'mystery_box_reward'
       };
@@ -319,10 +405,37 @@ const FormRound2 = () => {
       if (response.ok) {
         const result = await response.json();
         
-        let successMessage = `Mystery box processed for ${formData.teamName}`;
-        if (formData.rewardType === 'cash') {
-          successMessage += `\nDeducted: ₹${deductionAmount.toLocaleString()}\nReward: ₹${finalCashReward.toLocaleString()}\nNet Gain: ₹${(finalCashReward - deductionAmount).toLocaleString()}`;
+        // Check if resources were processed by backend
+        const resourcesReceived = Object.values(formData.resources).reduce((sum, val) => sum + val, 0);
+        const resourcesProcessed = Object.values(result.data?.resourcesGained || {}).reduce((sum, val) => sum + val, 0);
+        
+        if (resourcesReceived > 0 && resourcesProcessed === 0) {
+          console.warn('⚠️ BACKEND ISSUE: Resources sent but not processed!', {
+            resourcesSent: formData.resources,
+            resourcesReceived: result.data?.resourcesGained || {}
+          });
         }
+        
+        let successMessage = `Mystery box processed for ${formData.teamName}`;
+        const resourceCount = Object.values(formData.resources).reduce((sum, val) => sum + val, 0);
+        
+        // Always show deduction
+        successMessage += `\nAmount Deducted: ₹${deductionAmount.toLocaleString()}`;
+        
+        // Show cash reward if applicable
+        if (finalCashReward > 0) {
+          successMessage += `\nCash Reward: ₹${finalCashReward.toLocaleString()}\nNet Cash Change: ₹${(finalCashReward - deductionAmount).toLocaleString()}`;
+        }
+        
+        // Show resources if applicable
+        if (resourceCount > 0) {
+          const resourceDetails = Object.entries(formData.resources)
+            .filter(([, amount]) => amount > 0)
+            .map(([resource, amount]) => `${amount} ${resource}`)
+            .join(', ');
+          successMessage += `\nResources Added: ${resourceDetails}`;
+        }
+        
         if (result.data && result.data.newBalance !== undefined) {
           successMessage += `\nNew Balance: ₹${result.data.newBalance.toLocaleString()}`;
         }
@@ -444,6 +557,7 @@ const FormRound2 = () => {
                         value={formData.bidAmount}
                         onChange={(e) => handleInputChange('bidAmount', e.target.value)}
                         placeholder="Enter bid amount"
+                        onWheel={(e) => e.target.blur()}
                       />
                     </FormControl>
                   </VStack>
@@ -494,11 +608,28 @@ const FormRound2 = () => {
                       </Badge>
                     )}
 
+                    {/* Challenge Information Display */}
+                    {formData.rewardType === 'challenge' && formData.mysteryBoxReward && (
+                      <Box bg="orange.50" p={4} rounded="md" borderWidth={1} borderColor="orange.200">
+                        <VStack spacing={2}>
+                          <Text fontWeight="bold" color="orange.700">Challenge Reward:</Text>
+                          <Text fontSize="sm" color="orange.600" textAlign="center">
+                            {formData.mysteryBoxReward}
+                          </Text>
+                          <Text fontSize="sm" color="green.600" fontWeight="medium">
+                            ✅ Rewards will be added directly to inventory
+                          </Text>
+                        </VStack>
+                      </Box>
+                    )}
+
                     {/* Cash Calculation Display */}
-                    {formData.rewardType === 'cash' && formData.bidAmount && (
+                    {(formData.rewardType === 'cash' || (formData.rewardType === 'challenge' && formData.cashMultiplier > 1)) && formData.bidAmount && (
                       <Box bg="green.50" p={4} rounded="md" borderWidth={1} borderColor="green.200">
                         <VStack spacing={2}>
-                          <Text fontWeight="bold" color="green.700">Cash Calculation:</Text>
+                          <Text fontWeight="bold" color="green.700">
+                            {formData.rewardType === 'challenge' ? 'Challenge Cash Reward:' : 'Cash Calculation:'}
+                          </Text>
                           <HStack spacing={4} justify="space-between" w="full">
                             <Text>Bid Amount:</Text>
                             <Text fontWeight="bold">₹{parseFloat(formData.bidAmount).toLocaleString()}</Text>
@@ -562,6 +693,7 @@ const FormRound2 = () => {
                               textAlign="center"
                               min="0"
                               size="sm"
+                              onWheel={(e) => e.target.blur()}
                             />
                             <IconButton
                               icon={<FaPlus />}

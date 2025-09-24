@@ -65,7 +65,6 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
         const enterpriseIds = response.data.enterprises.map((ent) =>
           parseInt(ent.id)
         );
-        console.log("Owned enterprises:", enterpriseIds);
         setOwnedEnterprises(enterpriseIds);
       }
       if (response.data.products) {
@@ -91,10 +90,6 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
         const imageName = (product.imageUrl || "").split("/").pop();
         const requiredId = parseInt(product.requiredEnterpriseId);
         const isAvailable = ownedEnterprises.includes(requiredId);
-
-        console.log(
-          `Product ${product.title}: requires enterprise ${requiredId}, available: ${isAvailable}`
-        );
 
         return {
           ...product,

@@ -16,9 +16,6 @@ function Round1() {
   const adminUser = getAdminUser();
   const adminRole = adminUser?.role;
 
-  console.log("Admin User:", adminUser);
-  console.log("Admin Role:", adminRole);
-
   return (
     <div>
       { adminRole === "superadmin" ? <SpinningCardWheel /> : <FormRound1 /> }

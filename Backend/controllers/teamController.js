@@ -416,3 +416,68 @@ exports.getAllTeamsTradeOffers = async (req, res) => {
     }
 };
 
+/**
+ * Update wishlist by removing traded items
+ */
+exports.updateWishlist = async (req, res) => {
+    try {
+        const { teamCode, itemsToRemove } = req.body;
+        
+        console.log(`🔄 Updating wishlist for team ${teamCode}`);
+        console.log('Items to remove:', itemsToRemove);
+        
+        // Find the active wishlist for this team
+        const wishlist = await TradeWishlist.findOne({
+            teamCode: teamCode,
+            status: 'active',
+            round: 3
+        });
+        
+        if (!wishlist) {
+            return res.status(404).json({
+                success: false,
+                message: 'No active wishlist found for this team'
+            });
+        }
+        
+        // Remove items from wishlist
+        for (const item of itemsToRemove) {
+            const wishlistItemIndex = wishlist.itemsToTrade.findIndex(
+                wItem => wItem.name === item.name
+            );
+            
+            if (wishlistItemIndex !== -1) {
+                // Reduce the count
+                wishlist.itemsToTrade[wishlistItemIndex].count -= item.quantity;
+                console.log(`Reduced ${item.name} by ${item.quantity}, new count: ${wishlist.itemsToTrade[wishlistItemIndex].count}`);
+                
+                // Remove if count is 0 or less
+                if (wishlist.itemsToTrade[wishlistItemIndex].count <= 0) {
+                    wishlist.itemsToTrade.splice(wishlistItemIndex, 1);
+                    console.log(`Removed ${item.name} from wishlist (count reached 0)`);
+                }
+            }
+        }
+        
+        // Recalculate total items
+        wishlist.totalItems = wishlist.itemsToTrade.reduce((sum, item) => sum + item.count, 0);
+        
+        // Save updated wishlist
+        await wishlist.save();
+        
+        console.log(`✅ Wishlist updated for ${teamCode}, new total: ${wishlist.totalItems}`);
+        
+        res.status(200).json({
+            success: true,
+            message: 'Wishlist updated successfully',
+            updatedWishlist: wishlist.itemsToTrade
+        });
+        
+    } catch (error) {
+        console.error("Error updating wishlist:", error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error while updating wishlist.' 
+        });
+    }
+};

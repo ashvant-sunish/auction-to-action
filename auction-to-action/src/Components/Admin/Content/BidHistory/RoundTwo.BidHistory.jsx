@@ -43,14 +43,6 @@ function RoundTwoBidHistory() {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            console.log('🔍 Round 2 API Response:', response.data);
-            console.log('🔍 Round 2 Data Length:', response.data?.length);
-            
-            // Log each bid's round number for debugging
-            response.data?.forEach((bid, index) => {
-                console.log(`Bid ${index + 1}: Round ${bid.round}, Mystery Box: ${bid.mysteryBoxReward}`);
-            });
-
             setData(response.data || []);
         } catch (err) {
             console.error('Error fetching bid history:', err);
@@ -96,7 +88,6 @@ function RoundTwoBidHistory() {
             onDeleteClose();
             setSelectedBid(null);
             
-            console.log('✅ Bid history deleted successfully');
         } catch (err) {
             console.error('❌ Error deleting bid history:', err);
             setError('Failed to delete bid history. Please try again.');
@@ -133,7 +124,6 @@ function RoundTwoBidHistory() {
             onEditClose();
             setEditingBid(null);
             
-            console.log('✅ Bid history updated successfully:', response.data);
         } catch (err) {
             console.error('❌ Error updating bid history:', err);
             setError('Failed to update bid history. Please try again.');

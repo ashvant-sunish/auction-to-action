@@ -43,6 +43,7 @@ import {
   SimpleGrid,
 } from "@chakra-ui/react";
 import { FaRupeeSign, FaSearch, FaHandshake, FaList } from "react-icons/fa";
+import { IoIosInformationCircleOutline } from "react-icons/io";
 import io from "socket.io-client";
 import serverUrl from "./../../../../servercon";
 

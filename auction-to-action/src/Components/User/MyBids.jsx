@@ -103,7 +103,7 @@ function MyBids() {
     if (selectedRound === "1" || selectedRound === "2") {
       return bidsData.filter((bid) => bid.round === parseInt(selectedRound));
     } else if (selectedRound === "3") {
-      return tradesData;
+      return tradesData.filter((trade) => trade.round === 3);
     } else if (selectedRound === "enterprises") {
       return enterprisesData;
     } else if (selectedRound === "products") {

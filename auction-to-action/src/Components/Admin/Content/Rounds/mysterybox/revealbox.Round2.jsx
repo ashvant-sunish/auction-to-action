@@ -100,19 +100,16 @@ export const RevealBoxRound2 = () => {
 
     // Socket event listeners
     newSocket.on('mysteryBoxRevealed', (data) => {
-      console.log('Mystery box revealed:', data);
       setRevealedBoxes(prev => [...prev, data.boxId]);
       fetchMysteryBoxes(); // Refresh data
     });
 
     newSocket.on('mysteryBoxReset', () => {
-      console.log('Mystery boxes reset');
       setRevealedBoxes([]);
       fetchMysteryBoxes();
     });
 
     newSocket.on('mysteryBoxUndo', (data) => {
-      console.log('Mystery box undo:', data);
       setRevealedBoxes(prev => prev.filter(id => id !== data.boxId));
       fetchMysteryBoxes();
     });

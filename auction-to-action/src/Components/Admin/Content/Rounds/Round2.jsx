@@ -33,7 +33,6 @@ function Round2() {
             canReveal: data.role === 'superadmin'
           };
           setAdminInfo(adminInfo);
-          console.log('Admin info loaded:', adminInfo);
         } else if (response.status === 401) {
           setError('Invalid or expired token. Please log in again.');
         } else {

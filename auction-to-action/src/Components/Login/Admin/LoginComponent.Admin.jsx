@@ -69,8 +69,6 @@ function LoginComponentAdmin() {
       });
 
       // Store token and user data for authentication
-      console.log("🔑 Storing admin token:", response.data.token);
-      console.log("👤 Admin user data:", response.data.user);
       localStorage.setItem("adminToken", response.data.token);
       localStorage.setItem(
         "adminUser",
@@ -80,7 +78,6 @@ function LoginComponentAdmin() {
           id: response.data.user.id,
         })
       );
-      console.log("✅ Token and user data stored successfully");
 
       setMessageType("success");
       setMessage(response.data.message);
