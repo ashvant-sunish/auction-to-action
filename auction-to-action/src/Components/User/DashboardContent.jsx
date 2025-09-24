@@ -48,11 +48,35 @@ const AvailableMaterialsTable = ({
         : Object.entries(resources);
     return entries
       .filter(([name, quantity]) => quantity > 0)
-      .map(([name, quantity]) => ({
-        name,
-        count: quantity,
-        totalAmount: quantity * 1000,
-      }))
+      .map(([name, quantity]) => {
+        let multipleyer = 1;
+        if (name === "Technology") {
+          multipleyer = 2500;
+        } else if (name === "Transportation") {
+          multipleyer = 1000;
+        } else if (name === "Property") {
+          multipleyer = 2000;
+        } else if (name === "Skilled Labour") {
+          multipleyer = 1000;
+        } else if (name === "Machinery & Tools") {
+          multipleyer = 1800;
+        } else if (name === "Utilities") {
+          multipleyer = 800;
+        } else if (name === "Electricity Supply") {
+          multipleyer = 1500;
+        } else if (name === "Office Space") {
+          multipleyer = 1500;
+        } else if (name === "Construction Material") {
+          multipleyer = 1200;
+        } else {
+          multipleyer = 0;
+        }
+        return {
+          name,
+          count: quantity,
+          totalAmount: quantity * multipleyer,
+        };
+      })
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [resources]);
 
