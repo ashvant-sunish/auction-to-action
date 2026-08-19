@@ -15,6 +15,7 @@ import {
   CardBody,
   Icon,
   Link,
+  Image,
 } from "@chakra-ui/react";
 import {
   AiOutlineEye,
@@ -24,8 +25,8 @@ import {
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import serverUrl from './../../../servercon';
-
+import serverUrl from "./../../../servercon";
+import csedLogo from "../../../assets/images/csed.png";
 
 function LoginComponentUser() {
   const [formData, setFormData] = useState({
@@ -70,17 +71,16 @@ function LoginComponentUser() {
     setMessage("");
 
     try {
-      const response = await axios.post(
-        `${serverUrl}/api/team/login`,
-        {
-          teamCode: formData.teamNumber,
-          password: formData.teamCredential,
-        }
-      );
+      const response = await axios.post(`${serverUrl}/api/team/login`, {
+        teamCode: formData.teamNumber,
+        password: formData.teamCredential,
+      });
 
       setMessageType("success");
       setMessage(response.data.message);
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("rulestate", "false");
+      localStorage.setItem("rulebutton", "false");
       setTimeout(() => navigate("/userdashboard"), 1000);
     } catch (err) {
       setMessageType("error");
@@ -93,8 +93,6 @@ function LoginComponentUser() {
       setIsLoading(false);
     }
   };
-
-
 
   const CustomAlert = ({ status, children }) => {
     const cfg = {
@@ -135,61 +133,46 @@ function LoginComponentUser() {
   };
 
   return (
-    <Box
-      bg="rgba(255,255,255,0.15)"
-      borderRadius="2xl"
-      p={{ base: 10, md: 12 }}
-    >
-      <VStack spacing={6}>
-        <Heading
-          as="h1"
-          size="2xl"
-          color="white"
-          fontFamily="'Inter', sans-serif"
-          p={{ base: 5 }}
-        >
-          Login
-        </Heading>
+    <>
+      <Image
+        src={csedLogo}
+        alt="CSED Logo"
+        position="absolute"
+        top="20px"
+        left="20px"
+        maxH="60px"
+        objectFit="contain"
+        zIndex={10}
+      />
+      <Box
+        bg="rgba(255,255,255,0.15)"
+        borderRadius="2xl"
+        p={{ base: 10, md: 12 }}
+      >
+        <VStack spacing={6}>
+          <Heading
+            as="h1"
+            size="2xl"
+            color="white"
+            fontFamily="'Inter', sans-serif"
+            p={{ base: 5 }}
+          >
+            Team Login
+          </Heading>
 
-        {message && <CustomAlert status={messageType}>{message}</CustomAlert>}
-        <Box as="form" w="100%" onSubmit={handleSubmit} noValidate>
-          <VStack spacing={5}>
-            <FormControl isInvalid={!!errors.teamNumber}>
-              <FormLabel htmlFor="teamNumber" color="gray.200">
-                Leader Registration Number
-              </FormLabel>
-              <Input
-                id="teamNumber"
-                name="teamNumber"
-                type="text"
-                placeholder="e.g., 21BCE1234"
-                value={formData.teamNumber}
-                onChange={handleInputChange}
-                bg="rgba(255, 255, 255, 0.1)"
-                borderColor="rgba(255, 255, 255, 0.2)"
-                color="white"
-                borderRadius="lg"
-                size="lg"
-                _placeholder={{ color: "gray.400" }}
-              />
-              {errors.teamNumber && (
-                <Text color="red.500" fontSize="xs" mt={1}>
-                  {errors.teamNumber}
-                </Text>
-              )}
-            </FormControl>
-
-            <FormControl isInvalid={!!errors.teamCredential}>
-              <FormLabel htmlFor="teamCredential" color="gray.200">
-                Password
-              </FormLabel>
-              <InputGroup>
+          {message && <CustomAlert status={messageType}>{message}</CustomAlert>}
+          <Box as="form" w="100%" onSubmit={handleSubmit} noValidate>
+            <VStack spacing={5}>
+              <FormControl isInvalid={!!errors.teamNumber}>
+                <FormLabel htmlFor="teamNumber" color="gray.200">
+                  Team Registration Number
+                </FormLabel>
                 <Input
-                  id="teamCredential"
-                  name="teamCredential"
-                  type={showCode ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={formData.teamCredential}
+                  id="teamNumber"
+                  name="teamNumber"
+                  type="text"
+                  placeholder="e.g: TEAM101"
+                  value={formData.teamNumber}
                   onChange={handleInputChange}
                   bg="rgba(255, 255, 255, 0.1)"
                   borderColor="rgba(255, 255, 255, 0.2)"
@@ -198,46 +181,73 @@ function LoginComponentUser() {
                   size="lg"
                   _placeholder={{ color: "gray.400" }}
                 />
-                <InputRightElement h="full">
-                  <IconButton
-                    aria-label={showCode ? "Hide code" : "Show code"}
-                    icon={
-                      <Icon
-                        as={showCode ? AiOutlineEyeInvisible : AiOutlineEye}
-                        color="gray.300"
-                      />
-                    }
-                    variant="ghost"
-                    onClick={toggleCodeVisibility}
-                    _hover={{ bg: "transparent" }}
-                  />
-                </InputRightElement>
-              </InputGroup>
-              {errors.teamCredential && (
-                <Text color="red.400" fontSize="xs" mt={1}>
-                  {errors.teamCredential}
-                </Text>
-              )}
-            </FormControl>
+                {errors.teamNumber && (
+                  <Text color="red.500" fontSize="xs" mt={1}>
+                    {errors.teamNumber}
+                  </Text>
+                )}
+              </FormControl>
 
-            <Button
-              type="submit"
-              bg="gray.50"
-              color="gray.900"
-              size="lg"
-              w="100%"
-              isLoading={isLoading}
-              loadingText="Signing in..."
-              mt={4}
-              borderRadius="xl"
-              _hover={{ bg: "gray.200" }}
-            >
-              Login
-            </Button>
-          </VStack>
-        </Box>
-      </VStack>
-    </Box>
+              <FormControl isInvalid={!!errors.teamCredential}>
+                <FormLabel htmlFor="teamCredential" color="gray.200">
+                  Password
+                </FormLabel>
+                <InputGroup>
+                  <Input
+                    id="teamCredential"
+                    name="teamCredential"
+                    type={showCode ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={formData.teamCredential}
+                    onChange={handleInputChange}
+                    bg="rgba(255, 255, 255, 0.1)"
+                    borderColor="rgba(255, 255, 255, 0.2)"
+                    color="white"
+                    borderRadius="lg"
+                    size="lg"
+                    _placeholder={{ color: "gray.400" }}
+                  />
+                  <InputRightElement h="full">
+                    <IconButton
+                      aria-label={showCode ? "Hide code" : "Show code"}
+                      icon={
+                        <Icon
+                          as={showCode ? AiOutlineEyeInvisible : AiOutlineEye}
+                          color="gray.300"
+                        />
+                      }
+                      variant="ghost"
+                      onClick={toggleCodeVisibility}
+                      _hover={{ bg: "transparent" }}
+                    />
+                  </InputRightElement>
+                </InputGroup>
+                {errors.teamCredential && (
+                  <Text color="red.400" fontSize="xs" mt={1}>
+                    {errors.teamCredential}
+                  </Text>
+                )}
+              </FormControl>
+
+              <Button
+                type="submit"
+                bg="gray.50"
+                color="gray.900"
+                size="lg"
+                w="100%"
+                isLoading={isLoading}
+                loadingText="Signing in..."
+                mt={4}
+                borderRadius="xl"
+                _hover={{ bg: "gray.200" }}
+              >
+                Login
+              </Button>
+            </VStack>
+          </Box>
+        </VStack>
+      </Box>
+    </>
   );
 }
 

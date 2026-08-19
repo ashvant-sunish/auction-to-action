@@ -6,5 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     open: true,
-  }
+  },
+  build: {
+    chunkSizeWarningLimit: 1000, // or whatever limit you prefer (KB)
+  },
 })

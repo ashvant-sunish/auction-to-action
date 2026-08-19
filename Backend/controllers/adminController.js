@@ -3,6 +3,7 @@ const Team = require('../models/Team');
 const GameItem = require('../models/GameItem');
 const BidHistory = require('../models/BidHistory');
 const TradeHistory = require('../models/TradeHistory');
+const TradeWishlist = require('../models/TradeWishlist');
 const AdminUser = require('../models/AdminUser');
 const GameState = require('../models/GameState');
 const Round1Bids = require('../models/Round1Bids');
@@ -116,11 +117,12 @@ exports.addTeam = async (req, res) => {
 exports.updateTeam = async (req, res) => {
   try {
     const { id } = req.params;
-    const { teamName, password, credit, debit } = req.body;
+    const { teamName, password, credit, debit, resources } = req.body;
     const updateData = {};
     if (teamName) updateData.teamName = teamName;
-    if (credit) updateData.credit = credit;
-    if (debit) updateData.debit = debit;
+    if (credit !== undefined && credit !== null) updateData.credit = credit;
+    if (debit !== undefined && debit !== null) updateData.debit = debit;
+    if (resources) updateData.resources = resources;
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);
     }
@@ -352,7 +354,6 @@ exports.deleteTradeHistory = async (req, res) => {
     res.status(500).json({ message: 'Error deleting trade history' });
   }
 };
-<<<<<<< HEAD
 
 // --- ROUND 1 SPINNING WHEEL INTEGRATION ---
 
@@ -593,6 +594,7 @@ exports.completeTrade = async (req, res) => {
             round,
             itemCode,
             itemName,
+            resources,
             teamCode,
             teamName,
             bidAmount,
@@ -605,6 +607,7 @@ exports.completeTrade = async (req, res) => {
         console.log('🔄 Processing complete trade:', {
             teamCode,
             itemName,
+            resources,
             bidAmount,
             updateInventory,
             updateAccount
@@ -659,15 +662,25 @@ exports.completeTrade = async (req, res) => {
         await team.save();
 
         // Create bid history record for tracking
-        const bidHistory = new BidHistory({
+        const bidHistoryRecord = {
             round,
             itemCode,
             itemName,
+            resourcesGained: {},
             teamCode,
             teamName,
             bidAmount
-        });
+        };
 
+        // Add resources gained to bid history
+        if (gameItem && gameItem.resources) {
+            gameItem.resources.forEach((quantity, resourceName) => {
+                bidHistoryRecord.resourcesGained[resourceName] = quantity;
+            });
+        }
+
+        // Save bid history
+        const bidHistory = new BidHistory(bidHistoryRecord);
         await bidHistory.save();
         console.log('📊 Bid history created:', bidHistory._id);
 
@@ -682,7 +695,7 @@ exports.completeTrade = async (req, res) => {
                 bidAmount,
                 newBalance: team.credit - team.debit,
                 inventoryCount: team.inventory?.length || 0,
-                resources: Object.fromEntries(team.resources || new Map())
+                resourcesGained: Object.fromEntries(team.resourcesGained || new Map())
             }
         });
 
@@ -713,7 +726,6 @@ exports.getGameState = async (req, res) => {
         res.status(500).json({ message: 'Error fetching game state' });
     }
 };
-=======
 // --- TEAM STATUS MANAGEMENT (isActive toggle) ---
 
 /**
@@ -749,4 +761,114 @@ exports.setTeamActiveStatus = async (req, res) => {
   }
 };
 
->>>>>>> dcad12332d45d9b295c4d27e644b1fdb75a16b4f
+// Get live auction status for dashboard
+exports.getLiveAuctionStatus = async (req, res) => {
+  try {
+    // Get the latest wheel selection from wheelselections collection
+    const WheelSelection = require('../models/WheelSelection');
+    const latestSelection = await WheelSelection.findOne({ 
+      eventType: 'RANDOM_SELECTED',
+      isLive: true 
+    }).sort({ timestamp: -1 });
+    
+    let selectedNumber = "0";
+    if (latestSelection && latestSelection.itemDetails && latestSelection.itemDetails.bidNumber) {
+      selectedNumber = latestSelection.itemDetails.bidNumber.toString();
+    }
+    
+    console.log('Latest wheel selection:', latestSelection);
+    console.log('Selected number:', selectedNumber);
+    
+    res.json({
+      selectedNumber,
+      currentItem: `Item ${selectedNumber}`,
+      timestamp: latestSelection?.timestamp || null
+    });
+  } catch (error) {
+    console.error('Error getting live auction status:', error);
+    res.status(500).json({ error: 'Failed to get live auction status' });
+  }
+};
+
+/**
+ * Update team wishlist (admin only) - removes items after trade
+ */
+exports.updateTeamWishlist = async (req, res) => {
+  try {
+    const { teamCode, itemsToRemove } = req.body;
+    
+    console.log(`🔄 Admin updating wishlist for team ${teamCode}`);
+    console.log('Items to remove:', itemsToRemove);
+    
+    if (!teamCode || !itemsToRemove) {
+      return res.status(400).json({
+        success: false,
+        message: 'teamCode and itemsToRemove are required'
+      });
+    }
+    
+    // Find the active wishlist for this team
+    const wishlist = await TradeWishlist.findOne({
+      teamCode: teamCode,
+      status: 'active',
+      round: 3
+    });
+    
+    if (!wishlist) {
+      console.log(`❌ No wishlist found for team ${teamCode}`);
+      return res.status(404).json({
+        success: false,
+        message: 'No active wishlist found for this team'
+      });
+    }
+    
+    console.log(`📋 Current wishlist for ${teamCode}:`, wishlist.itemsToTrade);
+    
+    // Update item counts in wishlist (don't delete items)
+    for (const item of itemsToRemove) {
+      console.log(`Processing item: ${item.name} (quantity: ${item.quantity})`);
+      
+      const wishlistItemIndex = wishlist.itemsToTrade.findIndex(
+        wItem => wItem.name === item.name
+      );
+      
+      if (wishlistItemIndex !== -1) {
+        // Reduce the count but keep it at minimum 0
+        const currentCount = wishlist.itemsToTrade[wishlistItemIndex].count;
+        const newCount = Math.max(0, currentCount - item.quantity);
+        
+        wishlist.itemsToTrade[wishlistItemIndex].count = newCount;
+        console.log(`Updated ${item.name} from ${currentCount} to ${newCount} (reduced by ${item.quantity})`);
+        
+        // Keep the item in wishlist even if count becomes 0
+        console.log(`Keeping ${item.name} in wishlist with count: ${newCount}`);
+      } else {
+        console.log(`⚠️ Item ${item.name} not found in wishlist for team ${teamCode}`);
+      }
+    }
+    
+    // Recalculate total items
+    wishlist.totalItems = wishlist.itemsToTrade.reduce((sum, item) => sum + item.count, 0);
+    
+    // Save updated wishlist
+    await wishlist.save();
+    
+    console.log(`✅ Wishlist updated for ${teamCode}, new total: ${wishlist.totalItems}`);
+    console.log(`📋 Updated wishlist:`, wishlist.itemsToTrade);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Wishlist updated successfully',
+      updatedWishlist: wishlist.itemsToTrade
+    });
+    
+  } catch (error) {
+    console.error("❌ Error updating wishlist:", error);
+    console.error("❌ Stack trace:", error.stack);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while updating wishlist.',
+      error: error.message
+    });
+  }
+};

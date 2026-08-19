@@ -1,16 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Flex,
-  useToast,
-  VStack,
-  Heading,
-  Text,
-  Icon,
-} from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
+import { Box, Flex, useToast, VStack, Text, Spinner } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import serverUrl, { socketServerUrl } from "../../servercon";
+import serverUrl from "../../servercon";
 import socketService from "../../services/socket";
 import Sidebar from "../../Components/User/Sidebar.jsx";
 import Navbar from "../../Components/User/Navbar.jsx";
@@ -19,7 +11,8 @@ import MyBids from "../../Components/User/MyBids.jsx";
 import TradingMarket from "../../Components/User/TradingMarket.jsx";
 import RoundsUser from "../../Components/User/Rounds.User.jsx";
 import EnterpriseConstruction from "../../Components/User/EnterpriseConstruction.jsx";
-import { FaLock } from "react-icons/fa";
+import RulesUser from "../../Components/User/Rules.User.jsx";
+import dashboardBg from "../../assets/images/dashboardbg.jpg"; // Import the background image
 
 function UserDashboard() {
   const [activeComponent, setActiveComponent] = useState("dashboard");
@@ -27,6 +20,9 @@ function UserDashboard() {
   const [balance, setBalance] = useState(0);
   const [gameState, setGameState] = useState(0);
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [isFirstTimeLogin, setIsFirstTimeLogin] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true); // State for preloading
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -35,19 +31,41 @@ function UserDashboard() {
   };
 
   useEffect(() => {
+    // Preload the background image
+    const img = new Image();
+    img.src = dashboardBg;
+    img.onload = () => {
+      setImageLoading(false);
+    };
+
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/");
       return;
     }
+
+    setupRealTimeConnection();
     fetchTeamData();
     fetchCurrentRound();
-    setupRealTimeConnection();
+
+    const refreshInterval = setInterval(fetchTeamData, 30000);
 
     return () => {
       socketService.disconnect();
+      clearInterval(refreshInterval);
     };
   }, [navigate]);
+
+  useEffect(() => {
+    if (teamData?.teamCode) {
+      const teamRulesKey = `hasSeenRules_${teamData.teamCode}`;
+      const hasSeenRules = localStorage.getItem(teamRulesKey);
+      if (!hasSeenRules) {
+        setIsFirstTimeLogin(true);
+        setShowRules(true);
+      }
+    }
+  }, [teamData]);
 
   useEffect(() => {
     if (teamData?.teamNumber) {
@@ -83,10 +101,11 @@ function UserDashboard() {
   };
 
   const setupRealTimeConnection = () => {
-    socketService.connect(socketServerUrl);
+    socketService.connect(serverUrl);
 
     socketService.onTeamUpdate((updatedTeam) => {
-      if (teamData && updatedTeam.teamNumber === teamData.teamNumber) {
+      const currentTeamNumber = teamData?.teamNumber;
+      if (currentTeamNumber && updatedTeam.teamNumber === currentTeamNumber) {
         setTeamData(updatedTeam);
         setBalance(updatedTeam.balance || updatedTeam.credit || 0);
         toast({
@@ -127,8 +146,10 @@ function UserDashboard() {
       const response = await axios.get(`${serverUrl}/api/team/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTeamData(response.data);
-      setBalance(response.data.balance);
+      if (JSON.stringify(response.data) !== JSON.stringify(teamData)) {
+        setTeamData(response.data);
+        setBalance(response.data.balance);
+      }
     } catch (error) {
       console.error("Error fetching team data:", error);
       if (error.response?.status === 401) {
@@ -140,7 +161,7 @@ function UserDashboard() {
 
   const fetchCurrentRound = async () => {
     try {
-      const response = await axios.get(`${socketServerUrl}/api/round/current`);
+      const response = await axios.get(`${serverUrl}/api/round/current`);
       if (response.data.success) {
         processRoundData(response.data.roundData);
       }
@@ -149,7 +170,25 @@ function UserDashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        await axios.post(
+          `${serverUrl}/api/team/logout`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+
     if (teamData?.teamNumber) {
       socketService.leaveTeam(teamData.teamNumber);
     }
@@ -164,9 +203,23 @@ function UserDashboard() {
     navigate("/");
   };
 
+  const handleViewRules = () => {
+    setShowRules(true);
+    setIsFirstTimeLogin(false);
+  };
+
+  const handleCloseRules = () => {
+    setShowRules(false);
+    if (isFirstTimeLogin && teamData?.teamCode) {
+      const teamRulesKey = `hasSeenRules_${teamData.teamCode}`;
+      localStorage.setItem(teamRulesKey, "true");
+      setIsFirstTimeLogin(false);
+    }
+  };
+
   const pageTitles = {
     dashboard: "Dashboard",
-    "my-bids": "My Bidding History",
+    "my-bids": "My History",
     "trading-market": "Trading Market",
     rounds: "Auction Rounds",
     "enterprise-construction": "Enterprise Construction",
@@ -175,7 +228,13 @@ function UserDashboard() {
   const renderContent = () => {
     switch (activeComponent) {
       case "dashboard":
-        return <DashboardContent teamData={teamData} balance={balance} gameState={gameState}  />;
+        return (
+          <DashboardContent
+            teamData={teamData}
+            balance={balance}
+            gameState={gameState}
+          />
+        );
       case "my-bids":
         return <MyBids />;
       case "trading-market":
@@ -185,12 +244,28 @@ function UserDashboard() {
       case "enterprise-construction":
         return <EnterpriseConstruction gameState={gameState} />;
       default:
-        return <DashboardContent teamData={teamData} balance={balance} />;
+        return (
+          <DashboardContent
+            teamData={teamData}
+            balance={balance}
+            gameState={gameState}
+          />
+        );
     }
   };
 
   return (
-    <Flex h="100vh" overflow="hidden">
+    <Flex
+      h="100vh"
+      overflow="hidden"
+      bgImage={`url(${dashboardBg})`}
+      bgSize="cover"
+      bgPosition="center"
+      bgRepeat="no-repeat"
+    >
+      {showRules && (
+        <RulesUser onClose={handleCloseRules} isFirstTime={isFirstTimeLogin} />
+      )}
       <Sidebar
         activeComponent={activeComponent}
         setActiveComponent={setActiveComponent}
@@ -201,7 +276,8 @@ function UserDashboard() {
       <Box
         flex="1"
         ml={{ base: 0, md: isSidebarCollapsed ? "80px" : "260px" }}
-        bg="gray.100"
+        bg="rgba(0, 0, 0, 0.3)"
+        backdropFilter="blur(2px)"
         h="100vh"
         overflow="hidden"
         transition="margin-left 0.2s ease-in-out"
@@ -209,20 +285,43 @@ function UserDashboard() {
         <Navbar
           pageTitle={pageTitles[activeComponent]}
           onLogout={handleLogout}
-          teamData={teamData}
+          onViewRules={handleViewRules}
+          teamCode={teamData?.teamName}
           currentRound={getRoundDisplayText(gameState)}
           gameState={gameState}
         />
-        <Box
-          p={6}
-          h="calc(100vh - 72px)"
-          display="flex"
-          flexDirection="column"
-          gap={4}
-          overflowY="auto"
-        >
-          {renderContent()}
-        </Box>
+        {imageLoading ? (
+          <Flex h="calc(100vh - 72px)" align="center" justify="center">
+            <VStack>
+              <Spinner size="xl" color="white" thickness="4px" />
+              <Text color="white" mt={4} fontSize="lg">
+                Loading Dashboard...
+              </Text>
+            </VStack>
+          </Flex>
+        ) : (
+          <Box
+            p={6}
+            h="calc(100vh - 72px)"
+            display="flex"
+            flexDirection="column"
+            gap={4}
+            overflowY="auto"
+            css={{
+              "&::-webkit-scrollbar": { width: "8px" },
+              "&::-webkit-scrollbar-track": { background: "transparent" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "rgba(255, 255, 255, 0.2)",
+                borderRadius: "8px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                background: "rgba(255, 255, 255, 0.3)",
+              },
+            }}
+          >
+            {renderContent()}
+          </Box>
+        )}
       </Box>
     </Flex>
   );

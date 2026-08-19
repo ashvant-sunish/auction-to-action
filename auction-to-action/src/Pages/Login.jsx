@@ -66,14 +66,7 @@ function Login() {
           align="flex-start"
           justify="space-between"
         >
-          <VStack align="flex-start" spacing={0}>
-            <Text fontSize="lg" fontWeight="bold" color="white">
-              CSED
-            </Text>
-            <Text fontSize="md" color="white">
-              VIT Vellore
-            </Text>
-          </VStack>
+          <VStack align="flex-start" spacing={0}></VStack>
 
           {/* Text Block */}
           <VStack align="flex-start" spacing={2} w="full">
@@ -108,10 +101,6 @@ function Login() {
             maxW="500px"
             alignSelf="center"
           />
-
-          <Text fontSize="sm" color="white" alignSelf="center">
-            Made with ❤️ CSED Tech Team
-          </Text>
         </VStack>
 
         {/* RIGHT SIDE */}

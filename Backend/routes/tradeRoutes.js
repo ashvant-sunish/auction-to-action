@@ -7,11 +7,19 @@ const {
   executeTrade,
   getAllTrades,
   getTeamTrades,
-  getTradeStats
+  getTradeStats,
+  submitTrade
 } = require('../controllers/tradeController');
+
+// Test route to verify routing is working
+router.get('/test', (req, res) => {
+  console.log('🧪 TRADE TEST ENDPOINT HIT!');
+  res.json({ message: 'Trade routes are working!', timestamp: new Date().toISOString() });
+});
 
 // Admin routes for trade management
 router.post('/execute', protectAdmin, executeTrade);
+router.post('/submit-trade', protectAdmin, submitTrade);
 router.get('/all', protectAdmin, getAllTrades);
 router.get('/stats', protectAdmin, getTradeStats);
 

@@ -6,6 +6,8 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import axios from "axios";
+import serverUrl from "../../../servercon";
 import cardData from "../../../assets/cards-data.json";
 
 import enterprise1 from "../../../assets/images/Construction/Enterprise1.png";
@@ -47,12 +49,37 @@ const SlidingAnimation = forwardRef((props, ref) => {
   const [activeCard, setActiveCard] = useState(null); // numeric id
   const [hoveredCard, setHoveredCard] = useState(null); // numeric id
   const [focusedIndex, setFocusedIndex] = useState(null);
+  const [ownedEnterprises, setOwnedEnterprises] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const containerRef = useRef(null);
   const cardRefs = useRef([]);
   const activeCardRef = useRef(activeCard);
   const hoveredCardRef = useRef(hoveredCard);
   const isScrollingRef = useRef(false);
+
+  // Fetch team inventory
+  const fetchTeamInventory = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.get(
+        `${serverUrl}/api/construction/inventory`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.enterprises) {
+        setOwnedEnterprises(response.data.enterprises.map((ent) => ent.id));
+      }
+    } catch (error) {
+      console.error("Error fetching team inventory:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // normalize cardData and attach images
   useEffect(() => {
@@ -73,12 +100,16 @@ const SlidingAnimation = forwardRef((props, ref) => {
       }
     );
     setCards(normalized);
+    fetchTeamInventory(); // Fetch inventory when component loads
   }, []);
 
   useImperativeHandle(ref, () => ({
     getActiveCard: () => {
       if (activeCard == null) return null;
       return cards.find((c) => c.id === activeCard) ?? null;
+    },
+    refreshComponent: () => {
+      fetchTeamInventory(); // Allow parent to refresh the inventory
     },
   }));
 
@@ -336,9 +367,6 @@ const SlidingAnimation = forwardRef((props, ref) => {
   }, [cards]);
 
   const styles = `
-    .page-header { text-align:center; margin-bottom:0.8rem; }
-    .page-title { font-size:1.4rem; font-weight:700; color:#2d3748; margin:0; }
-
     .card-container-wrapper { position: relative; width: 100%; }
     .card-container {
       width: 100%;
@@ -415,9 +443,6 @@ const SlidingAnimation = forwardRef((props, ref) => {
   return (
     <div>
       <style>{styles}</style>
-      <div className="page-header">
-        <h2 className="page-title">Enterprise Construction</h2>
-      </div>
 
       <div className="card-container-wrapper">
         <div
@@ -458,7 +483,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
                     Worth: ₹{Number(card.worth || 0).toLocaleString()}
                   </p>
                   <ul className="card-requirements">
-                    {(card.requirements || []).slice(0, 4).map((r, i) => (
+                    {(card.requirements || []).slice(0, 5).map((r, i) => (
                       <li key={i}>{r}</li>
                     ))}
                   </ul>

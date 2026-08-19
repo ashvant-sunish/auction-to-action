@@ -5,12 +5,25 @@ import {
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
     Text, VStack, HStack, Badge, useDisclosure, Input, FormControl, FormLabel,
     AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
-    Flex, Spinner, Center, useToast, Alert, AlertIcon
+    Flex, Spinner, Center, useToast, Alert, AlertIcon,
+    GridItem,
+    CardHeader,
+    Card,
+    Heading,
+    CardBody,
+    Grid,
+    IconButton,
+    InputRightElement,
+    Icon,
+    InputGroup,
+    Select
 } from '@chakra-ui/react';
 import { IoIosAdd } from "react-icons/io";
-import { GoTriangleUp,GoTriangleDown } from "react-icons/go";
+import { GoTriangleUp, GoTriangleDown } from "react-icons/go";
 import axios from 'axios';
 import serverUrl from '../../../../servercon';
+import { FaMinus, FaPlus } from 'react-icons/fa';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 function TeamTableAdmin() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -19,12 +32,30 @@ function TeamTableAdmin() {
     const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [editingTeam, setEditingTeam] = useState(null);
-    const [newTeam, setNewTeam] = useState({ teamCode: '', teamName: '', password: '', credit: 20000 });
+    const [newTeam, setNewTeam] = useState({ teamCode: '', teamName: '', password: '', credit: 150000 });
     const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+    const [sortField, setSortField] = useState('teamCode'); // 'teamCode' or 'balance'
     const [isLoading, setIsLoading] = useState(true);
     const [teams, setTeams] = useState([]); // This will hold current display data
+    const [selectedResourceType, setSelectedResourceType] = useState('');
     const cancelRef = useRef();
     const toast = useToast();
+    const [showCode, setShowCode] = useState(false);
+
+    // Predefined resource types
+    const availableResourceTypes = [
+        'Transportation',
+        'Property',
+        'Skilled Labour',
+        'Machinery & Tools',
+        'Utilities',
+        'Electricity Supply',
+        'Office Space',
+        'Construction Material',
+        'Technology'
+    ];
+
+    const toggleCodeVisibility = () => setShowCode(!showCode);
 
     // Fetch teams data from backend
     useEffect(() => {
@@ -35,7 +66,7 @@ function TeamTableAdmin() {
         setIsLoading(true);
         try {
             const token = localStorage.getItem('adminToken');
-            
+
             if (!token) {
                 toast({
                     title: "Authentication Required",
@@ -54,9 +85,8 @@ function TeamTableAdmin() {
 
             // Backend returns array of teams directly
             const teamsArray = Array.isArray(response.data) ? response.data : [];
-            console.log('📊 Fetched teams:', teamsArray);
             setTeams(teamsArray);
-            
+
             toast({
                 title: "Teams Loaded",
                 description: `Successfully loaded ${teamsArray.length} teams`,
@@ -79,13 +109,23 @@ function TeamTableAdmin() {
         }
     };
 
+    // Get admin user data from localStorage
+    const getAdminUser = () => {
+        try {
+            const userData = localStorage.getItem('adminUser');
+            return userData ? JSON.parse(userData) : null;
+        } catch {
+            return null;
+        }
+    };
+
+    const adminUser = getAdminUser();
+    const adminRole = adminUser?.role;
+
     const handleView = (teamId) => {
-        console.log('🔍 handleView called with teamId:', teamId);
-        console.log('🔍 Current teams array:', teams);
-        
+
         const team = teams.find(team => team._id === teamId || team.id === teamId);
-        console.log('🔍 Found team:', team);
-        
+
         if (team) {
             // Use actual backend field names
             const displayTeam = {
@@ -99,11 +139,9 @@ function TeamTableAdmin() {
                 resources: team.resources || {},
                 original: team
             };
-            console.log('🔍 Display team for modal:', displayTeam);
             setSelectedTeam(displayTeam);
             onOpen();
         } else {
-            console.log('❌ Team not found for ID:', teamId);
             toast({
                 title: "Team Not Found",
                 description: "Could not find the selected team",
@@ -115,7 +153,12 @@ function TeamTableAdmin() {
     };
 
     const handleEdit = () => {
-        setEditingTeam({ ...selectedTeam });
+        setEditingTeam({
+            ...selectedTeam,
+            debit: selectedTeam.debit || 0, // Ensure debit is properly initialized
+            resources: selectedTeam.resources || {} // Ensure resources exist
+        });
+        setSelectedResourceType(''); // Reset resource selection
         onClose();
         onEditOpen();
     };
@@ -132,7 +175,7 @@ function TeamTableAdmin() {
                 await axios.delete(`${serverUrl}/api/admin/teams/${selectedTeam._id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
+
                 toast({
                     title: "Team Deleted",
                     description: `Team ${selectedTeam.teamCode} deleted successfully`,
@@ -151,7 +194,7 @@ function TeamTableAdmin() {
                 isClosable: true,
             });
         }
-        
+
         // Refresh data from backend
         await fetchTeamsData();
         onDeleteClose();
@@ -165,18 +208,19 @@ function TeamTableAdmin() {
                 const updateData = {
                     teamName: editingTeam.teamName,
                     credit: Number(editingTeam.credit),
-                    debit: Number(editingTeam.debit || 0)
+                    debit: Number(editingTeam.debit || 0),
+                    resources: editingTeam.resources || {}
                 };
-                
+
                 // Only include password if it was changed
                 if (editingTeam.newPassword && editingTeam.newPassword.trim()) {
                     updateData.password = editingTeam.newPassword;
                 }
-                
+
                 await axios.put(`${serverUrl}/api/admin/teams/${editingTeam._id}`, updateData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
+
                 toast({
                     title: "Team Updated",
                     description: `Team ${editingTeam.teamCode} updated successfully`,
@@ -195,17 +239,19 @@ function TeamTableAdmin() {
                 isClosable: true,
             });
         }
-        
+
         // Refresh data from backend
         await fetchTeamsData();
         onEditClose();
         setEditingTeam(null);
+        setSelectedResourceType(''); // Reset resource selection
     };
 
     const handleEditChange = (field, value) => {
         setEditingTeam(prev => ({
             ...prev,
-            [field]: value
+            [field]: (field === 'credit' || field === 'debit') ?
+                (value === '' ? 0 : Number(value)) : value
         }));
     };
 
@@ -238,11 +284,11 @@ function TeamTableAdmin() {
                     password: newTeam.password,
                     initialBalance: Number(newTeam.credit) || 20000
                 };
-                
+
                 await axios.post(`${serverUrl}/api/admin/teams`, addData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
+
                 toast({
                     title: "Team Added",
                     description: `Team ${newTeam.teamCode} created successfully`,
@@ -261,7 +307,7 @@ function TeamTableAdmin() {
                 isClosable: true,
             });
         }
-        
+
         // Refresh data from backend
         await fetchTeamsData();
         setNewTeam({ teamCode: '', teamName: '', password: '', credit: 20000 });
@@ -269,8 +315,13 @@ function TeamTableAdmin() {
     };
 
     // This function works with the existing /admin/updateTeam endpoint
-    const toggleSortOrder = () => {
-        setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+    const toggleSortOrder = (field) => {
+        if (sortField === field) {
+            setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortOrder('desc'); // Default to descending for balance
+        }
     };
 
     // Create display data with proper sorting
@@ -289,17 +340,123 @@ function TeamTableAdmin() {
     });
 
     const sortedData = [...displayTeams].sort((a, b) => {
-        // Sort by team code
-        const aCode = a.teamCode || '';
-        const bCode = b.teamCode || '';
-        return sortOrder === 'asc' ? aCode.localeCompare(bCode) : bCode.localeCompare(aCode);
+        if (sortField === 'balance') {
+            // Sort by balance
+            return sortOrder === 'asc' ?
+                a.balance - b.balance :
+                b.balance - a.balance;
+        } else {
+            // Sort by team code
+            const aCode = a.teamCode || '';
+            const bCode = b.teamCode || '';
+            return sortOrder === 'asc' ?
+                aCode.localeCompare(bCode) :
+                bCode.localeCompare(aCode);
+        }
     });
+
+    // Handle direct input change for resource quantity
+    const handleResourceChange = (resource, value) => {
+        if (!editingTeam) return;
+        const newValue = Math.max(0, parseInt(value) || 0);
+        setEditingTeam(prev => ({
+            ...prev,
+            resources: {
+                ...(prev.resources || {}),
+                [resource]: newValue
+            }
+        }));
+    };
+
+    // Increment resource count
+    const incrementResource = (resource) => {
+        if (!editingTeam) return;
+        setEditingTeam(prev => ({
+            ...prev,
+            resources: {
+                ...(prev.resources || {}),
+                [resource]: (prev.resources?.[resource] || 0) + 1
+            }
+        }));
+    };
+
+    // Decrement resource count, ensuring it doesn't go below zero
+    const decrementResource = (resource) => {
+        if (!editingTeam) return;
+        setEditingTeam(prev => ({
+            ...prev,
+            resources: {
+                ...(prev.resources || {}),
+                [resource]: Math.max(0, (prev.resources?.[resource] || 0) - 1)
+            }
+        }));
+    };
+
+    // Calculate total resources
+    const calculateTotalResources = () => {
+        if (!editingTeam?.resources) return 0;
+        return Object.values(editingTeam.resources).reduce((sum, val) => sum + (val || 0), 0);
+    };
+
+    // Add new resource type
+    const addNewResource = () => {
+        if (!selectedResourceType || !editingTeam) {
+            toast({
+                title: "Please select a resource type",
+                status: "warning",
+                duration: 2000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        // Check if resource already exists
+        if (editingTeam.resources && editingTeam.resources.hasOwnProperty(selectedResourceType)) {
+            toast({
+                title: "Resource already exists",
+                description: "This resource type is already added to the team",
+                status: "warning",
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        // Add the new resource with initial quantity of 0
+        setEditingTeam(prev => ({
+            ...prev,
+            resources: {
+                ...(prev.resources || {}),
+                [selectedResourceType]: 0
+            }
+        }));
+
+        // Reset the selection
+        setSelectedResourceType('');
+
+        toast({
+            title: "Resource Added",
+            description: `${selectedResourceType} added successfully`,
+            status: "success",
+            duration: 2000,
+            isClosable: true,
+        });
+    };
+
+    // Get available resource types that haven't been added yet
+    const getAvailableResourceTypes = () => {
+        if (!editingTeam?.resources) return availableResourceTypes;
+
+        return availableResourceTypes.filter(resourceType =>
+            !editingTeam.resources.hasOwnProperty(resourceType)
+        );
+    };
 
     return (
         <Box bg="white" p={4} mt={2} mb={2} borderRadius="md">
             {/* Add New Team Button */}
             <Flex mb={4} justify="space-between" align="center">
-                <Button 
+                <Button
                     size="sm"
                     colorScheme="gray"
                     onClick={fetchTeamsData}
@@ -307,9 +464,9 @@ function TeamTableAdmin() {
                 >
                     Refresh Data
                 </Button>
-                <Button 
-                    leftIcon={<IoIosAdd />} 
-                    colorScheme="blue" 
+                <Button
+                    leftIcon={<IoIosAdd />}
+                    colorScheme="blue"
                     onClick={onAddOpen}
                     size="sm"
                     title="Add a new team"
@@ -325,65 +482,83 @@ function TeamTableAdmin() {
                 </Center>
             ) : (
                 <TableContainer>
-                <Table variant='striped' colorScheme='teal'>
-                    <TableCaption>Team Management Table</TableCaption>
-                    <Thead>
-                        <Tr>
-                            <Th 
-                                cursor="pointer" 
-                                _hover={{ bg: "gray.50" }}
-                                onClick={toggleSortOrder}
-                            >
-                                <HStack spacing={1}>
-                                    <Text>Team Code</Text>
-                                    {sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />}
-                                </HStack>
-                            </Th>
-                            <Th>Team Name</Th>
-                            <Th>Credits</Th>
-                            <Th>Debit</Th>
-                            <Th>Balance</Th>
-                            <Th>Action</Th>
-                        </Tr>
-                    </Thead>
-                    <Tbody>
-                        {sortedData.length === 0 ? (
+                    <Table variant='striped' colorScheme='teal'>
+                        <TableCaption>Team Management Table</TableCaption>
+                        <Thead>
                             <Tr>
-                                <Td colSpan="6" textAlign="center" py={8}>
-                                    <Text color="gray.500" fontSize="lg">
-                                        No teams found. Click "Add New Team" to create one.
-                                    </Text>
-                                </Td>
+                                <Th
+                                    cursor="pointer"
+                                    _hover={{ bg: "gray.50" }}
+                                    onClick={() => toggleSortOrder('teamCode')}
+                                >
+                                    <HStack spacing={1}>
+                                        <Text>Team Code</Text>
+                                        {sortField === 'teamCode' && (sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />)}
+                                    </HStack>
+                                </Th>
+                                <Th>Team Name</Th>
+                                <Th>Status</Th>
+                                <Th>Debit</Th>
+                                <Th
+                                    cursor="pointer"
+                                    _hover={{ bg: "gray.50" }}
+                                    onClick={() => toggleSortOrder('balance')}
+                                >
+                                    <HStack spacing={1}>
+                                        <Text>Balance</Text>
+                                        {sortField === 'balance' && (sortOrder === 'asc' ? <GoTriangleUp /> : <GoTriangleDown />)}
+                                    </HStack>
+                                </Th>
+                                <Th>Action</Th>
                             </Tr>
-                        ) : (
-                            sortedData.map((team) => (
-                                <Tr key={team._id}>
-                                    <Td fontWeight="semibold">{team.teamCode}</Td>
-                                    <Td>{team.teamName}</Td>
-                                    <Td color="green.600" fontWeight="semibold">{team.credit.toLocaleString()}</Td>
-                                    <Td color="red.600" fontWeight="semibold">{team.debit.toLocaleString()}</Td>
-                                    <Td color={team.balance >= 0 ? "green.600" : "red.600"} fontWeight="bold">
-                                        {team.balance.toLocaleString()}
-                                    </Td>
-                                    <Td>
-                                        <Button colorScheme='teal' size='sm' onClick={() => handleView(team._id)}>View</Button>
+                        </Thead>
+                        <Tbody>
+                            {sortedData.length === 0 ? (
+                                <Tr>
+                                    <Td colSpan="6" textAlign="center" py={8}>
+                                        <Text color="gray.500" fontSize="lg">
+                                            No teams found. Click "Add New Team" to create one.
+                                        </Text>
                                     </Td>
                                 </Tr>
-                            ))
-                        )}
-                    </Tbody>
-                    <Tfoot>
-                        <Tr>
-                            <Th>Team Code</Th>
-                            <Th>Team Name</Th>
-                            <Th>Credits</Th>
-                            <Th>Debit</Th>
-                            <Th>Balance</Th>
-                            <Th>Action</Th>
-                        </Tr>
-                    </Tfoot>
-                </Table>
-            </TableContainer>
+                            ) : (
+                                sortedData.map((team) => (
+                                    <Tr key={team._id}>
+                                        <Td fontWeight="semibold">{team.teamCode}</Td>
+                                        <Td>{team.teamName}</Td>
+                                        <Td>
+                                            <Badge
+                                                colorScheme={team.original?.isActive ? "green" : "red"}
+                                                variant="solid"
+                                            >
+                                                {team.original?.isActive ? "Active" : "Inactive"}
+                                            </Badge>
+                                        </Td>
+                                        <Td color="red.600" fontWeight="semibold">
+                                            {team.debit.toLocaleString()}
+                                        </Td>
+                                        <Td color={team.balance >= 0 ? "green.600" : "red.600"} fontWeight="bold">
+                                            {team.balance.toLocaleString()}
+                                        </Td>
+                                        <Td>
+                                            <Button colorScheme='teal' size='sm' onClick={() => handleView(team._id)}>View</Button>
+                                        </Td>
+                                    </Tr>
+                                ))
+                            )}
+                        </Tbody>
+                        <Tfoot>
+                            <Tr>
+                                <Th>Team Code</Th>
+                                <Th>Team Name</Th>
+                                <Th>Status</Th>
+                                <Th>Debit</Th>
+                                <Th>Balance</Th>
+                                <Th>Action</Th>
+                            </Tr>
+                        </Tfoot>
+                    </Table>
+                </TableContainer>
             )}
 
             {/* Modal for Team Details */}
@@ -449,19 +624,21 @@ function TeamTableAdmin() {
                         )}
                     </ModalBody>
                     <ModalFooter>
-                        <Button 
-                            colorScheme="green" 
-                            mr={3} 
+                        <Button
+                            colorScheme="green"
+                            mr={3}
                             onClick={handleEdit}
                             title="Edit this team"
+                            isDisabled={adminRole !== "superadmin"}
                         >
                             Edit
                         </Button>
-                        <Button 
-                            colorScheme="red" 
-                            mr={3} 
+                        <Button
+                            colorScheme="red"
+                            mr={3}
                             onClick={handleDelete}
                             title="Delete this team"
+                            isDisabled={adminRole !== "superadmin"}
                         >
                             Delete
                         </Button>
@@ -473,7 +650,7 @@ function TeamTableAdmin() {
             </Modal>
 
             {/* Edit Modal */}
-            <Modal isOpen={isEditOpen} onClose={onEditClose} size="lg">
+            <Modal isOpen={isEditOpen} onClose={() => { onEditClose(); setSelectedResourceType(''); }} size="lg">
                 <ModalOverlay />
                 <ModalContent>
                     <ModalHeader>Edit Team</ModalHeader>
@@ -512,19 +689,130 @@ function TeamTableAdmin() {
                                     <FormLabel>Debit</FormLabel>
                                     <Input
                                         type="number"
-                                        value={editingTeam.debit}
+                                        value={editingTeam.debit || 0}
                                         onChange={(e) => handleEditChange('debit', e.target.value)}
                                         placeholder="Enter debit amount"
+                                        min="0"
                                     />
                                 </FormControl>
+                                {/* Resources */}
+                                <GridItem colSpan={12}>
+                                    <Card>
+                                        <CardHeader>
+                                            <Flex justify="space-between" align="center">
+                                                <Heading size="md">Resources</Heading>
+                                                <Badge colorScheme="blue" fontSize="sm">
+                                                    Total: {calculateTotalResources()} items
+                                                </Badge>
+                                            </Flex>
+                                        </CardHeader>
+                                        <CardBody>
+                                            {/* Add New Resource Section */}
+                                            <Box mb={4} p={3} bg="gray.50" borderRadius="md">
+                                                <Text fontWeight="medium" mb={2}>Add New Resource</Text>
+                                                <HStack>
+                                                    <Select
+                                                        placeholder="Select resource type to add"
+                                                        value={selectedResourceType}
+                                                        onChange={(e) => setSelectedResourceType(e.target.value)}
+                                                        flex={1}
+                                                    >
+                                                        {getAvailableResourceTypes().map(resourceType => (
+                                                            <option key={resourceType} value={resourceType}>
+                                                                {resourceType}
+                                                            </option>
+                                                        ))}
+                                                    </Select>
+                                                    <Button
+                                                        colorScheme="green"
+                                                        onClick={addNewResource}
+                                                        isDisabled={!selectedResourceType}
+                                                        leftIcon={<FaPlus />}
+                                                    >
+                                                        Add
+                                                    </Button>
+                                                </HStack>
+                                                {getAvailableResourceTypes().length === 0 && (
+                                                    <Text fontSize="sm" color="gray.500" mt={2}>
+                                                        All resource types have been added
+                                                    </Text>
+                                                )}
+                                            </Box>
+
+                                            {/* Existing Resources Grid */}
+                                            <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+                                                {availableResourceTypes.map(resource => {
+                                                    // Only show resources that exist in the team's resources
+                                                    if (!editingTeam.resources || !editingTeam.resources.hasOwnProperty(resource)) {
+                                                        return null;
+                                                    }
+
+                                                    return (
+                                                        <GridItem key={resource}>
+                                                            <FormControl>
+                                                                <FormLabel fontSize="sm">{resource}</FormLabel>
+                                                                <HStack>
+                                                                    <IconButton
+                                                                        icon={<FaMinus />}
+                                                                        size="sm"
+                                                                        onClick={() => decrementResource(resource)}
+                                                                        colorScheme="red"
+                                                                        variant="outline"
+                                                                    />
+                                                                    <Input
+                                                                        type="number"
+                                                                        value={editingTeam.resources[resource]}
+                                                                        onChange={(e) => handleResourceChange(resource, e.target.value)}
+                                                                        textAlign="center"
+                                                                        min="0"
+                                                                        size="sm"
+                                                                    />
+                                                                    <IconButton
+                                                                        icon={<FaPlus />}
+                                                                        size="sm"
+                                                                        onClick={() => incrementResource(resource)}
+                                                                        colorScheme="green"
+                                                                        variant="outline"
+                                                                    />
+                                                                </HStack>
+                                                            </FormControl>
+                                                        </GridItem>
+                                                    );
+                                                })}
+                                            </Grid>
+
+                                            {Object.keys(editingTeam?.resources || {}).length === 0 && (
+                                                <Text color="gray.500" fontSize="sm" textAlign="center" py={4}>
+                                                    No resources added yet. Select a resource type above to add one.
+                                                </Text>
+                                            )}
+                                        </CardBody>
+                                    </Card>
+                                </GridItem>
                                 <FormControl>
                                     <FormLabel>New Password (leave blank to keep current)</FormLabel>
-                                    <Input
-                                        type="password"
-                                        value={editingTeam.newPassword || ''}
-                                        onChange={(e) => handleEditChange('newPassword', e.target.value)}
-                                        placeholder="Enter new password (optional)"
-                                    />
+                                    <InputGroup>
+                                        <Input
+                                            type={showCode ? "text" : "password"}
+                                            value={editingTeam.newPassword || ''}
+                                            onChange={(e) => handleEditChange('newPassword', e.target.value)}
+                                            placeholder="Enter new password (optional)"
+                                        />
+                                        <InputRightElement h="full">
+                                            <IconButton
+                                                aria-label={showCode ? "Hide code" : "Show code"}
+                                                icon={
+                                                    <Icon
+                                                        as={showCode ? AiOutlineEyeInvisible : AiOutlineEye}
+                                                        color="gray.300"
+                                                    />
+                                                }
+                                                variant="ghost"
+                                                onClick={toggleCodeVisibility}
+                                                _hover={{ bg: "transparent" }}
+                                            />
+                                        </InputRightElement>
+                                    </InputGroup>
                                 </FormControl>
                             </VStack>
                         )}
@@ -533,7 +821,7 @@ function TeamTableAdmin() {
                         <Button colorScheme="blue" mr={3} onClick={saveEdit}>
                             Save Changes
                         </Button>
-                        <Button variant="ghost" onClick={onEditClose}>
+                        <Button variant="ghost" onClick={() => { onEditClose(); setSelectedResourceType(''); }}>
                             Cancel
                         </Button>
                     </ModalFooter>
@@ -600,18 +888,34 @@ function TeamTableAdmin() {
                             </Box>
                             <Box>
                                 <Text mb={1} fontWeight="medium">Password *</Text>
-                                <Input
-                                    type="password"
-                                    placeholder="Enter team password"
-                                    value={newTeam.password}
-                                    onChange={(e) => handleNewTeamChange('password', e.target.value)}
-                                />
+                                <InputGroup>
+                                    <Input
+                                        type={showCode ? "text" : "password"}
+                                        placeholder="Enter team password"
+                                        value={newTeam.password}
+                                        onChange={(e) => handleNewTeamChange('password', e.target.value)}
+                                    />
+                                    <InputRightElement h="full">
+                                        <IconButton
+                                            aria-label={showCode ? "Hide code" : "Show code"}
+                                            icon={
+                                                <Icon
+                                                    as={showCode ? AiOutlineEyeInvisible : AiOutlineEye}
+                                                    color="gray.300"
+                                                />
+                                            }
+                                            variant="ghost"
+                                            onClick={toggleCodeVisibility}
+                                            _hover={{ bg: "transparent" }}
+                                        />
+                                    </InputRightElement>
+                                </InputGroup>
                             </Box>
                             <Box>
                                 <Text mb={1} fontWeight="medium">Initial Credits</Text>
                                 <Input
                                     type="number"
-                                    placeholder="Enter initial credits (default: 20000)"
+                                    placeholder="Enter initial credits (default: 150000)"
                                     value={newTeam.credit}
                                     onChange={(e) => handleNewTeamChange('credit', e.target.value)}
                                 />
@@ -629,7 +933,7 @@ function TeamTableAdmin() {
                 </ModalContent>
             </Modal>
 
-        </Box>
+        </Box >
     )
 }
 

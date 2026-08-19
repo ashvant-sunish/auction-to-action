@@ -8,10 +8,11 @@ import TeamsManagementAdmin from '../../../Components/Admin/Content/TeamsManagem
 import BidHistoryAdmin from '../../../Components/Admin/Content/BidHistory.Admin';
 import RoundsAdmin from '../../../Components/Admin/Content/Rounds.Admin';
 import axios from 'axios';
-import serverUrl, { socketServerUrl } from '../../../servercon';
+import serverUrl from '../../../servercon';
 import { useNavigate } from 'react-router-dom';
 import socketService from '../../../services/socket';
 import { useRoundManager } from '../../../hooks/useRoundManager';
+import WorthCalculatorAdmin from '../../../Components/Admin/Content/WorthCalculator.Admin';
 
 function AdminDashboard() {
   const [TotalAdmins, setTotalAdmins] = React.useState(78);
@@ -137,6 +138,9 @@ function AdminDashboard() {
       break;
     case 'rounds':
       content = <RoundsAdmin ongoingRound={ongoingRound} setfile={setfile} />;
+      break;
+    case 'worthcalculator':
+      content = <WorthCalculatorAdmin />;
       break;
 
     default:

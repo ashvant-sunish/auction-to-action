@@ -87,8 +87,6 @@ function RoundOneBidHistory() {
             setData(data.filter(item => item._id !== selectedBid._id));
             onDeleteClose();
             setSelectedBid(null);
-            
-            console.log('✅ Bid history deleted successfully');
         } catch (err) {
             console.error('❌ Error deleting bid history:', err);
             setError('Failed to delete bid history. Please try again.');
@@ -122,7 +120,6 @@ function RoundOneBidHistory() {
             onEditClose();
             setEditingBid(null);
             
-            console.log('✅ Bid history updated successfully:', response.data);
         } catch (err) {
             console.error('❌ Error updating bid history:', err);
             setError('Failed to update bid history. Please try again.');

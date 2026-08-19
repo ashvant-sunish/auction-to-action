@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FrameImages } from './../../../../../utils/spinthewheelimagepath';
 import axios from 'axios';
-import { socketServerUrl } from '../../../../../servercon';
 import io from 'socket.io-client';
+import serverUrl from './../../../../../servercon';
 
 // Bid management functions
 function pickRandomBid(availableItems) {
@@ -51,7 +51,7 @@ export default function Spin3DCards({
       const adminToken = localStorage.getItem('adminToken');
       
       const response = await axios.get(
-        `${socketServerUrl}/api/admin/game-items/round/${round}`,
+        `${serverUrl}/api/admin/game-items/round/${round}`,
         {
           headers: {
             'Authorization': `Bearer ${adminToken}`,
@@ -61,13 +61,9 @@ export default function Spin3DCards({
       );
       
       if (response.data) {
-        console.log('🎯 Fetched game items response:', response.data);
-        console.log('📦 Available items sample:', response.data.availableItems?.slice(0, 3));
-        console.log('✅ Selected items sample:', response.data.selectedItems?.slice(0, 3));
         
         setAvailableItems(response.data.availableItems);
         setSelectedItems(response.data.selectedItems);
-        console.log('Loaded game items:', response.data);
       }
     } catch (error) {
       console.error('Error fetching game items:', error);
@@ -84,21 +80,18 @@ export default function Spin3DCards({
 
   // Socket.IO listener for real-time updates
   useEffect(() => {
-    const socket = io(socketServerUrl);
+    const socket = io(serverUrl);
     
     // Listen for new wheel events
     socket.on('wheelRandomSelection', (data) => {
-      console.log('🎯 Admin received wheel random selection:', data);
       
       if (data.round === round && data.sessionId !== sessionId) {
         // Another admin triggered a spin
-        console.log('🔄 Another admin triggered spin');
         fetchGameItems();
       }
     });
 
     socket.on('wheelConfirmation', (data) => {
-      console.log('✅ Admin received wheel confirmation:', data);
       
       if (data.round === round) {
         // An item was confirmed and removed
@@ -116,18 +109,15 @@ export default function Spin3DCards({
     });
 
     socket.on('wheelSkip', (data) => {
-      console.log('⏭️ Admin received wheel skip:', data);
       
       if (data.round === round && data.sessionId !== sessionId) {
         // Another admin skipped
-        console.log('🔄 Another admin skipped');
         fetchGameItems();
       }
     });
 
     // Legacy listeners for backward compatibility
     socket.on('wheelUpdate', (data) => {
-      console.log('🔄 Received wheel update (legacy):', data);
       
       if (data.action === 'itemSelected' && data.round === round) {
         fetchGameItems();
@@ -144,7 +134,6 @@ export default function Spin3DCards({
 
     // Listen for round item updates
     socket.on('roundItemUpdate', (data) => {
-      console.log('📡 Received round item update:', data);
       
       if (data.round === round) {
         fetchGameItems();
@@ -195,7 +184,6 @@ export default function Spin3DCards({
     if (!selection) return;
 
     const { item: selectedBid, index: selectedIndex } = selection;
-    console.log("🎉 Selected Bid:", selectedBid);
 
     // Set current selection
     setCurrentSelectedBid(selectedBid);
@@ -211,7 +199,7 @@ export default function Spin3DCards({
       };
 
       await axios.post(
-        `${socketServerUrl}/api/wheel/wheel-selection/random`,
+        `${serverUrl}/api/wheel/wheel-selection/random`,
         {
           round,
           itemDetails: {
@@ -237,7 +225,6 @@ export default function Spin3DCards({
         }
       );
 
-      console.log('✅ Random selection recorded in database');
     } catch (error) {
       console.error('❌ Error recording random selection:', error);
       // Continue with UI update even if database update fails
@@ -250,18 +237,10 @@ export default function Spin3DCards({
     // Animate to target position
     await animateToPosition(targetAngle);
 
-    // Show selected bid for display
-    console.log("Selected bid details:", selectedBid);
   };
   
   const handleSkipSelection = async () => {
     if (!currentSelectedBid) return;
-
-    console.log('⏭️ Skipping item:', {
-      itemId: currentSelectedBid.id,
-      itemCode: currentSelectedBid.itemCode,
-      bidNumber: currentSelectedBid.bidNumber
-    });
 
     // Record skip in database
     try {
@@ -274,7 +253,7 @@ export default function Spin3DCards({
       };
 
       await axios.post(
-        `${socketServerUrl}/api/wheel/wheel-selection/skip`,
+        `${serverUrl}/api/wheel/wheel-selection/skip`,
         {
           round,
           itemDetails: {
@@ -300,7 +279,6 @@ export default function Spin3DCards({
         }
       );
 
-      console.log('✅ Skip recorded in database');
     } catch (error) {
       console.error('❌ Error recording skip:', error);
       // Continue with UI update even if database update fails
@@ -309,8 +287,6 @@ export default function Spin3DCards({
     // Just skip the selection without making any backend calls
     // The item stays in item_list and is not moved to item_list_2
     
-    console.log('⏭️ Item skipped - staying in wheel for future selection');
-
     // Start transition
     setIsTransitioning(true);
     
@@ -340,15 +316,9 @@ export default function Spin3DCards({
     try {
       const adminToken = localStorage.getItem('adminToken');
       
-      console.log('Attempting to select item:', {
-        itemId: currentSelectedBid.id,
-        itemCode: currentSelectedBid.itemCode,
-        bidNumber: currentSelectedBid.bidNumber
-      });
-      
       // Move item from item_list to item_list_2 via backend
       const response = await axios.post(
-        `${socketServerUrl}/api/admin/game-items/select`,
+        `${serverUrl}/api/admin/game-items/select`,
         {
           itemCode: currentSelectedBid.itemCode,
           bidNumber: currentSelectedBid.bidNumber, // Use bidNumber field
@@ -362,7 +332,6 @@ export default function Spin3DCards({
         }
       );
 
-      console.log('Selection response:', response.data);
 
       if (response.status === 201) {
         // Remove from available items locally
@@ -378,7 +347,6 @@ export default function Spin3DCards({
           }]);
         }
 
-        console.log('✅ Item moved successfully from item_list to item_list_2');
         
         // Record confirmation in database
         try {
@@ -389,7 +357,7 @@ export default function Spin3DCards({
           };
 
           await axios.post(
-            `${socketServerUrl}/api/wheel/wheel-selection/confirm`,
+            `${serverUrl}/api/wheel/wheel-selection/confirm`,
             {
               round,
               itemDetails: {
@@ -415,7 +383,6 @@ export default function Spin3DCards({
             }
           );
 
-          console.log('✅ Confirmation recorded in database');
         } catch (dbError) {
           console.error('❌ Error recording confirmation:', dbError);
           // Continue with UI update even if database update fails
@@ -512,7 +479,6 @@ export default function Spin3DCards({
   useEffect(() => {
     // If the currently selected bid is no longer in available items, reset selection
     if (currentSelectedBid && !availableItems.find(item => item.id === currentSelectedBid.id)) {
-      console.log('🧹 Cleaning up selection state - item no longer available');
       setCurrentSelectedBid(null);
       setIsSelecting(false);
       setWheelStopped(false);

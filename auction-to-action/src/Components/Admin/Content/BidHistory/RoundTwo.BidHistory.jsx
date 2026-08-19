@@ -43,14 +43,6 @@ function RoundTwoBidHistory() {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            console.log('🔍 Round 2 API Response:', response.data);
-            console.log('🔍 Round 2 Data Length:', response.data?.length);
-            
-            // Log each bid's round number for debugging
-            response.data?.forEach((bid, index) => {
-                console.log(`Bid ${index + 1}: Round ${bid.round}, Item: ${bid.itemName}`);
-            });
-
             setData(response.data || []);
         } catch (err) {
             console.error('Error fetching bid history:', err);
@@ -96,7 +88,6 @@ function RoundTwoBidHistory() {
             onDeleteClose();
             setSelectedBid(null);
             
-            console.log('✅ Bid history deleted successfully');
         } catch (err) {
             console.error('❌ Error deleting bid history:', err);
             setError('Failed to delete bid history. Please try again.');
@@ -114,10 +105,13 @@ function RoundTwoBidHistory() {
 
             // Call API to update bid history
             const response = await axios.put(`${serverUrl}/api/admin/bid-history/${editingBid._id}`, {
-                itemName: editingBid.itemName,
+                mysteryBoxReward: editingBid.mysteryBoxReward,
+                rewardType: editingBid.rewardType,
                 bidAmount: editingBid.bidAmount,
                 teamName: editingBid.teamName,
-                teamCode: editingBid.teamCode
+                teamCode: editingBid.teamCode,
+                cashReward: editingBid.cashReward,
+                deductionAmount: editingBid.deductionAmount
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -130,7 +124,6 @@ function RoundTwoBidHistory() {
             onEditClose();
             setEditingBid(null);
             
-            console.log('✅ Bid history updated successfully:', response.data);
         } catch (err) {
             console.error('❌ Error updating bid history:', err);
             setError('Failed to update bid history. Please try again.');
@@ -175,7 +168,7 @@ function RoundTwoBidHistory() {
                     <Thead>
                         <Tr>
                             <Th>Sl No</Th>
-                            <Th>Item Name</Th>
+                            <Th>Mystery Box Reward</Th>
                             <Th>Bid Amount</Th>
                             <Th>Team</Th>
                             <Th>Action</Th>
@@ -192,7 +185,7 @@ function RoundTwoBidHistory() {
                             data.map((bid, index) => (
                                 <Tr key={bid._id}>
                                     <Td>{index + 1}</Td>
-                                    <Td>{bid.itemName || 'N/A'}</Td>
+                                    <Td>{bid.mysteryBoxReward || 'N/A'}</Td>
                                     <Td>₹{bid.bidAmount || 'N/A'}</Td>
                                     <Td>{bid.teamName || bid.teamCode || 'N/A'}</Td>
                                     <Td>
@@ -207,7 +200,7 @@ function RoundTwoBidHistory() {
                     <Tfoot>
                         <Tr>
                             <Th>Sl No</Th>
-                            <Th>Item Name</Th>
+                            <Th>Mystery Box Reward</Th>
                             <Th>Bid Amount</Th>
                             <Th>Team</Th>
                             <Th>Action</Th>
@@ -234,13 +227,44 @@ function RoundTwoBidHistory() {
                                     <Badge colorScheme="purple">{selectedBid.round}</Badge>
                                 </HStack>
                                 <HStack>
-                                    <Text fontWeight="bold">Item Code:</Text>
-                                    <Text>{selectedBid.itemCode || 'N/A'}</Text>
+                                    <Text fontWeight="bold">Mystery Box Reward:</Text>
+                                    <Text>{selectedBid.mysteryBoxReward || 'N/A'}</Text>
                                 </HStack>
                                 <HStack>
-                                    <Text fontWeight="bold">Item Name:</Text>
-                                    <Text>{selectedBid.itemName || 'N/A'}</Text>
+                                    <Text fontWeight="bold">Reward Type:</Text>
+                                    <Badge colorScheme={
+                                        selectedBid.rewardType === 'cash' ? 'green' :
+                                        selectedBid.rewardType === 'resources' ? 'blue' :
+                                        selectedBid.rewardType === 'challenge' ? 'orange' :
+                                        'gray'
+                                    }>
+                                        {selectedBid.rewardType || 'N/A'}
+                                    </Badge>
                                 </HStack>
+                                {selectedBid.cashReward > 0 && (
+                                    <HStack>
+                                        <Text fontWeight="bold">Cash Reward:</Text>
+                                        <Text color="green.500" fontWeight="semibold">₹{selectedBid.cashReward}</Text>
+                                    </HStack>
+                                )}
+                                {selectedBid.deductionAmount > 0 && (
+                                    <HStack>
+                                        <Text fontWeight="bold">Deduction Amount:</Text>
+                                        <Text color="red.500" fontWeight="semibold">₹{selectedBid.deductionAmount}</Text>
+                                    </HStack>
+                                )}
+                                {selectedBid.resourcesGained && Object.keys(selectedBid.resourcesGained).length > 0 && (
+                                    <VStack align="start">
+                                        <Text fontWeight="bold">Resources Gained:</Text>
+                                        <Box pl={4}>
+                                            {Object.entries(selectedBid.resourcesGained).map(([resource, amount]) => (
+                                                <Text key={resource}>
+                                                    {resource}: {amount}
+                                                </Text>
+                                            ))}
+                                        </Box>
+                                    </VStack>
+                                )}
                                 <HStack>
                                     <Text fontWeight="bold">Bid Amount:</Text>
                                     <Text color="green.500" fontWeight="semibold">₹{selectedBid.bidAmount || 'N/A'}</Text>
@@ -284,11 +308,24 @@ function RoundTwoBidHistory() {
                         {editingBid && (
                             <VStack spacing={4}>
                                 <FormControl>
-                                    <FormLabel>Item Name</FormLabel>
+                                    <FormLabel>Mystery Box Reward</FormLabel>
                                     <Input
-                                        value={editingBid.itemName || ''}
-                                        onChange={(e) => handleEditChange('itemName', e.target.value)}
+                                        value={editingBid.mysteryBoxReward || ''}
+                                        onChange={(e) => handleEditChange('mysteryBoxReward', e.target.value)}
                                     />
+                                </FormControl>
+                                <FormControl>
+                                    <FormLabel>Reward Type</FormLabel>
+                                    <Select
+                                        value={editingBid.rewardType || ''}
+                                        onChange={(e) => handleEditChange('rewardType', e.target.value)}
+                                    >
+                                        <option value="">Select Type</option>
+                                        <option value="cash">Cash</option>
+                                        <option value="resources">Resources</option>
+                                        <option value="challenge">Challenge</option>
+                                        <option value="nothing">Nothing</option>
+                                    </Select>
                                 </FormControl>
                                 <FormControl>
                                     <FormLabel>Bid Amount</FormLabel>
@@ -296,6 +333,22 @@ function RoundTwoBidHistory() {
                                         type="number"
                                         value={editingBid.bidAmount || ''}
                                         onChange={(e) => handleEditChange('bidAmount', e.target.value)}
+                                    />
+                                </FormControl>
+                                <FormControl>
+                                    <FormLabel>Cash Reward</FormLabel>
+                                    <Input
+                                        type="number"
+                                        value={editingBid.cashReward || ''}
+                                        onChange={(e) => handleEditChange('cashReward', e.target.value)}
+                                    />
+                                </FormControl>
+                                <FormControl>
+                                    <FormLabel>Deduction Amount</FormLabel>
+                                    <Input
+                                        type="number"
+                                        value={editingBid.deductionAmount || ''}
+                                        onChange={(e) => handleEditChange('deductionAmount', e.target.value)}
                                     />
                                 </FormControl>
                                 <FormControl>
@@ -341,7 +394,7 @@ function RoundTwoBidHistory() {
                             Are you sure you want to delete this bid? This action cannot be undone.
                             {selectedBid && (
                                 <Box mt={2} p={2} bg="gray.100" borderRadius="md">
-                                    <Text><strong>Item:</strong> {selectedBid.itemName}</Text>
+                                    <Text><strong>Mystery Box:</strong> {selectedBid.mysteryBoxReward}</Text>
                                     <Text><strong>Amount:</strong> ₹{selectedBid.bidAmount}</Text>
                                     <Text><strong>Team:</strong> {selectedBid.teamName}</Text>
                                 </Box>

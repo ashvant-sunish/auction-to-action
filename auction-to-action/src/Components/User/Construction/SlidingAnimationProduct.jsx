@@ -6,6 +6,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import axios from "axios";
 import productsData from "../../../assets/products-data.json";
 import cardsData from "../../../assets/cards-data.json";
 
@@ -14,6 +15,7 @@ import product2 from "../../../assets/images/Products/Product2.png";
 import product3 from "../../../assets/images/Products/Product3.png";
 import product4 from "../../../assets/images/Products/Product4.png";
 import product5 from "../../../assets/images/Products/Product5.png";
+import serverUrl from "./../../../servercon";
 
 const imageMap = {
   "Product1.png": product1,
@@ -35,8 +37,10 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   const [hoveredCard, setHoveredCard] = useState(null); // numeric id
   const [focusedIndex, setFocusedIndex] = useState(null);
 
-  // Mock owned enterprises - replace with actual data from backend/state
-  const [ownedEnterprises] = useState([1, 4, 6]); // Example: user owns enterprises 1, 4, 6
+  // Get owned enterprises and products from backend
+  const [ownedEnterprises, setOwnedEnterprises] = useState([]);
+  const [ownedProducts, setOwnedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const containerRef = useRef(null);
   const cardRefs = useRef([]);
@@ -44,14 +48,48 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   const hoveredCardRef = useRef(hoveredCard);
   const isScrollingRef = useRef(false);
 
+  // Fetch team inventory
+  const fetchTeamInventory = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.get(
+        `${serverUrl}/api/construction/inventory`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.enterprises) {
+        const enterpriseIds = response.data.enterprises.map((ent) =>
+          parseInt(ent.id)
+        );
+        setOwnedEnterprises(enterpriseIds);
+      }
+      if (response.data.products) {
+        setOwnedProducts(
+          response.data.products.map((prod) => parseInt(prod.id))
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching team inventory:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // normalize productsData and attach images
+  useEffect(() => {
+    fetchTeamInventory(); // Fetch inventory when component loads
+  }, []);
+
   useEffect(() => {
     const normalized = (Array.isArray(productsData) ? productsData : []).map(
       (product, i) => {
         const imageName = (product.imageUrl || "").split("/").pop();
-        const isAvailable = ownedEnterprises.includes(
-          product.requiredEnterpriseId
-        );
+        const requiredId = parseInt(product.requiredEnterpriseId);
+        const isAvailable = ownedEnterprises.includes(requiredId);
 
         return {
           ...product,
@@ -75,6 +113,9 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
     getActiveCard: () => {
       if (activeCard == null) return null;
       return cards.find((c) => c.id === activeCard) ?? null;
+    },
+    refreshComponent: () => {
+      fetchTeamInventory(); // Allow parent to refresh the inventory
     },
   }));
 
@@ -214,14 +255,15 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   );
 
   // Individual lock variables for each product (change to false to unlock)
-  const needsLock1 = false; // Product 1 unlocked
-  const needsLock2 = true;
-  const needsLock3 = true;
-  const needsLock4 = true;
-  const needsLock5 = true;
+  // Now using availability check instead of hardcoded locks
+  const needsLock1 = !cards[0]?.isAvailable;
+  const needsLock2 = !cards[1]?.isAvailable;
+  const needsLock3 = !cards[2]?.isAvailable;
+  const needsLock4 = !cards[3]?.isAvailable;
+  const needsLock5 = !cards[4]?.isAvailable;
 
   // Local variable to lock all cards (set to false to unlock all)
-  const allLocked = true; // TODO: Replace with backend value
+  const allLocked = false; // Unlock all cards
 
   const handleCardClick = useCallback(
     (cardId, idx, event) => {
@@ -232,25 +274,17 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
 
       if (isScrollingRef.current) return;
 
-      // Assign lock state per product
-      let isLocked = false;
-      if (idx === 0) isLocked = needsLock1;
-      else if (idx === 1) isLocked = needsLock2;
-      else if (idx === 2) isLocked = needsLock3;
-      else if (idx === 3) isLocked = needsLock4;
-      else if (idx === 4) isLocked = needsLock5;
-
-      if (isLocked) return; // Prevent interaction if locked
-
-      stopScrolling();
-
       const card = cards.find((c) => c.id === cardId);
 
-      // Only allow selection of available products
-      if (!card?.isAvailable) {
+      // Use availability check instead of hardcoded locks
+      const isLocked = !card?.isAvailable;
+
+      if (isLocked) {
         console.log("Product not available - required enterprise not owned");
         return;
       }
+
+      stopScrolling();
 
       if (activeCardRef.current === cardId) {
         // deselect
@@ -361,9 +395,6 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   }, [cards]);
 
   const styles = `
-    .page-header { text-align:center; margin-bottom:0.8rem; }
-    .page-title { font-size:1.4rem; font-weight:700; color:#2d3748; margin:0; }
-
     .card-container-wrapper { position: relative; width: 100%; }
     .card-container {
       width: 100%;
@@ -399,9 +430,9 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       background-position: center;
     }
     .card-image.unavailable {
-      opacity: 0.5;
+      opacity: 0.7;
       cursor: not-allowed;
-      filter: grayscale(0.7);
+      filter: grayscale(0.4);
     }
     .card-image::before {
       content: '';
@@ -412,7 +443,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       pointer-events: none;
     }
     .card-image.unavailable::before {
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.3) 70%);
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.2) 70%);
     }
     .card-image.expanded { width: 360px; transform: translateY(-3px); }
     .card-image.unavailable.expanded { transform: translateY(0px); }
@@ -511,9 +542,6 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
   return (
     <div>
       <style>{styles}</style>
-      <div className="page-header">
-        <h2 className="page-title">Available Products</h2>
-      </div>
 
       <div className="card-container-wrapper">
         <div
@@ -523,13 +551,8 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
           ref={containerRef}
         >
           {cards.map((card, idx) => {
-            // Assign lock state per product
-            let isLocked = false;
-            if (idx === 0) isLocked = needsLock1;
-            else if (idx === 1) isLocked = needsLock2;
-            else if (idx === 2) isLocked = needsLock3;
-            else if (idx === 3) isLocked = needsLock4;
-            else if (idx === 4) isLocked = needsLock5;
+            // Use availability check instead of hardcoded locks
+            const isLocked = !card.isAvailable;
 
             const isActive = activeCard === card.id;
             const isHovered = hoveredCard === card.id;

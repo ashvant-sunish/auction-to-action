@@ -24,7 +24,7 @@ import {
   AlertDescription,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { socketServerUrl } from "../../../../servercon";
+import serverUrl from './../../../../servercon';
 
 // Function to generate MongoDB-style ObjectId
 const generateObjectId = () => {
@@ -58,7 +58,8 @@ function Round3() {
     "Technology",
     "Electricity Supply",
     "Utilities",
-    "Office Space"
+    "Office Space",
+    "Transportation"
   ];
 
   // Auto-fetch team data when team code is entered
@@ -96,7 +97,7 @@ function Round3() {
 
       // Fetch team data by team code
       const response = await axios.get(
-        `${socketServerUrl}/api/admin/teams?teamCode=${teamCode}`,
+        `${serverUrl}/api/admin/teams?teamCode=${teamCode}`,
         {
           headers: {
             'Authorization': `Bearer ${adminToken}`,
@@ -108,9 +109,6 @@ function Round3() {
       if (response.data && response.data.length > 0) {
         const teamData = response.data[0]; // Get first matching team
         
-        // Debug log to check what's happening
-        console.log(`Fetching team data for ${teamType}:`, teamData);
-        
         setFormData(prev => {
           const newFormData = { ...prev };
           newFormData[teamType] = {
@@ -118,7 +116,6 @@ function Round3() {
             teamName: teamData.teamName,
             teamNumber: teamData.teamNumber || teamData._id
           };
-          console.log(`Updated ${teamType}:`, newFormData[teamType]);
           return newFormData;
         });
 
@@ -234,12 +231,14 @@ function Round3() {
     newItems[index][field] = value;
     setTeamOneItems(newItems);
     
-    // Update form data
+    // Update form data - only include items with both name and quantity > 0
+    const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
+    
     setFormData(prev => ({
       ...prev,
       teamOneGives: {
         ...prev.teamOneGives,
-        items: newItems.filter(item => item.name) // Only include items with names
+        items: validItems
       }
     }));
   };
@@ -250,12 +249,14 @@ function Round3() {
     newItems[index][field] = value;
     setTeamTwoItems(newItems);
     
-    // Update form data
+    // Update form data - only include items with both name and quantity > 0
+    const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
+    
     setFormData(prev => ({
       ...prev,
       teamTwoGives: {
         ...prev.teamTwoGives,
-        items: newItems.filter(item => item.name) // Only include items with names
+        items: validItems
       }
     }));
   };
@@ -275,11 +276,13 @@ function Round3() {
     if (teamOneItems.length > 1) {
       const newItems = teamOneItems.filter((_, i) => i !== index);
       setTeamOneItems(newItems);
+      
+      const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
       setFormData(prev => ({
         ...prev,
         teamOneGives: {
           ...prev.teamOneGives,
-          items: newItems.filter(item => item.name)
+          items: validItems
         }
       }));
     }
@@ -289,11 +292,13 @@ function Round3() {
     if (teamTwoItems.length > 1) {
       const newItems = teamTwoItems.filter((_, i) => i !== index);
       setTeamTwoItems(newItems);
+      
+      const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
       setFormData(prev => ({
         ...prev,
         teamTwoGives: {
           ...prev.teamTwoGives,
-          items: newItems.filter(item => item.name)
+          items: validItems
         }
       }));
     }
@@ -308,6 +313,56 @@ function Round3() {
         money: parseInt(value) || 0
       }
     }));
+  };
+
+  // Update wishlists after trade
+  const updateWishlists = async (tradeData, adminToken) => {
+    try {
+      
+      // Update Team 1's wishlist - remove items they gave
+      if (tradeData.teamOneGives.items.length > 0) {
+        await axios.put(
+          `${serverUrl}/api/admin/update-team-wishlist`,
+          {
+            teamCode: tradeData.teamOne.teamCode,
+            itemsToRemove: tradeData.teamOneGives.items
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
+
+      // Update Team 2's wishlist - remove items they gave
+      if (tradeData.teamTwoGives.items.length > 0) {
+        await axios.put(
+          `${serverUrl}/api/admin/update-team-wishlist`,
+          {
+            teamCode: tradeData.teamTwo.teamCode,
+            itemsToRemove: tradeData.teamTwoGives.items
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
+      
+    } catch (error) {
+      console.error('❌ Error updating wishlists:', error);
+      toast({
+        title: "Wishlist Update Warning",
+        description: "Trade completed but wishlist update failed. Please refresh manually.",
+        status: "warning",
+        duration: 4000,
+        isClosable: true,
+      });
+    }
   };
 
   // Execute trade
@@ -352,34 +407,49 @@ function Round3() {
         return;
       }
 
-      // Prepare trade data in the expected format
-      const tradeData = {
-        tradeId: formData.tradeId,
-        teamOne: {
-          teamCode: formData.teamOne.teamCode,
-          teamName: formData.teamOne.teamName
-        },
-        teamTwo: {
-          teamCode: formData.teamTwo.teamCode,
-          teamName: formData.teamTwo.teamName
-        },
+      // Ensure form data is up to date with latest items before sending
+      const finalTeamOneItems = teamOneItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
+      const finalTeamTwoItems = teamTwoItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
+      
+      // Update formData with final items
+      const updatedFormData = {
+        ...formData,
         teamOneGives: {
-          items: formData.teamOneGives.items || [],
-          money: formData.teamOneGives.money || 0
+          ...formData.teamOneGives,
+          items: finalTeamOneItems
         },
         teamTwoGives: {
-          items: formData.teamTwoGives.items || [],
-          money: formData.teamTwoGives.money || 0
+          ...formData.teamTwoGives,
+          items: finalTeamTwoItems
+        }
+      };
+
+      // Prepare trade data in the expected format
+      const tradeData = {
+        tradeId: updatedFormData.tradeId,
+        round: 3, // Add round number for Round 3 trades
+        teamOne: {
+          teamCode: updatedFormData.teamOne.teamCode,
+          teamName: updatedFormData.teamOne.teamName
+        },
+        teamTwo: {
+          teamCode: updatedFormData.teamTwo.teamCode,
+          teamName: updatedFormData.teamTwo.teamName
+        },
+        teamOneGives: {
+          items: updatedFormData.teamOneGives.items || [],
+          money: updatedFormData.teamOneGives.money || 0
+        },
+        teamTwoGives: {
+          items: updatedFormData.teamTwoGives.items || [],
+          money: updatedFormData.teamTwoGives.money || 0
         },
         executedBy: JSON.parse(localStorage.getItem('adminUser'))?.username || 'Admin'
       };
 
-      console.log('Sending trade data:', tradeData); // Debug log
-      console.log('Form data before preparing:', formData); // Debug log
-
       // Execute trade via API
       const response = await axios.post(
-        `${socketServerUrl}/api/trade/execute`,
+        `${serverUrl}/api/trade/execute`,
         tradeData,
         {
           headers: {
@@ -397,6 +467,9 @@ function Round3() {
           duration: 5000,
           isClosable: true,
         });
+
+        // Update wishlists - remove traded items from giving teams
+        await updateWishlists(updatedFormData, adminToken);
 
         // Reset form with new auto-generated trade ID
         setFormData({

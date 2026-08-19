@@ -1,4 +1,3 @@
-//sidebar
 import React from "react";
 import {
   Box,
@@ -11,6 +10,7 @@ import {
   Flex,
   IconButton,
   Tooltip,
+  Img,
 } from "@chakra-ui/react";
 import {
   MdDashboard,
@@ -21,10 +21,12 @@ import {
 } from "react-icons/md";
 import { RiAuctionLine } from "react-icons/ri";
 import { FaHardHat } from "react-icons/fa";
+import logo from "../../assets/images/csedlogo/csedwhite.png"; // Import the logo image
+
 
 const CsedLogo = () => (
   <Heading size="md" color="white" letterSpacing="wider">
-    CSED
+    <Img src={logo} alt="CSED Logo" />
   </Heading>
 );
 
@@ -38,7 +40,7 @@ const Sidebar = ({
   const navItems = [
     { name: "Dashboard", icon: MdDashboard, key: "dashboard" },
     { name: "Auction Rounds", icon: RiAuctionLine, key: "rounds" },
-    { name: "My Bidding History", icon: MdHistory, key: "my-bids" },
+    { name: "My History", icon: MdHistory, key: "my-bids" },
     { name: "Trading Market", icon: MdGroups, key: "trading-market" },
     {
       name: "Enterprise Construction",
@@ -55,14 +57,16 @@ const Sidebar = ({
       left="0"
       h="full"
       w={isCollapsed ? "80px" : "260px"}
-      bg="#0f3b3d"
+      bg="rgba(15, 59, 61, 0.5)"
+      backdropFilter="blur(10px)"
       color="white"
       p={4}
       display={{ base: "none", md: "block" }}
       transition="width 0.2s ease-in-out"
+      borderRight="1px solid"
+      borderColor="rgba(255, 255, 255, 0.2)"
     >
       <VStack align="stretch" spacing={4} h="full">
-        {/* Header with logo and working toggle button */}
         <Flex align="center" justify={isCollapsed ? "center" : "space-between"}>
           {!isCollapsed && <CsedLogo />}
           <IconButton
@@ -76,7 +80,7 @@ const Sidebar = ({
           />
         </Flex>
 
-        <Divider borderColor="gray.600" />
+        <Divider borderColor="rgba(255, 255, 255, 0.2)" />
 
         <VStack align="stretch" spacing={2} mt={4}>
           {navItems.map((item) => (
@@ -86,6 +90,8 @@ const Sidebar = ({
               placement="right"
               isDisabled={!isCollapsed}
               hasArrow
+              bg="gray.800"
+              color="white"
             >
               <Link
                 onClick={() => setActiveComponent(item.key)}

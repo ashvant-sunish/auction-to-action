@@ -1,6 +1,6 @@
 import { Box, Tab, TabList, Tabs, Toast } from "@chakra-ui/react";
 import React, { useState } from "react";
-import Round2 from "./Rounds/Round2";
+import Round2 from "./Rounds/Round2.jsx";
 import Round3 from "./Rounds/Round3";
 import Round1 from "./Rounds/Round1";
 

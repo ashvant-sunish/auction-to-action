@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { socketServerUrl } from '../servercon';
+import serverUrl from './../servercon';
 // Admin API functions that trigger real-time updates via Socket.IO
 
 
@@ -14,7 +14,7 @@ export const updateRoundRealtime = async (roundNumber, roundStatus = 'ongoing') 
     const token = localStorage.getItem('adminToken');
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     
-    const response = await axios.post(`${socketServerUrl}/admin/updateRound`, {
+    const response = await axios.post(`${serverUrl}/admin/updateRound`, {
       roundNumber,
       roundStatus,
       timestamp: new Date().toISOString()
@@ -48,7 +48,7 @@ export const updateTeamRealtime = async (teamNumber, {
     const token = localStorage.getItem('adminToken');
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     
-    const response = await axios.post(`${socketServerUrl}/admin/updateTeam`, {
+    const response = await axios.post(`${serverUrl}/admin/updateTeam`, {
       teamNumber,
       creditChange,
       debitChange,
@@ -82,7 +82,7 @@ export const executeTradeRealtime = async (teamA, teamB, {
     const token = localStorage.getItem('adminToken');
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     
-    const response = await axios.post(`${socketServerUrl}/admin/trade`, {
+    const response = await axios.post(`${serverUrl}/admin/trade`, {
       teamA,
       teamB,
       itemFromA,
