@@ -91,11 +91,27 @@ exports.loginTeam = async (req, res) => {
     if (await bcrypt.compare(password, team.password)) {
       // Set team as active on successful login
       
-      if (team.isActive){
-        return res.status(400).json({ message: 'Team is already logged in from another session.' });
+      if (team.isActive) {
+        // Check whether the existing session has expired (stale session check).
+        // sessionExpiry is set to the JWT expiry time on login.
+        // If it has passed, the old browser/window is gone and we can allow re-login.
+        const sessionIsStale =
+          !team.sessionExpiry || new Date() > new Date(team.sessionExpiry);
+
+        if (!sessionIsStale) {
+          return res.status(400).json({ message: 'Team is already logged in from another session.' });
+        }
+        // Stale session — fall through and allow the new login
       }
 
+      // Session expires in 15 minutes of inactivity.
+      // The frontend sends a heartbeat every 5 min to refresh this while the tab is open.
+      // If the tab is closed (no heartbeat) the session naturally becomes stale after 15 min.
+      const INACTIVE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+      const sessionExpiry = new Date(Date.now() + INACTIVE_TIMEOUT_MS);
+
       team.isActive = true;
+      team.sessionExpiry = sessionExpiry;
       await team.save();
 
       const token = jwt.sign(
@@ -125,8 +141,9 @@ exports.logoutTeam = async (req, res) => {
       return res.status(404).json({ message: 'Team not found.' });
     }
 
-    // Set team as inactive on logout
+    // Set team as inactive on logout and clear the session expiry
     team.isActive = false;
+    team.sessionExpiry = null;
     await team.save();
 
     res.status(200).json({ 
@@ -139,3 +156,19 @@ exports.logoutTeam = async (req, res) => {
   }
 };
 
+/**
+ * Heartbeat — called by the frontend every 5 minutes while the tab is open.
+ * Refreshes sessionExpiry so the session stays alive during active use.
+ * If the tab is closed and no heartbeat arrives, sessionExpiry lapses in ≤15 min.
+ */
+exports.heartbeatTeam = async (req, res) => {
+  try {
+    const INACTIVE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+    const sessionExpiry = new Date(Date.now() + INACTIVE_TIMEOUT_MS);
+    await Team.findByIdAndUpdate(req.user.teamId, { sessionExpiry });
+    res.status(200).json({ ok: true });
+  } catch (error) {
+    console.error('❌ Error during heartbeat:', error);
+    res.status(500).json({ message: 'Server error during heartbeat.' });
+  }
+};

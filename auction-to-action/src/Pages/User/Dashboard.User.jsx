@@ -48,11 +48,29 @@ function UserDashboard() {
     fetchTeamData();
     fetchCurrentRound();
 
+    // Refresh team data every 30 seconds
     const refreshInterval = setInterval(fetchTeamData, 30000);
+
+    // Send a heartbeat every 5 minutes to keep the session alive.
+    // If this tab is closed, heartbeats stop and the session expires in ≤15 min.
+    const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+    const sendHeartbeat = async () => {
+      try {
+        const t = localStorage.getItem('token');
+        if (t) {
+          await axios.post(`${serverUrl}/api/team/heartbeat`, {}, {
+            headers: { Authorization: `Bearer ${t}` }
+          });
+        }
+      } catch (_) { /* silent — non-critical */ }
+    };
+    sendHeartbeat(); // immediate on mount
+    const heartbeatInterval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
 
     return () => {
       socketService.disconnect();
       clearInterval(refreshInterval);
+      clearInterval(heartbeatInterval);
     };
   }, [navigate]);
 
@@ -68,10 +86,10 @@ function UserDashboard() {
   }, [teamData]);
 
   useEffect(() => {
-    if (teamData?.teamNumber) {
-      socketService.joinTeam(teamData.teamNumber);
+    if (teamData?.teamCode) {
+      socketService.joinTeam(teamData.teamCode);
     }
-  }, [teamData?.teamNumber]);
+  }, [teamData?.teamCode]);
 
   const processRoundData = (roundData) => {
     const { roundNumber, roundStatus } = roundData;
@@ -189,8 +207,8 @@ function UserDashboard() {
       console.error("Error during logout:", error);
     }
 
-    if (teamData?.teamNumber) {
-      socketService.leaveTeam(teamData.teamNumber);
+    if (teamData?.teamCode) {
+      socketService.leaveTeam(teamData.teamCode);
     }
     socketService.disconnect();
     localStorage.removeItem("token");
