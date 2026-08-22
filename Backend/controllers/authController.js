@@ -104,10 +104,10 @@ exports.loginTeam = async (req, res) => {
         // Stale session — fall through and allow the new login
       }
 
-      // Session expires in 15 minutes of inactivity.
+      // Session expires in 10 minutes of inactivity.
       // The frontend sends a heartbeat every 5 min to refresh this while the tab is open.
-      // If the tab is closed (no heartbeat) the session naturally becomes stale after 15 min.
-      const INACTIVE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+      // If the tab is closed (no heartbeat) the session naturally becomes stale after 10 min.
+      const INACTIVE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
       const sessionExpiry = new Date(Date.now() + INACTIVE_TIMEOUT_MS);
 
       team.isActive = true;
@@ -159,11 +159,11 @@ exports.logoutTeam = async (req, res) => {
 /**
  * Heartbeat — called by the frontend every 5 minutes while the tab is open.
  * Refreshes sessionExpiry so the session stays alive during active use.
- * If the tab is closed and no heartbeat arrives, sessionExpiry lapses in ≤15 min.
+ * If the tab is closed and no heartbeat arrives, sessionExpiry lapses in ≤10 min.
  */
 exports.heartbeatTeam = async (req, res) => {
   try {
-    const INACTIVE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+    const INACTIVE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
     const sessionExpiry = new Date(Date.now() + INACTIVE_TIMEOUT_MS);
     await Team.findByIdAndUpdate(req.user.teamId, { sessionExpiry });
     res.status(200).json({ ok: true });

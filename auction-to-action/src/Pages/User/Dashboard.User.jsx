@@ -52,7 +52,7 @@ function UserDashboard() {
     const refreshInterval = setInterval(fetchTeamData, 30000);
 
     // Send a heartbeat every 5 minutes to keep the session alive.
-    // If this tab is closed, heartbeats stop and the session expires in ≤15 min.
+    // If this tab is closed, heartbeats stop and the session expires in ≤10 min.
     const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
     const sendHeartbeat = async () => {
       try {

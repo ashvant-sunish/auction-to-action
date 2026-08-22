@@ -109,17 +109,27 @@ io.on('connection', (socket) => {
     socketTeamMap.delete(socket.id);
     console.log(`🔌 Client disconnected: ${socket.id}${teamCode ? ` (team: ${teamCode})` : ''}`);
 
-    // If this socket was associated with a team, mark that team as logged out
+    // If this socket was associated with a team, wait a short moment to see if they reconnect (e.g. page refresh).
+    // If they don't reconnect within 5 seconds, assume the tab was permanently closed and log them out immediately.
     if (teamCode) {
-      try {
-        await Team.findOneAndUpdate(
-          { teamCode },
-          { isActive: false, sessionExpiry: null }
-        );
-        console.log(`✅ Session cleared for team ${teamCode} after disconnect`);
-      } catch (err) {
-        console.error(`❌ Failed to clear session for team ${teamCode}:`, err.message);
-      }
+      setTimeout(async () => {
+        // Check if there are any active sockets remaining for this team
+        const activeSockets = Array.from(socketTeamMap.values()).filter(code => code === teamCode);
+        
+        if (activeSockets.length === 0) {
+          try {
+            await Team.findOneAndUpdate(
+              { teamCode },
+              { isActive: false, sessionExpiry: null }
+            );
+            console.log(`✅ Session cleared for team ${teamCode} after tab close`);
+          } catch (err) {
+            console.error(`❌ Failed to clear session for team ${teamCode}:`, err.message);
+          }
+        } else {
+          console.log(`🔄 Session kept alive for team ${teamCode} (reconnected)`);
+        }
+      }, 5000);
     }
   });
 });
