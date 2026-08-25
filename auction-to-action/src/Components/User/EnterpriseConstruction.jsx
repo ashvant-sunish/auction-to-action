@@ -22,7 +22,7 @@ const EnterpriseConstruction = ({ gameState }) => {
       setNotification(
         `Please select a ${
           activeTab === "enterprises" ? "enterprise" : "product"
-        } first.`
+        } first.`,
       );
       setTimeout(() => setNotification(""), 5000);
       return;
@@ -96,10 +96,10 @@ const EnterpriseConstruction = ({ gameState }) => {
       position: fixed;
       top: 1.25rem;
       right: 1.25rem;
-      background: rgba(15, 59, 61, 0.9);
+      background: rgba(232, 255, 0, 0.9);
       backdropFilter: blur(15px);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
+      color: #080b0f;
       padding: 0.75rem 1.25rem;
       border-radius: 0.75rem;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -123,44 +123,32 @@ const EnterpriseConstruction = ({ gameState }) => {
     
     .tab-button {
       flex: 1;
-      padding: 12px 24px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(15, 59, 61, 0.3);
+      padding: 16px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(13, 17, 23, 0.6);
       backdropFilter: blur(10px);
-      color: rgba(255, 255, 255, 0.7);
-      font-weight: 600;
-      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
-      border-radius: 8px;
+      border-radius: 0;
     }
     
     .tab-button:hover {
-      background: rgba(15, 59, 61, 0.5);
-      color: rgba(255, 255, 255, 0.9);
-      border-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-1px);
+      background: rgba(13, 17, 23, 0.8);
+      color: white;
+      border-color: rgba(255, 255, 255, 0.1);
     }
     
     .tab-button.active {
-      background: rgba(15, 59, 61, 0.8);
-      backdropFilter: blur(15px);
-      color: white;
-      border-color: rgba(255, 255, 255, 0.4);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(15, 59, 61, 0.4);
-    }
-    
-    .tab-button.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), rgba(107, 163, 190, 0.8));
-      border-radius: 0 0 8px 8px;
+      background: rgba(255, 255, 255, 0.02);
+      color: #e8ff00;
+      border-color: rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid #e8ff00;
     }
     
     .content-container {
@@ -210,7 +198,7 @@ const EnterpriseConstruction = ({ gameState }) => {
           buttonText={
             activeTab === "enterprises"
               ? "Construct Enterprise"
-              : "Purchase Product"
+              : "Manufacture Product"
           }
         />
       </div>

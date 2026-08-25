@@ -574,16 +574,23 @@ export default function Spin3DCards({
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
-      .spin3d-stage{ perspective:1200px; width:100%; height:600px; display:flex; align-items:center; justify-content:center; position:relative; }
+      .spin3d-stage { 
+        perspective: 1200px; 
+        width: 100%; 
+        height: calc(100vh - 100px); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        position: relative; 
+        background: radial-gradient(circle at center, rgba(13, 17, 23, 0) 0%, rgba(8, 11, 15, 0.95) 100%), #080b0f;
+        overflow: hidden;
+      }
       .spin3d-wrapper{ position:relative; width:100%; height:100%; max-width:1100px; }
       .carousel{ position:absolute; left:50%; top:50%; transform-style:preserve-3d; transform:translate(-50%, -50%) rotateX(-10deg); }
-      .card{ position:absolute; width: ${safeCardWidth}px; height: ${safeCardHeight}px; left:50%; top:50%; transform-origin:center center; transform-style:preserve-3d; margin:-${safeCardHeight / 2
-      }px 0 0 -${safeCardWidth / 2
-      }px; cursor:pointer; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms, opacity 300ms, z-index 0ms; overflow: hidden; }
-      .card-inner{ width:100%; height:100%; border-radius:12px; overflow:hidden; backface-visibility:hidden; display:flex; align-items:flex-end; justify-content:center; font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0.15)); box-shadow: 0 8px 18px rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); }
+      .card{ position:absolute; width: ${safeCardWidth}px; height: ${safeCardHeight}px; left:50%; top:50%; transform-origin:center center; transform-style:preserve-3d; margin:-${safeCardHeight / 2}px 0 0 -${safeCardWidth / 2}px; cursor:pointer; transition: transform 300ms cubic-bezier(.2,.9,.2,1), box-shadow 300ms, opacity 300ms, z-index 0ms; overflow: hidden; }
+      .card-inner{ width:100%; height:100%; border-radius:12px; overflow:hidden; backface-visibility:hidden; display:flex; align-items:flex-end; justify-content:center; font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.25)); box-shadow: 0 8px 18px rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); }
       .card .face{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px; color:#fff; padding:16px; box-sizing:border-box; }
-      .card.front{ transform: translateZ(${safeRadius + 40
-      }px) scale(1.08); z-index:50; box-shadow: 0 18px 40px rgba(0,0,0,0.5); }
+      .card.front{ transform: translateZ(${safeRadius + 40}px) scale(1.08); z-index:50; box-shadow: 0 18px 40px rgba(0,0,0,0.5); }
     `;
 
     if (existingStyle) {
@@ -717,28 +724,40 @@ export default function Spin3DCards({
 
   return (
     <div className="spin3d-stage" ref={stageRef}>
-      {/* Selected Item Banner */}
+      {/* Selected Item Presentation */}
       {currentSelectedBid && wheelStopped && (
         <div
           style={{
             position: "absolute",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
+            top: "40px",
+            left: "40px",
             zIndex: 200,
-            background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
-            color: "#1a1a1a",
-            padding: "12px 24px",
-            borderRadius: "30px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            boxShadow: "0 8px 32px rgba(251, 191, 36, 0.4)",
-            border: "2px solid rgba(255,255,255,0.3)",
-            animation: "pulse 2s infinite",
+            background: "rgba(13, 17, 23, 0.85)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(232, 255, 0, 0.3)",
+            borderLeft: "4px solid #e8ff00",
+            padding: "30px 40px",
+            borderRadius: "0 16px 16px 0",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.5), 0 0 40px rgba(232, 255, 0, 0.1)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+            animation: "pulse 3s infinite",
+            maxWidth: "350px",
           }}
         >
-          🎉 SELECTED: {currentSelectedBid.title} - ₹
-          {currentSelectedBid.basePrice}
+          <div style={{ fontSize: "14px", color: "gray", letterSpacing: "widest", textTransform: "uppercase" }}>
+            Current Lot
+          </div>
+          <div style={{ fontSize: "64px", fontWeight: "300", color: "#e8ff00", lineHeight: "1", fontFamily: "'Inter', sans-serif" }}>
+            {currentSelectedBid.bidNo || currentSelectedBid.bidNumber}
+          </div>
+          <div style={{ fontSize: "20px", fontWeight: "600", color: "white", marginTop: "10px", lineHeight: "1.2" }}>
+            {currentSelectedBid.title}
+          </div>
+          <div style={{ fontSize: "24px", color: "#b8d000", fontWeight: "300", marginTop: "10px" }}>
+            ₹{currentSelectedBid.basePrice?.toLocaleString()}
+          </div>
         </div>
       )}
 
@@ -746,33 +765,27 @@ export default function Spin3DCards({
       <div
         style={{
           position: "absolute",
-          top: "10px",
-          right: "10px",
+          top: "40px",
+          right: "40px",
           zIndex: 100,
-          padding: "8px 12px",
-          borderRadius: "20px",
-          fontSize: "12px",
-          fontWeight: "bold",
-          background: socketConnected
-            ? "linear-gradient(135deg, #22c55e, #16a34a)"
-            : "linear-gradient(135deg, #ef4444, #dc2626)",
-          color: "white",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
           display: "flex",
           alignItems: "center",
-          gap: "6px",
+          gap: "8px",
         }}
       >
+        <div style={{ fontSize: "12px", color: socketConnected ? "#e8ff00" : "gray", letterSpacing: "widest", fontWeight: "600" }}>
+          {socketConnected ? "SYSTEM LIVE" : "OFFLINE"}
+        </div>
         <div
           style={{
             width: "8px",
             height: "8px",
             borderRadius: "50%",
-            background: "white",
+            background: socketConnected ? "#e8ff00" : "red",
+            boxShadow: socketConnected ? "0 0 10px #e8ff00" : "none",
             animation: socketConnected ? "pulse 2s infinite" : "none",
           }}
         ></div>
-        {socketConnected ? "LIVE" : "DISCONNECTED"}
       </div>
 
       {/* Spinning Indicator */}
@@ -788,8 +801,9 @@ export default function Spin3DCards({
             borderRadius: "20px",
             fontSize: "14px",
             fontWeight: "bold",
-            background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-            color: "white",
+            background: "linear-gradient(135deg, rgba(232,255,0,0.2), rgba(200,224,0,0.15))",
+            color: "#e8ff00",
+            border: "1px solid rgba(232,255,0,0.4)",
             boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
             display: "flex",
             alignItems: "center",
@@ -800,8 +814,8 @@ export default function Spin3DCards({
             style={{
               width: "12px",
               height: "12px",
-              border: "2px solid rgba(255,255,255,0.3)",
-              borderTop: "2px solid white",
+              border: "2px solid rgba(232,255,0,0.3)",
+              borderTop: "2px solid #e8ff00",
               borderRadius: "50%",
               animation: "spin 1s linear infinite",
             }}
@@ -819,7 +833,8 @@ export default function Spin3DCards({
             left: "50%",
             transform: "translate(-50%, -50%)",
             zIndex: 200,
-            background: "rgba(0,0,0,0.8)",
+            background: "rgba(13,17,23,0.95)",
+            border: "1px solid rgba(255,255,255,0.08)",
             color: "white",
             padding: "20px 40px",
             borderRadius: "12px",
@@ -841,7 +856,8 @@ export default function Spin3DCards({
             left: "50%",
             transform: "translate(-50%, -50%)",
             zIndex: 200,
-            background: "rgba(255,255,255,0.1)",
+            background: "rgba(13,17,23,0.95)",
+            border: "1px solid rgba(255,255,255,0.08)",
             color: "white",
             padding: "20px 40px",
             borderRadius: "12px",

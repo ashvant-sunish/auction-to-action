@@ -276,10 +276,8 @@ function UserDashboard() {
     <Flex
       h="100vh"
       overflow="hidden"
-      bgImage={`url(${dashboardBg})`}
-      bgSize="cover"
-      bgPosition="center"
-      bgRepeat="no-repeat"
+      className="user-app-root"
+      bg="#080b0f"
     >
       {showRules && (
         <RulesUser onClose={handleCloseRules} isFirstTime={isFirstTimeLogin} />
@@ -294,8 +292,7 @@ function UserDashboard() {
       <Box
         flex="1"
         ml={{ base: 0, md: isSidebarCollapsed ? "80px" : "260px" }}
-        bg="rgba(0, 0, 0, 0.3)"
-        backdropFilter="blur(2px)"
+        bg="transparent"
         h="100vh"
         overflow="hidden"
         transition="margin-left 0.2s ease-in-out"
@@ -327,13 +324,13 @@ function UserDashboard() {
             overflowY="auto"
             css={{
               "&::-webkit-scrollbar": { width: "8px" },
-              "&::-webkit-scrollbar-track": { background: "transparent" },
+              "&::-webkit-scrollbar-track": { background: "rgba(0, 0, 0, 0.2)" },
               "&::-webkit-scrollbar-thumb": {
-                background: "rgba(255, 255, 255, 0.2)",
+                background: "rgba(255, 255, 255, 0.1)",
                 borderRadius: "8px",
               },
               "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(255, 255, 255, 0.3)",
+                background: "rgba(232, 255, 0, 0.3)",
               },
             }}
           >
