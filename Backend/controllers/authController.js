@@ -104,11 +104,11 @@ exports.loginTeam = async (req, res) => {
         // Stale session — fall through and allow the new login
       }
 
-      // Session expires in 10 minutes of inactivity.
-      // The frontend sends a heartbeat every 5 min to refresh this while the tab is open.
-      // If the tab is closed (no heartbeat) the session naturally becomes stale after 10 min.
-      const INACTIVE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
-      const sessionExpiry = new Date(Date.now() + INACTIVE_TIMEOUT_MS);
+      // Session expiry is set to match the JWT lifetime (8 hours).
+      // There is NO inactivity-based expiry — a session only ends when the user
+      // explicitly logs out or their tab is actually closed (socket disconnect + grace period).
+      const SESSION_LIFETIME_MS = 8 * 60 * 60 * 1000; // 8 hours (matches JWT)
+      const sessionExpiry = new Date(Date.now() + SESSION_LIFETIME_MS);
 
       team.isActive = true;
       team.sessionExpiry = sessionExpiry;
@@ -158,13 +158,14 @@ exports.logoutTeam = async (req, res) => {
 
 /**
  * Heartbeat — called by the frontend every 5 minutes while the tab is open.
- * Refreshes sessionExpiry so the session stays alive during active use.
- * If the tab is closed and no heartbeat arrives, sessionExpiry lapses in ≤10 min.
+ * Refreshes sessionExpiry (to the JWT lifetime) so the stale-session guard
+ * never triggers on an active tab. There is no inactivity-based expiry;
+ * a session only ends on explicit logout or a real tab/browser close (socket disconnect).
  */
 exports.heartbeatTeam = async (req, res) => {
   try {
-    const INACTIVE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
-    const sessionExpiry = new Date(Date.now() + INACTIVE_TIMEOUT_MS);
+    const SESSION_LIFETIME_MS = 8 * 60 * 60 * 1000; // 8 hours (matches JWT)
+    const sessionExpiry = new Date(Date.now() + SESSION_LIFETIME_MS);
     await Team.findByIdAndUpdate(req.user.teamId, { sessionExpiry });
     res.status(200).json({ ok: true });
   } catch (error) {
