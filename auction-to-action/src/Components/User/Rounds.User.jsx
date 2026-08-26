@@ -21,7 +21,7 @@ function RoundsUser({ gameState }) {
     switch (gameState) {
       case 1: // Round 1 ongoing
         return (
-          <Box borderRadius={"xl"}>
+          <Box width="100%" height="100%">
             <Round1User />
           </Box>
         );
@@ -62,10 +62,8 @@ function RoundsUser({ gameState }) {
   };
 
   return (
-    <Box bg="transparent" minH="100vh" p={4}>
-      <Box p={4} mt={2} borderRadius="xl" width="100%">
-        {renderRoundContent()}
-      </Box>
+    <Box width="100%" height="100%">
+      {renderRoundContent()}
     </Box>
   );
 }

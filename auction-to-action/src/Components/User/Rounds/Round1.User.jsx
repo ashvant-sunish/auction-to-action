@@ -15,10 +15,11 @@ function removeBidFromArray(array, index) {
 }
 
 // ─── Math helpers ──────────────────────────────────────────────────────────────
-const lerp   = (a, b, t) => a + (b - a) * t;
-const clamp  = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-const easeOut  = (t) => 1 - Math.pow(1 - t, 3);
-const easeInOut = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const easeInOut = (t) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 // Consistent per-card pseudo-random values
 const cardRng = (seed) => {
@@ -28,8 +29,8 @@ const cardRng = (seed) => {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SHUFFLE_DURATION = 5200; // ms total
-const PHASE_WASH_END   = 0.22; // 0→22%  : wash/spread
-const PHASE_SPLIT_END  = 0.40; // 22→40% : gather into L+R piles
+const PHASE_WASH_END = 0.22; // 0→22%  : wash/spread
+const PHASE_SPLIT_END = 0.4; // 22→40% : gather into L+R piles
 const PHASE_RIFFLE_END = 0.82; // 40→82% : riffle interleave
 const PHASE_SQUARE_END = 0.92; // 82→92% : square up
 // 92→100% : reveal handled by wheelStopped
@@ -48,7 +49,8 @@ function injectStyles() {
   el.innerHTML = `
     .csh2-stage {
       width: 100%;
-      height: calc(100vh - 100px);
+      height: 100%;
+      min-height: calc(100vh - 120px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -86,10 +88,10 @@ function injectStyles() {
     /* ── Individual card ── */
     .csh2-card {
       position: absolute;
-      width: 300px;
-      height: 420px;
-      left: -150px;
-      top: -210px;
+      width: 340px;
+      height: 490px;
+      left: -170px;
+      top: -245px;
       transform-style: preserve-3d;
       will-change: transform;
       pointer-events: none;
@@ -116,8 +118,8 @@ function injectStyles() {
 
     /* ── DIAMOND card — red neon theme ── */
     .csh2-back.is-diamond {
-      background: #110508;
-      border: 3px solid #ff2244;
+      background: #f5f5dc;
+      border: 3px solid #1c2541;
       box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
     }
     .csh2-back.is-diamond .csh2-back-pattern {
@@ -125,14 +127,14 @@ function injectStyles() {
         repeating-linear-gradient(45deg, transparent 0px, transparent 14px, rgba(255,34,68,0.06) 14px, rgba(255,34,68,0.06) 15px),
         repeating-linear-gradient(-45deg, transparent 0px, transparent 14px, rgba(255,34,68,0.06) 14px, rgba(255,34,68,0.06) 15px);
     }
-    .csh2-back.is-diamond .csh2-back-inner  { border-color: rgba(255,34,68,0.28); }
-    .csh2-back.is-diamond .csh2-back-title  { color: #ff4466; text-shadow: 0 0 10px rgba(255,34,68,0.7); }
-    .csh2-back.is-diamond .csh2-back-sub    { color: rgba(255,100,120,0.4); }
-    .csh2-back.is-diamond .csh2-back-pip    { color: rgba(255,34,68,0.6); font-size: 14px; }
+    .csh2-back.is-diamond .csh2-back-inner  { border-color: rgba(81,4,0,0.28); }
+    .csh2-back.is-diamond .csh2-back-title  { color: #510400; text-shadow: none; }
+    .csh2-back.is-diamond .csh2-back-sub    { color: rgba(81,4,0,0.6); }
+    .csh2-back.is-diamond .csh2-back-pip    { color: rgba(81,4,0,0.8); font-size: 14px; }
 
     /* ── SPADE card — black/silver neon theme ── */
     .csh2-back.is-spade {
-      background: #07080c;
+      background: #f1e9d2;
       border: 3px solid rgba(210,215,240,0.65);
       box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
     }
@@ -141,10 +143,10 @@ function injectStyles() {
         repeating-linear-gradient(45deg, transparent 0px, transparent 14px, rgba(200,210,255,0.05) 14px, rgba(200,210,255,0.05) 15px),
         repeating-linear-gradient(-45deg, transparent 0px, transparent 14px, rgba(200,210,255,0.05) 14px, rgba(200,210,255,0.05) 15px);
     }
-    .csh2-back.is-spade .csh2-back-inner  { border-color: rgba(210,215,240,0.22); }
-    .csh2-back.is-spade .csh2-back-title  { color: rgba(220,225,255,0.88); text-shadow: 0 0 10px rgba(200,210,255,0.6); }
-    .csh2-back.is-spade .csh2-back-sub    { color: rgba(180,190,255,0.35); }
-    .csh2-back.is-spade .csh2-back-pip    { color: rgba(200,210,255,0.55); font-size: 14px; }
+    .csh2-back.is-spade .csh2-back-inner  { border-color: rgba(0,35,102,0.22); }
+    .csh2-back.is-spade .csh2-back-title  { color: #002366; text-shadow: none; }
+    .csh2-back.is-spade .csh2-back-sub    { color: rgba(0,35,102,0.6); }
+    .csh2-back.is-spade .csh2-back-pip    { color: rgba(0,35,102,0.8); font-size: 14px; }
 
     /* Crosshatch pattern — base (overridden per variant above) */
     .csh2-back-pattern {
@@ -221,67 +223,166 @@ function injectStyles() {
     ══════════════════════════════════════════ */
     .csh2-front {
       transform: rotateY(180deg);
-      background: linear-gradient(160deg, #141820 0%, #0e1116 50%, #0a0d12 100%);
+      background: #f1e9d2;
       border: 3px solid transparent; /* Set by variant */
       box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
       display: flex;
       flex-direction: column;
-      padding: 32px 28px 28px;
       overflow: hidden;
     }
 
-    /* Glow sweep on front */
-    .csh2-front::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 15px;
-      pointer-events: none;
+    .csh2-front-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* Base Font Layout (Colors handled by variants below) */
-    .csh2-front-lot    { font-size: 10px; letter-spacing: 0.26em; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
-    .csh2-front-number { font-size: 72px; font-weight: 200; line-height: 0.9; letter-spacing: -2px; margin-bottom: 12px; }
-    .csh2-front-rule   { width: 44px; height: 2px; margin-bottom: 14px; flex-shrink: 0; }
-    .csh2-front-title  { font-size: 16px; font-weight: 700; color: #ffffff; line-height: 1.25; margin-bottom: 8px; }
-    .csh2-front-res    { font-size: 10px; color: rgba(255,255,255,0.38); letter-spacing: 0.04em; margin-bottom: 12px; line-height: 1.4; }
-    .csh2-front-plabel { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 3px; }
-    .csh2-front-price  { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 14px; }
-    .csh2-front-badge  {
-      padding: 7px 14px;
-      border: 1.5px solid transparent;
-      border-radius: 8px;
-      font-size: 9px; font-weight: 800; letter-spacing: 0.22em;
-      text-transform: uppercase; text-align: center;
-      flex-shrink: 0;
+    /* Top Right Lot Number */
+    .csh2-front-lot-text {
+      position: absolute;
+      top: 55px;
+      right: 30px;
+      text-align: right;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* Top Left Symbol & Number */
+    .csh2-front-topleft {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .csh2-front-symbol-large {
+      font-size: 64px;
+      line-height: 1;
+    }
+    .csh2-front-number-large {
+      font-size: 32px;
+      font-weight: 700;
+      margin-top: 0px;
+    }
+
+    /* Middle Resources & Divider */
+    .csh2-front-divider {
+      display: flex;
+      align-items: center;
+      margin: 10px 20px;
+    }
+    .csh2-front-divider.top-div {
+      margin-top: 130px;
+    }
+    .csh2-front-divider::before,
+    .csh2-front-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      opacity: 0.6;
+    }
+    .csh2-front-divider-icon {
+      margin: 0 10px;
+      font-size: 14px;
+      line-height: 1;
+    }
+    
+    .csh2-front-resources-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 10px 20px;
+    }
+    .csh2-front-pill {
+      color: #f1e9d2;
+      padding: 6px 20px;
+      border-radius: 99px;
+      font-size: 15px;
+      font-weight: 500;
+      text-align: center;
+      width: fit-content;
+    }
+    .pos-0 { margin-left: 0; align-self: flex-start; }
+    .pos-1 { margin-left: auto; margin-right: 20px; align-self: flex-end; }
+    .pos-2 { margin-left: 0; align-self: flex-start; }
+
+    /* Bottom Info */
+    .csh2-front-bottom {
+      margin-top: auto;
+      padding: 0 20px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .csh2-front-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .csh2-front-price-label {
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .csh2-front-price-value {
+      font-size: 42px;
+      font-weight: 700;
+    }
+    .csh2-front-selected-btn {
+      color: #f1e9d2;
+      padding: 8px 32px;
+      border-radius: 99px;
+      font-size: 16px;
+      font-weight: 500;
+      text-align: center;
+      align-self: center;
+      margin: 0 auto;
+    }
+
+    /* Bottom Right Symbol */
+    .csh2-front-bottomright {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .csh2-front-number-small {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .csh2-front-symbol-small {
+      font-size: 40px;
+      line-height: 1;
     }
 
     /* ── FRONT SPADE VARIANT ── */
-    .csh2-front.is-spade { border-color: rgba(210,215,240,0.65); }
-    .csh2-front.is-spade::after { background: linear-gradient(135deg, rgba(200,210,255,0.05) 0%, transparent 60%); }
-    .csh2-front.is-spade .csh2-front-lot    { color: rgba(200,210,255,0.65); }
-    .csh2-front.is-spade .csh2-front-number { color: #dce1ff; text-shadow: 0 0 16px rgba(200,210,255,0.4); }
-    .csh2-front.is-spade .csh2-front-rule   { background: #dce1ff; box-shadow: 0 0 6px rgba(200,210,255,0.3); }
-    .csh2-front.is-spade .csh2-front-plabel { color: rgba(200,210,255,0.55); }
-    .csh2-front.is-spade .csh2-front-price  { color: #dce1ff; text-shadow: 0 0 12px rgba(200,210,255,0.3); }
-    .csh2-front.is-spade .csh2-front-badge  {
-      background: rgba(200,210,255,0.08);
-      border-color: rgba(200,210,255,0.35);
-      color: #dce1ff;
-    }
+    .csh2-front.is-spade { border-color: #002366; color: #002366; }
+    .csh2-front.is-spade .csh2-front-pill { background: #002366; }
+    .csh2-front.is-spade .csh2-front-selected-btn { background: #002366; }
+    .csh2-front.is-spade .csh2-front-divider::before,
+    .csh2-front.is-spade .csh2-front-divider::after { background-color: #002366; }
 
     /* ── FRONT DIAMOND VARIANT ── */
-    .csh2-front.is-diamond { border-color: #ff2244; }
-    .csh2-front.is-diamond::after { background: linear-gradient(135deg, rgba(255,34,68,0.05) 0%, transparent 60%); }
-    .csh2-front.is-diamond .csh2-front-lot    { color: rgba(255,34,68,0.65); }
-    .csh2-front.is-diamond .csh2-front-number { color: #ff3355; text-shadow: 0 0 16px rgba(255,34,68,0.4); }
-    .csh2-front.is-diamond .csh2-front-rule   { background: #ff3355; box-shadow: 0 0 6px rgba(255,34,68,0.3); }
-    .csh2-front.is-diamond .csh2-front-plabel { color: rgba(255,34,68,0.55); }
-    .csh2-front.is-diamond .csh2-front-price  { color: #ff3355; text-shadow: 0 0 12px rgba(255,34,68,0.3); }
+    .csh2-front.is-diamond { border-color: #510400; color: #510400; }
+    .csh2-front.is-diamond .csh2-front-pill { background: #510400; }
+    .csh2-front.is-diamond .csh2-front-selected-btn { background: #510400; }
+    .csh2-front.is-diamond .csh2-front-divider::before,
+    .csh2-front.is-diamond .csh2-front-divider::after { background-color: #510400; }
+
+    .csh2-front.is-diamond .csh2-front-plabel { color: #510400; opacity: 0.7; }
+    .csh2-front.is-diamond .csh2-front-price  { color: #510400; text-shadow: none; }
+    .csh2-front.is-diamond .csh2-front-res    { color: #510400; opacity: 0.7; }
     .csh2-front.is-diamond .csh2-front-badge  {
-      background: rgba(255,34,68,0.08);
-      border-color: rgba(255,34,68,0.35);
-      color: #ff3355;
+      background: transparent;
+      border-color: #510400;
+      color: #510400;
     }
 
     /* Removed Glow ring (.csh2-glow-ring is dead CSS, kept empty) */
@@ -393,13 +494,13 @@ if (typeof document !== "undefined") {
 }
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function Spin3DCards({
-  round         = 1,
-  radius        = 550,
+  round = 1,
+  radius = 550,
   baseCardWidth = 50,
-  maxCardWidth  = 120,
-  cardHeight    = 260,
-  initialSpeed  = 0.008,
-  friction      = 0.995,
+  maxCardWidth = 120,
+  cardHeight = 260,
+  initialSpeed = 0.008,
+  friction = 0.995,
   onBidSelected = null,
 }) {
   // ── Saved-state rehydration ──────────────────────────────────────────────────
@@ -417,32 +518,32 @@ export default function Spin3DCards({
   });
 
   // ── Core state (unchanged) ───────────────────────────────────────────────────
-  const [availableItems,     setAvailableItems]     = useState([]);
+  const [availableItems, setAvailableItems] = useState([]);
   const [currentSelectedBid, setCurrentSelectedBid] = useState(null);
-  const [isSelecting,        setIsSelecting]         = useState(false);
-  const [wheelStopped,       setWheelStopped]        = useState(false);
-  const [loading,            setLoading]             = useState(true);
-  const [socketConnected,    setSocketConnected]     = useState(false);
-  const [spinning,           setSpinning]            = useState(true);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [wheelStopped, setWheelStopped] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [spinning, setSpinning] = useState(true);
 
   // ── Refs ────────────────────────────────────────────────────────────────────
-  const deckRootRef           = useRef(null);
-  const rafRef                = useRef(null);
-  const animatingToPosition   = useRef(false);
-  const shuffleStartTime      = useRef(null);
-  const selectedIndexRef      = useRef(0);
-  const glowRef               = useRef(null);
-  const revealedRef           = useRef(false);
+  const deckRootRef = useRef(null);
+  const rafRef = useRef(null);
+  const animatingToPosition = useRef(false);
+  const shuffleStartTime = useRef(null);
+  const selectedIndexRef = useRef(0);
+  const glowRef = useRef(null);
+  const revealedRef = useRef(false);
   // flickingRef: true while card-flick-away animation plays.
   // RAF wheelStopped block checks this to avoid stomping the flick transform.
-  const flickingRef           = useRef(false);
-  const stageRef              = useRef(null);
+  const flickingRef = useRef(false);
+  const stageRef = useRef(null);
   // legacy compat refs
-  const angleRef              = useRef(0);
-  const speedRef              = useRef(initialSpeed);
-  const prefersReducedMotion  = useRef(
+  const angleRef = useRef(0);
+  const speedRef = useRef(initialSpeed);
+  const prefersReducedMotion = useRef(
     typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
 
   // ── fetchGameItems (unchanged) ──────────────────────────────────────────────
@@ -450,20 +551,20 @@ export default function Spin3DCards({
     try {
       setLoading(true);
       const response = await axios.get(
-        `${serverUrl}/api/admin/public/game-items/round/${round}`
+        `${serverUrl}/api/admin/public/game-items/round/${round}`,
       );
       if (response.data && response.data.availableItems) {
         const items = response.data.availableItems.map((item) => ({
-          id:        item.id,
-          itemCode:  item.itemCode,
-          bidNo:     item.bidNo || item.bidNumber,
+          id: item.id,
+          itemCode: item.itemCode,
+          bidNo: item.bidNo || item.bidNumber,
           bidNumber: item.bidNumber || item.bidNo,
-          title:     item.title,
-          details:   item.details,
-          category:  item.category,
+          title: item.title,
+          details: item.details,
+          category: item.category,
           basePrice: item.basePrice,
           resources: item.resources || {},
-          image:     item.image,
+          image: item.image,
         }));
         setAvailableItems(items);
       } else {
@@ -471,15 +572,28 @@ export default function Spin3DCards({
       }
     } catch (error) {
       console.error("❌ Error fetching game items:", error);
-      if (error.response) console.error("Backend error:", error.response.status, error.response.data);
-      else if (error.request) console.error("Network error: No response from server");
+      if (error.response)
+        console.error(
+          "Backend error:",
+          error.response.status,
+          error.response.data,
+        );
+      else if (error.request)
+        console.error("Network error: No response from server");
       else console.error("Request setup error:", error.message);
       const fallbackItems = Array.from({ length: 75 }, (_, i) => ({
-        id: `fallback_${i + 1}`, itemCode: `r1i${String(i + 1).padStart(3, "0")}`,
-        bidNo: i + 1, bidNumber: i + 1, title: `BID ${i + 1}`,
+        id: `fallback_${i + 1}`,
+        itemCode: `r1i${String(i + 1).padStart(3, "0")}`,
+        bidNo: i + 1,
+        bidNumber: i + 1,
+        title: `BID ${i + 1}`,
         details: `Base Price: ₹${7000 + Math.floor(Math.random() * 2500)}`,
-        category: `Round ${round}`, basePrice: 7000 + Math.floor(Math.random() * 2500),
-        resources: { Technology: Math.floor(Math.random() * 7) + 1, Property: Math.floor(Math.random() * 6) + 1 },
+        category: `Round ${round}`,
+        basePrice: 7000 + Math.floor(Math.random() * 2500),
+        resources: {
+          Technology: Math.floor(Math.random() * 7) + 1,
+          Property: Math.floor(Math.random() * 6) + 1,
+        },
       }));
       setAvailableItems(fallbackItems);
     } finally {
@@ -495,11 +609,15 @@ export default function Spin3DCards({
         setWheelStopped(wheelState.stopped);
         setSpinning(!wheelState.stopped);
         if (wheelState.angle) angleRef.current = wheelState.angle;
-        
+
         // Restore index so the card retains its correct suit color (even=0=diamond, odd=1=spade)
         if (wheelState.selectedBid) {
-          const bidNum = parseInt(wheelState.selectedBid.bidNo || wheelState.selectedBid.bidNumber, 10) || 0;
-          selectedIndexRef.current = (bidNum % 2 !== 0) ? 1 : 0;
+          const bidNum =
+            parseInt(
+              wheelState.selectedBid.bidNo || wheelState.selectedBid.bidNumber,
+              10,
+            ) || 0;
+          selectedIndexRef.current = bidNum % 2 !== 0 ? 1 : 0;
         }
       }
       await fetchGameItems();
@@ -510,15 +628,22 @@ export default function Spin3DCards({
   // ── Persist (unchanged) ─────────────────────────────────────────────────────
   useEffect(() => {
     if (currentSelectedBid || wheelStopped) {
-      localStorage.setItem(`wheel_state_round_${round}`, JSON.stringify({
-        timestamp: Date.now(), selectedBid: currentSelectedBid,
-        stopped: wheelStopped, angle: angleRef.current, round,
-      }));
+      localStorage.setItem(
+        `wheel_state_round_${round}`,
+        JSON.stringify({
+          timestamp: Date.now(),
+          selectedBid: currentSelectedBid,
+          stopped: wheelStopped,
+          angle: angleRef.current,
+          round,
+        }),
+      );
     }
   }, [currentSelectedBid, wheelStopped, round]);
 
   // ── clearSavedState / resetWheel (unchanged) ────────────────────────────────
-  const clearSavedState = () => localStorage.removeItem(`wheel_state_round_${round}`);
+  const clearSavedState = () =>
+    localStorage.removeItem(`wheel_state_round_${round}`);
 
   const resetWheel = () => {
     clearSavedState();
@@ -526,12 +651,12 @@ export default function Spin3DCards({
     setIsSelecting(false);
     setWheelStopped(false);
     setSpinning(true);
-    speedRef.current          = initialSpeed;
+    speedRef.current = initialSpeed;
     animatingToPosition.current = false;
-    shuffleStartTime.current    = null;
-    selectedIndexRef.current    = 0;
-    revealedRef.current         = false;
-    flickingRef.current         = false;
+    shuffleStartTime.current = null;
+    selectedIndexRef.current = 0;
+    revealedRef.current = false;
+    flickingRef.current = false;
     if (glowRef.current) glowRef.current.classList.remove("active");
   };
 
@@ -539,7 +664,7 @@ export default function Spin3DCards({
   const animateToPosition = (targetAngle) => {
     return new Promise((resolve) => {
       animatingToPosition.current = true;
-      shuffleStartTime.current    = Date.now();
+      shuffleStartTime.current = Date.now();
 
       if (prefersReducedMotion.current) {
         animatingToPosition.current = false;
@@ -564,7 +689,10 @@ export default function Spin3DCards({
     console.log("🚀 Current wheelStopped:", wheelStopped);
 
     if (availableItems.length === 0 || isSelecting) {
-      const reason = availableItems.length === 0 ? "No items available" : "Already selecting";
+      const reason =
+        availableItems.length === 0
+          ? "No items available"
+          : "Already selecting";
       console.log("❌ Early return -", reason);
       return;
     }
@@ -585,17 +713,31 @@ export default function Spin3DCards({
     }
     if (!targetItem && itemDetails.itemCode) {
       console.log("🔍 Strategy 2: Matching by itemCode:", itemDetails.itemCode);
-      targetItem = availableItems.find((item) => item.itemCode === itemDetails.itemCode);
+      targetItem = availableItems.find(
+        (item) => item.itemCode === itemDetails.itemCode,
+      );
       if (targetItem) matchStrategy = "itemCode";
       console.log("🔍 Strategy 2 result:", targetItem ? "FOUND" : "NOT FOUND");
     }
     if (!targetItem && (itemDetails.bidNumber || itemDetails.bidNo)) {
       const bidNum = itemDetails.bidNumber || itemDetails.bidNo;
-      console.log("🔍 Strategy 3: Matching by bidNum:", bidNum, "(type:", typeof bidNum, ")");
+      console.log(
+        "🔍 Strategy 3: Matching by bidNum:",
+        bidNum,
+        "(type:",
+        typeof bidNum,
+        ")",
+      );
       targetItem = availableItems.find((item) => {
-        const m1 = item.bidNo == bidNum, m2 = item.bidNumber == bidNum;
-        const m3 = String(item.bidNo) === String(bidNum), m4 = String(item.bidNumber) === String(bidNum);
-        if (m1 || m2 || m3 || m4) console.log("🔍 Strategy 3 MATCH:", { itemBidNo: item.bidNo, bidNum });
+        const m1 = item.bidNo == bidNum,
+          m2 = item.bidNumber == bidNum;
+        const m3 = String(item.bidNo) === String(bidNum),
+          m4 = String(item.bidNumber) === String(bidNum);
+        if (m1 || m2 || m3 || m4)
+          console.log("🔍 Strategy 3 MATCH:", {
+            itemBidNo: item.bidNo,
+            bidNum,
+          });
         return m1 || m2 || m3 || m4;
       });
       if (targetItem) matchStrategy = "bidNumber";
@@ -603,14 +745,19 @@ export default function Spin3DCards({
     }
     if (!targetItem && itemDetails.title) {
       console.log("🔍 Strategy 4: Matching by title:", itemDetails.title);
-      targetItem = availableItems.find((item) => item.title === itemDetails.title);
+      targetItem = availableItems.find(
+        (item) => item.title === itemDetails.title,
+      );
       if (targetItem) matchStrategy = "title";
       console.log("🔍 Strategy 4 result:", targetItem ? "FOUND" : "NOT FOUND");
     }
 
     if (!targetItem) {
       console.error("❌ CRITICAL: Selected item not found in available items!");
-      console.error("❌ Item details received:", JSON.stringify(itemDetails, null, 2));
+      console.error(
+        "❌ Item details received:",
+        JSON.stringify(itemDetails, null, 2),
+      );
       resetWheel();
       return;
     }
@@ -627,8 +774,11 @@ export default function Spin3DCards({
 
     setCurrentSelectedBid(targetItem);
 
-    const targetCardIndex = availableItems.findIndex((item) => item.id === targetItem.id);
-    const targetAngle     = -(targetCardIndex / availableItems.length) * Math.PI * 2;
+    const targetCardIndex = availableItems.findIndex(
+      (item) => item.id === targetItem.id,
+    );
+    const targetAngle =
+      -(targetCardIndex / availableItems.length) * Math.PI * 2;
     setSpinning(false);
 
     try {
@@ -643,23 +793,42 @@ export default function Spin3DCards({
   // ── Socket listeners (COMPLETELY UNCHANGED) ──────────────────────────────────
   useEffect(() => {
     const socket = io(serverUrl);
-    socket.on("connect", () => { console.log("🔌 User wheel connected:", socket.id); setSocketConnected(true); });
-    socket.on("disconnect", () => { console.log("🔌 User wheel disconnected"); setSocketConnected(false); });
+    socket.on("connect", () => {
+      console.log("🔌 User wheel connected:", socket.id);
+      setSocketConnected(true);
+    });
+    socket.on("disconnect", () => {
+      console.log("🔌 User wheel disconnected");
+      setSocketConnected(false);
+    });
 
     socket.on("wheelRandomSelection", (data) => {
-      console.log("📡 Raw wheelRandomSelection data received:", JSON.stringify(data, null, 2));
+      console.log(
+        "📡 Raw wheelRandomSelection data received:",
+        JSON.stringify(data, null, 2),
+      );
       if (data.round === round && data.itemDetails) {
         if (availableItems.length === 0) {
-          setTimeout(() => { if (availableItems.length > 0) triggerAdminSpin(data.itemDetails); }, 500);
+          setTimeout(() => {
+            if (availableItems.length > 0) triggerAdminSpin(data.itemDetails);
+          }, 500);
           return;
         }
         triggerAdminSpin(data.itemDetails);
       }
     });
     socket.on("RANDOM_SELECTED", (data) => {
-      console.log("📡 Raw RANDOM_SELECTED data received:", JSON.stringify(data, null, 2));
+      console.log(
+        "📡 Raw RANDOM_SELECTED data received:",
+        JSON.stringify(data, null, 2),
+      );
       if (data.round === round && data.itemDetails) {
-        if (availableItems.length === 0) { setTimeout(() => { if (availableItems.length > 0) triggerAdminSpin(data.itemDetails); }, 500); return; }
+        if (availableItems.length === 0) {
+          setTimeout(() => {
+            if (availableItems.length > 0) triggerAdminSpin(data.itemDetails);
+          }, 500);
+          return;
+        }
         triggerAdminSpin(data.itemDetails);
       }
     });
@@ -675,7 +844,9 @@ export default function Spin3DCards({
 
         const deck = deckRootRef.current;
         if (deck) {
-          const cards = Array.from(deck.children).filter(c => c.classList.contains("csh2-card"));
+          const cards = Array.from(deck.children).filter((c) =>
+            c.classList.contains("csh2-card"),
+          );
           const selectedCard = cards[selectedIndexRef.current];
           if (selectedCard) {
             // One rAF tick of breathing room so the stopped-state transform
@@ -701,15 +872,21 @@ export default function Spin3DCards({
     });
     socket.on("wheelSkip", (data) => {
       console.log("📡 User received wheel skip:", data);
-      if (data.round == round) { clearSavedState(); resetWheel(); }
+      if (data.round == round) {
+        clearSavedState();
+        resetWheel();
+      }
     });
 
     socket.on("wheelUpdate", (data) => {
       console.log("📡 User received wheel update (legacy):", data);
       if (data.round === round) {
-        if (data.action === "randomSelection" && data.selectedItem) triggerAdminSpin(data.selectedItem);
-        else if (data.action === "itemSelected") { fetchGameItems(); resetWheel(); }
-        else if (data.action === "skip") resetWheel();
+        if (data.action === "randomSelection" && data.selectedItem)
+          triggerAdminSpin(data.selectedItem);
+        else if (data.action === "itemSelected") {
+          fetchGameItems();
+          resetWheel();
+        } else if (data.action === "skip") resetWheel();
       }
     });
     socket.on("roundItemUpdate", (data) => {
@@ -717,10 +894,22 @@ export default function Spin3DCards({
       if (data.round === round) fetchGameItems();
     });
     socket.onAny((eventName, data) => {
-      const known = ["connect","disconnect","wheelRandomSelection","wheelConfirmation","wheelSkip","wheelUpdate","roundItemUpdate","RANDOM_SELECTED"];
-      if (!known.includes(eventName)) console.log("📡 Unknown socket event:", eventName, data);
+      const known = [
+        "connect",
+        "disconnect",
+        "wheelRandomSelection",
+        "wheelConfirmation",
+        "wheelSkip",
+        "wheelUpdate",
+        "roundItemUpdate",
+        "RANDOM_SELECTED",
+      ];
+      if (!known.includes(eventName))
+        console.log("📡 Unknown socket event:", eventName, data);
     });
-    return () => { socket.disconnect(); };
+    return () => {
+      socket.disconnect();
+    };
   }, [round, availableItems.length]);
 
   // ── RAF loop – pure visual, zero game logic ───────────────────────────────────
@@ -731,22 +920,32 @@ export default function Spin3DCards({
     const prefRM = prefersReducedMotion.current;
 
     const update = (timestamp) => {
-      const cards = Array.from(root.children).filter(c => c.classList.contains("csh2-card"));
+      const cards = Array.from(root.children).filter((c) =>
+        c.classList.contains("csh2-card"),
+      );
       const count = cards.length;
-      if (count === 0) { rafRef.current = requestAnimationFrame(update); return; }
+      if (count === 0) {
+        rafRef.current = requestAnimationFrame(update);
+        return;
+      }
 
       const t = timestamp * 0.001;
-      const elapsed  = shuffleStartTime.current ? Date.now() - shuffleStartTime.current : 0;
+      const elapsed = shuffleStartTime.current
+        ? Date.now() - shuffleStartTime.current
+        : 0;
       const progress = clamp(elapsed / SHUFFLE_DURATION, 0, 1);
-      const half     = Math.floor(count / 2);
+      const half = Math.floor(count / 2);
 
       for (let i = 0; i < count; i++) {
         const card = cards[i];
         if (!card) continue;
         const isSelectedCard = i === selectedIndexRef.current;
 
-        let tx = 0, ty = 0, tz = 0;
-        let ry = 0, rz = 0;
+        let tx = 0,
+          ty = 0,
+          tz = 0;
+        let ry = 0,
+          rz = 0;
         let scale = 1;
 
         // ── IDLE (waiting for admin) ────────────────────────────────────────────
@@ -758,24 +957,27 @@ export default function Spin3DCards({
           rz = 0;
           scale = 1;
           card.style.opacity = "1";
-          card.style.zIndex  = String(count - i);
+          card.style.zIndex = String(count - i);
           card.style.transition = "none";
-          card.style.transform  = `translate3d(${tx}px,${ty}px,${tz}px) rotateZ(${rz}deg) scale(${scale})`;
+          card.style.transform = `translate3d(${tx}px,${ty}px,${tz}px) rotateZ(${rz}deg) scale(${scale})`;
           continue;
         }
 
         // ── REDUCED MOTION (skip to reveal) ────────────────────────────────────
         if (prefRM) {
           if (isSelectedCard && wheelStopped) {
-            card.style.transform  = "translate3d(0,-40px,180px) rotateY(180deg) scale(1.1)";
-            card.style.opacity    = "1";
-            card.style.zIndex     = "500";
+            card.style.transform =
+              "translate3d(0,-40px,180px) rotateY(180deg) scale(1.1)";
+            card.style.opacity = "1";
+            card.style.zIndex = "500";
             card.style.transition = "transform 0.5s ease, opacity 0.3s";
           } else {
-            tx = i * 0.6; ty = i * -1; tz = -i * 2;
-            card.style.transform  = `translate3d(${tx}px,${ty}px,${tz}px)`;
-            card.style.opacity    = wheelStopped ? "0.15" : "1";
-            card.style.zIndex     = String(count - i);
+            tx = i * 0.6;
+            ty = i * -1;
+            tz = -i * 2;
+            card.style.transform = `translate3d(${tx}px,${ty}px,${tz}px)`;
+            card.style.opacity = wheelStopped ? "0.15" : "1";
+            card.style.zIndex = String(count - i);
             card.style.transition = "transform 0.5s ease, opacity 0.4s";
           }
           continue;
@@ -786,31 +988,32 @@ export default function Spin3DCards({
 
         // ── PHASE 1 — WASH (0 → PHASE_WASH_END) ────────────────────────────────
         if (progress <= PHASE_WASH_END) {
-          const p  = progress / PHASE_WASH_END;
+          const p = progress / PHASE_WASH_END;
           const ep = easeOut(p);
 
           // Each card fans out to a unique position (seeded randomness)
-          const angle     = (cardRng(i * 3)     - 0.5) * Math.PI * 1.6; // spread direction
-          const dist      = 120 + cardRng(i * 7) * 260;                  // spread distance
-          const cardRot   = (cardRng(i * 5)     - 0.5) * 40;             // z rotation spread
-          const cardRaisY = -cardRng(i * 11)    * 60;                    // slight upward arc
+          const angle = (cardRng(i * 3) - 0.5) * Math.PI * 1.6; // spread direction
+          const dist = 120 + cardRng(i * 7) * 260; // spread distance
+          const cardRot = (cardRng(i * 5) - 0.5) * 40; // z rotation spread
+          const cardRaisY = -cardRng(i * 11) * 60; // slight upward arc
 
           tx = Math.cos(angle) * dist * ep;
           ty = (Math.sin(angle) * dist * 0.4 + cardRaisY) * ep;
-          tz = (-i * 2) * (1 - ep) + (cardRng(i * 13) * 60 - 30) * ep;
+          tz = -i * 2 * (1 - ep) + (cardRng(i * 13) * 60 - 30) * ep;
           rz = cardRot * ep;
 
           card.style.opacity = "1";
-          card.style.zIndex  = String(Math.round(cardRng(i * 17) * count));
+          card.style.zIndex = String(Math.round(cardRng(i * 17) * count));
         }
 
         // ── PHASE 2 — GATHER INTO L + R PILES (WASH_END → SPLIT_END) ────────────
         else if (progress <= PHASE_SPLIT_END) {
-          const p  = (progress - PHASE_WASH_END) / (PHASE_SPLIT_END - PHASE_WASH_END);
+          const p =
+            (progress - PHASE_WASH_END) / (PHASE_SPLIT_END - PHASE_WASH_END);
           const ep = easeInOut(p);
 
-          const isLeft    = i < half;
-          const halfIdx   = isLeft ? i : i - half;
+          const isLeft = i < half;
+          const halfIdx = isLeft ? i : i - half;
           const halfCount = isLeft ? half : count - half;
 
           // Target: two neat piles offset left and right
@@ -820,12 +1023,12 @@ export default function Spin3DCards({
           const targetR = isLeft ? -6 : 6;
 
           // Start: spread-out wash positions
-          const angle   = (cardRng(i * 3) - 0.5) * Math.PI * 1.6;
-          const dist    = 120 + cardRng(i * 7) * 260;
-          const startX  = Math.cos(angle) * dist;
-          const startY  = Math.sin(angle) * dist * 0.4 - cardRng(i * 11) * 60;
-          const startZ  = (cardRng(i * 13) * 60 - 30);
-          const startR  = (cardRng(i * 5) - 0.5) * 40;
+          const angle = (cardRng(i * 3) - 0.5) * Math.PI * 1.6;
+          const dist = 120 + cardRng(i * 7) * 260;
+          const startX = Math.cos(angle) * dist;
+          const startY = Math.sin(angle) * dist * 0.4 - cardRng(i * 11) * 60;
+          const startZ = cardRng(i * 13) * 60 - 30;
+          const startR = (cardRng(i * 5) - 0.5) * 40;
 
           tx = lerp(startX, targetX, ep);
           ty = lerp(startY, targetY, ep);
@@ -833,82 +1036,100 @@ export default function Spin3DCards({
           rz = lerp(startR, targetR, ep);
 
           card.style.opacity = "1";
-          card.style.zIndex  = String(isLeft ? halfCount - halfIdx + count : halfCount - halfIdx);
+          card.style.zIndex = String(
+            isLeft ? halfCount - halfIdx + count : halfCount - halfIdx,
+          );
         }
 
-        // ── PHASE 3 — RIFFLE INTERLEAVE (SPLIT_END → RIFFLE_END) ────────────────
+        // ── PHASE 3 — RIFFLE INTO BRIDGE (SPLIT_END → RIFFLE_END) ────────────────
         else if (progress <= PHASE_RIFFLE_END) {
-          const p = (progress - PHASE_SPLIT_END) / (PHASE_RIFFLE_END - PHASE_SPLIT_END);
+          const p =
+            (progress - PHASE_SPLIT_END) / (PHASE_RIFFLE_END - PHASE_SPLIT_END);
 
-          const isLeft  = i < half;
+          const isLeft = i < half;
           const halfIdx = isLeft ? i : i - half;
 
           // Interleave order: L0,R0,L1,R1,L2,R2... → index in assembled deck
-          const interleavePos   = halfIdx * 2 + (isLeft ? 0 : 1);
+          const interleavePos = halfIdx * 2 + (isLeft ? 0 : 1);
           const totalInterleave = count;
-          // Each card's "drop time" — normalised 0→1
-          const dropAt          = interleavePos / (totalInterleave - 1);
+          // Each card's "drop time" into the bridge — normalised 0→1
+          const dropAt = interleavePos / (totalInterleave - 1 || 1);
           // How far through that card's own drop: 0 (waiting) → 1 (landed)
-          const cardP           = clamp((p - dropAt * 0.75) / 0.25, 0, 1);
-          const eCP             = easeOut(cardP);
+          const cardP = clamp((p - dropAt * 0.75) / 0.25, 0, 1);
+          const eCP = easeOut(cardP);
 
           // Source pile position
-          const pileX  = isLeft ? -160 : 160;
-          const pileY  = halfIdx * -1.0;
-          const pileZ  = -halfIdx * 2;
-          const pileR  = isLeft ? -6 : 6;
+          const pileX = isLeft ? -160 : 160;
+          const pileY = halfIdx * -1.0;
+          const pileZ = -halfIdx * 2;
+          const pileR = isLeft ? -15 : 15;
 
-          // Destination: assembled deck position
-          const destX  = interleavePos * 0.4;
-          const destY  = interleavePos * -0.8;
-          const destZ  = -interleavePos * 1.5;
-          const destR  = 0;
+          // Destination: Bridged Arch
+          const norm = interleavePos / (count - 1 || 1);
+          const bridgeX = (norm - 0.5) * 140;
+          const bridgeY = Math.sin(norm * Math.PI) * -140; // Arch up in the center
+          const bridgeZ = -interleavePos * 1.5;
+          const bridgeR = (norm - 0.5) * 90; // Tilt inward to form bridge
 
           // Arc: lift upward mid-transit
-          const arcLift = Math.sin(eCP * Math.PI) * 50;
+          const arcLift = Math.sin(eCP * Math.PI) * 40;
 
-          tx = lerp(pileX, destX, eCP);
-          ty = lerp(pileY, destY, eCP) - arcLift;
-          tz = lerp(pileZ, destZ, eCP);
-          rz = lerp(pileR, destR, eCP);
+          tx = lerp(pileX, bridgeX, eCP);
+          ty = lerp(pileY, bridgeY, eCP) - arcLift;
+          tz = lerp(pileZ, bridgeZ, eCP);
+          rz = lerp(pileR, bridgeR, eCP);
 
           // Slight Y rotation flutter while in transit
           ry = Math.sin(eCP * Math.PI * 2) * (1 - eCP) * 8 * (isLeft ? 1 : -1);
 
           card.style.opacity = "1";
-          card.style.zIndex  = String(count - interleavePos);
+          card.style.zIndex = String(count - interleavePos);
         }
 
-        // ── PHASE 4 — SQUARE UP (RIFFLE_END → SQUARE_END) ──────────────────────
+        // ── PHASE 4 — CASCADE WATERFALL DROP (RIFFLE_END → SQUARE_END) ─────────
         else if (progress <= PHASE_SQUARE_END) {
-          const p  = (progress - PHASE_RIFFLE_END) / (PHASE_SQUARE_END - PHASE_RIFFLE_END);
-          const ep = easeInOut(p);
+          const p =
+            (progress - PHASE_RIFFLE_END) /
+            (PHASE_SQUARE_END - PHASE_RIFFLE_END);
 
-          // Start: interleaved order
-          const startX = i * 0.4;
-          const startY = i * -0.8;
-          const startZ = -i * 1.5;
+          const isLeft = i < half;
+          const halfIdx = isLeft ? i : i - half;
+          const interleavePos = halfIdx * 2 + (isLeft ? 0 : 1);
 
-          // End: tight compact stack
+          // Start: Bridged Arch (same as end of Phase 3)
+          const norm = interleavePos / (count - 1 || 1);
+          const bridgeX = (norm - 0.5) * 140;
+          const bridgeY = Math.sin(norm * Math.PI) * -140;
+          const bridgeZ = -interleavePos * 1.5;
+          const bridgeR = (norm - 0.5) * 90;
+
+          // End: tight compact stack (squared deck)
           const endX = i * 0.6;
           const endY = i * -1.0;
           const endZ = -i * 2;
+          const endR = 0;
 
-          // Rock side to side while squaring
-          const rock = Math.sin(p * Math.PI * 3) * (1 - ep) * 6;
+          // Cascade sequence: edges (bottom of arch) drop first, center drops last
+          const distFromCenter = Math.abs(norm - 0.5) * 2; // 1 at edges, 0 at center
+          const dropDelay = (1 - distFromCenter) * 0.6;
 
-          tx = lerp(startX, endX, ep) + rock;
-          ty = lerp(startY, endY, ep);
-          tz = lerp(startZ, endZ, ep);
-          rz = rock * 0.4;
+          // Each card falls over a 0.4 progress window
+          const fallP = clamp((p - dropDelay) / 0.4, 0, 1);
+          // Ease-in creates a gravity fall effect
+          const eFall = fallP * fallP; // basic easeInQuad
+
+          tx = lerp(bridgeX, endX, eFall);
+          ty = lerp(bridgeY, endY, eFall);
+          tz = lerp(bridgeZ, endZ, eFall);
+          rz = lerp(bridgeR, endR, eFall);
 
           card.style.opacity = "1";
-          card.style.zIndex  = String(count - i);
+          card.style.zIndex = String(count - i);
         }
 
         // ── PHASE 5 — REVEAL (SQUARE_END → 1.0) / WHEEL STOPPED ─────────────────
         else {
-          const p  = (progress - PHASE_SQUARE_END) / (1 - PHASE_SQUARE_END);
+          const p = (progress - PHASE_SQUARE_END) / (1 - PHASE_SQUARE_END);
           const ep = easeOut(p);
 
           if (isSelectedCard) {
@@ -918,13 +1139,13 @@ export default function Spin3DCards({
             tz = lerp(-0, 80, ep);
             scale = lerp(1, 1.06, ep);
             card.style.opacity = "1";
-            card.style.zIndex  = "500";
+            card.style.zIndex = "500";
           } else {
             tx = i * 0.6;
             ty = i * -1;
             tz = -i * 2 - ep * 30;
             card.style.opacity = String(lerp(1, 0.18, ep));
-            card.style.zIndex  = String(count - i);
+            card.style.zIndex = String(count - i);
           }
         }
 
@@ -943,28 +1164,30 @@ export default function Spin3DCards({
           if (!card) continue;
           const isSelectedCard = i === selectedIndexRef.current;
 
-          const backFace  = card.querySelector('.csh2-back');
-          const frontFace = card.querySelector('.csh2-front');
+          const backFace = card.querySelector(".csh2-back");
+          const frontFace = card.querySelector(".csh2-front");
 
           if (isSelectedCard) {
-            card.style.transition = "transform 0.9s cubic-bezier(.2,.9,.2,1), opacity 0.3s";
-            card.style.transform  = "translate3d(0,-50px,180px) rotateY(180deg) scale(1.12)";
-            card.style.opacity    = "1";
-            card.style.zIndex     = "500";
-            if (backFace)  backFace.style.visibility  = 'hidden';
-            if (frontFace) frontFace.style.visibility = 'visible';
+            card.style.transition =
+              "transform 0.9s cubic-bezier(.2,.9,.2,1), opacity 0.3s";
+            card.style.transform =
+              "translate3d(0,-50px,180px) rotateY(180deg) scale(1.12)";
+            card.style.opacity = "1";
+            card.style.zIndex = "500";
+            if (backFace) backFace.style.visibility = "hidden";
+            if (frontFace) frontFace.style.visibility = "visible";
             // Note: glow-ring removed per request, refs kept for safety but no CSS class will show
             if (!revealedRef.current && glowRef.current) {
               revealedRef.current = true;
             }
           } else {
             card.style.transition = "transform 0.7s ease, opacity 0.6s";
-            card.style.transform  = `translate3d(${i * 3}px,${30 + i * 4}px,${-60 - i * 10}px) rotateZ(${(i % 2 === 0 ? 1 : -1) * i * 0.8}deg) scale(0.94)`;
-            card.style.opacity    = String(Math.max(0, 0.18 - i * 0.025));
-            card.style.zIndex     = String(count - i);
+            card.style.transform = `translate3d(${i * 3}px,${30 + i * 4}px,${-60 - i * 10}px) rotateZ(${(i % 2 === 0 ? 1 : -1) * i * 0.8}deg) scale(0.94)`;
+            card.style.opacity = String(Math.max(0, 0.18 - i * 0.025));
+            card.style.zIndex = String(count - i);
             // Not flipped: keep back visible, hide front
-            if (backFace)  backFace.style.visibility  = 'visible';
-            if (frontFace) frontFace.style.visibility = 'hidden';
+            if (backFace) backFace.style.visibility = "visible";
+            if (frontFace) frontFace.style.visibility = "hidden";
           }
         }
       }
@@ -973,51 +1196,55 @@ export default function Spin3DCards({
     };
 
     rafRef.current = requestAnimationFrame(update);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [availableItems.length, isSelecting, wheelStopped, spinning]);
 
   // ── Visual deck: always render VISUAL_DECK cards. ───────────────────────────
   // The selected card (index 0) shows real data on its front face.
   // All other cards show generic fronts (never visible until flip anyway).
-  const deckItems = availableItems.length > 0
-    ? Array.from({ length: Math.min(VISUAL_DECK, availableItems.length) }, (_, i) => availableItems[i])
-    : Array.from({ length: VISUAL_DECK }, (_, i) => ({ id: `placeholder-${i}`, bidNo: i + 1, title: "–", basePrice: 0, resources: {} }));
+  const deckItems =
+    availableItems.length > 0
+      ? Array.from(
+          { length: Math.min(VISUAL_DECK, availableItems.length) },
+          (_, i) => availableItems[i],
+        )
+      : Array.from({ length: VISUAL_DECK }, (_, i) => ({
+          id: `placeholder-${i}`,
+          bidNo: i + 1,
+          title: "–",
+          basePrice: 0,
+          resources: {},
+        }));
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="csh2-stage" ref={stageRef}>
-
-      {/* ── Selected bid panel (always preserved) ── */}
-      {currentSelectedBid && wheelStopped && (
-        <div className="csh2-panel">
-          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.32)", letterSpacing: "0.22em", textTransform: "uppercase" }}>Current Lot</div>
-          <div style={{ fontSize: "58px", fontWeight: "200", color: "#e8ff00", lineHeight: "1", letterSpacing: "-2px", textShadow: "0 0 20px rgba(232,255,0,0.4)" }}>
-            {currentSelectedBid.bidNo || currentSelectedBid.bidNumber}
-          </div>
-          <div style={{ fontSize: "16px", fontWeight: "700", color: "white", marginTop: "6px", lineHeight: "1.25" }}>
-            {currentSelectedBid.title}
-          </div>
-          {currentSelectedBid.resources && Object.keys(currentSelectedBid.resources).length > 0 && (
-            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.38)", marginTop: "2px" }}>
-              {Object.entries(currentSelectedBid.resources).map(([k, v]) => `${k}: ${v}`).join(" · ")}
-            </div>
-          )}
-          <div style={{ fontSize: "20px", color: "#b8d000", fontWeight: "300", marginTop: "6px" }}>
-            ₹{currentSelectedBid.basePrice?.toLocaleString()}
-          </div>
-        </div>
-      )}
-
       {/* ── Connection badge ── */}
       <div className="csh2-conn">
-        <div style={{ fontSize: "11px", fontWeight: "800", letterSpacing: "0.18em", color: socketConnected ? "#e8ff00" : "rgba(255,255,255,0.25)" }}>
+        <div
+          style={{
+            fontSize: "11px",
+            fontWeight: "800",
+            letterSpacing: "0.18em",
+            color: socketConnected ? "#e8ff00" : "rgba(255,255,255,0.25)",
+          }}
+        >
           {socketConnected ? "SYSTEM LIVE" : "OFFLINE"}
         </div>
-        <div className="csh2-conn-dot" style={{
-          background: socketConnected ? "#e8ff00" : "rgba(255,255,255,0.12)",
-          boxShadow:  socketConnected ? "0 0 10px #e8ff00, 0 0 20px rgba(232,255,0,0.4)" : "none",
-          animation:  socketConnected ? "csh2-pulse 2s ease-in-out infinite" : "none",
-        }} />
+        <div
+          className="csh2-conn-dot"
+          style={{
+            background: socketConnected ? "#e8ff00" : "rgba(255,255,255,0.12)",
+            boxShadow: socketConnected
+              ? "0 0 10px #e8ff00, 0 0 20px rgba(232,255,0,0.4)"
+              : "none",
+            animation: socketConnected
+              ? "csh2-pulse 2s ease-in-out infinite"
+              : "none",
+          }}
+        />
       </div>
 
       {/* ── Status bar (shuffle in progress) ── */}
@@ -1029,16 +1256,23 @@ export default function Spin3DCards({
       )}
 
       {/* ── Idle hint ── */}
-      {!isSelecting && !wheelStopped && !loading && availableItems.length > 0 && (
-        <div className="csh2-idle-hint">Auction Standby — Awaiting Admin</div>
-      )}
+      {!isSelecting &&
+        !wheelStopped &&
+        !loading &&
+        availableItems.length > 0 && (
+          <div className="csh2-idle-hint">Auction Standby — Awaiting Admin</div>
+        )}
 
       {/* ── Loading overlay ── */}
-      {loading && <div className="csh2-overlay">Loading Round {round} items…</div>}
+      {loading && (
+        <div className="csh2-overlay">Loading Round {round} items…</div>
+      )}
 
       {/* ── Empty / view-only overlay ── */}
       {!loading && availableItems.length === 0 && (
-        <div className="csh2-overlay">View Only — Admin Controls the Auction</div>
+        <div className="csh2-overlay">
+          View Only — Admin Controls the Auction
+        </div>
       )}
 
       {/* ── 3D Deck ── */}
@@ -1048,7 +1282,7 @@ export default function Spin3DCards({
           <div
             className="csh2-deck-root"
             ref={deckRootRef}
-            style={{ transform: "rotateX(-8deg)" }}
+            style={{ transform: "translateY(30px) rotateX(-8deg) scale(1.25)" }}
           >
             {deckItems.map((item, i) => {
               const isSelectedCard = i === selectedIndexRef.current;
@@ -1057,41 +1291,115 @@ export default function Spin3DCards({
               return (
                 <div key={`csh2-${item.id}-${i}`} className="csh2-card">
                   {/* ── Back face — color-coded by suit ── */}
-                  <div className={`csh2-face csh2-back ${isSpade ? 'is-spade' : 'is-diamond'}`}>
+                  <div
+                    className={`csh2-face csh2-back ${isSpade ? "is-spade" : "is-diamond"}`}
+                  >
                     <div className="csh2-back-pattern" />
                     <div className="csh2-back-inner" />
                     {/* Corner pips */}
-                    <span className="csh2-back-pip tl">{isSpade ? '♠' : '♦'}</span>
-                    <span className="csh2-back-pip br">{isSpade ? '♠' : '♦'}</span>
+                    <span className="csh2-back-pip tl">
+                      {isSpade ? "♠" : "♦"}
+                    </span>
+                    <span className="csh2-back-pip br">
+                      {isSpade ? "♠" : "♦"}
+                    </span>
                     <div className="csh2-back-logo-wrap">
-                      {isSpade
-                        ? <div className="csh2-back-spade">♠</div>
-                        : <div className="csh2-back-diamond" />
-                      }
+                      {isSpade ? (
+                        <div className="csh2-back-spade">♠</div>
+                      ) : (
+                        <div className="csh2-back-diamond" />
+                      )}
                       <div className="csh2-back-title">Auction to Action</div>
                       <div className="csh2-back-sub">Round {round}</div>
                     </div>
                   </div>
 
                   {/* ── Front face (hidden by default via CSS; revealed via JS visibility toggle on flip) ── */}
-                  <div className={`csh2-face csh2-front ${isSpade ? 'is-spade' : 'is-diamond'}`} style={{ visibility: 'hidden' }}>
+                  <div
+                    className={`csh2-face csh2-front ${isSpade ? "is-spade" : "is-diamond"}`}
+                    style={{ visibility: "hidden" }}
+                  >
                     {isSelectedCard && currentSelectedBid ? (
-                      <>
-                        <div className="csh2-front-lot">Lot</div>
-                        <div className="csh2-front-number">
-                          {currentSelectedBid.bidNo || currentSelectedBid.bidNumber}
+                      <div className="csh2-front-inner">
+                        {/* Top Right Lot Number */}
+                        <div className="csh2-front-lot-text">
+                          Lot Number:{" "}
+                          {currentSelectedBid.bidNo ||
+                            currentSelectedBid.bidNumber}
                         </div>
-                        <div className="csh2-front-rule" />
-                        <div className="csh2-front-title">{currentSelectedBid.title}</div>
-                        {currentSelectedBid.resources && Object.keys(currentSelectedBid.resources).length > 0 && (
-                          <div className="csh2-front-res">
-                            {Object.entries(currentSelectedBid.resources).map(([k, v]) => `${k}: ${v}`).join(" · ")}
+
+                        {/* Top Left Symbol & Number */}
+                        <div className="csh2-front-topleft">
+                          <div className="csh2-front-symbol-large">
+                            {isSpade ? "♠" : "♦"}
                           </div>
-                        )}
-                        <div className="csh2-front-plabel">Base Price</div>
-                        <div className="csh2-front-price">₹{currentSelectedBid.basePrice?.toLocaleString()}</div>
-                        <div className="csh2-front-badge">✦ Selected</div>
-                      </>
+                          <div className="csh2-front-number-large">
+                            {currentSelectedBid.bidNo ||
+                              currentSelectedBid.bidNumber}
+                          </div>
+                        </div>
+
+                        {/* Middle Resources */}
+                        {currentSelectedBid.resources &&
+                          Object.keys(currentSelectedBid.resources).filter(
+                            (k) => currentSelectedBid.resources[k] > 0,
+                          ).length > 0 && (
+                            <div className="csh2-front-divider top-div">
+                              <span className="csh2-front-divider-icon">
+                                {isSpade ? "♠" : "♦"}
+                              </span>
+                            </div>
+                          )}
+                        <div className="csh2-front-resources-container">
+                          {currentSelectedBid.resources &&
+                            Object.entries(currentSelectedBid.resources)
+                              .filter(([k, v]) => v > 0)
+                              .map(([k, v], idx) => (
+                                <div
+                                  key={k}
+                                  className={`csh2-front-pill pos-${idx % 3}`}
+                                >
+                                  {k} x {v}
+                                </div>
+                              ))}
+                        </div>
+                        {currentSelectedBid.resources &&
+                          Object.keys(currentSelectedBid.resources).filter(
+                            (k) => currentSelectedBid.resources[k] > 0,
+                          ).length > 0 && (
+                            <div className="csh2-front-divider bottom-div">
+                              <span className="csh2-front-divider-icon">
+                                {isSpade ? "♠" : "♦"}
+                              </span>
+                            </div>
+                          )}
+
+                        {/* Bottom Info */}
+                        <div className="csh2-front-bottom">
+                          <div className="csh2-front-price-row">
+                            <span className="csh2-front-price-label">
+                              Base Price:
+                            </span>
+                            <span className="csh2-front-price-value">
+                              ₹{currentSelectedBid.basePrice?.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="csh2-front-selected-btn">
+                            Selected Bid
+                          </div>
+                        </div>
+
+                        {/* Bottom Right Symbol */}
+                        <div className="csh2-front-bottomright">
+                          <div className="csh2-front-symbol-small">
+                            {isSpade ? "♠" : "♦"}
+                          </div>
+                          <div className="csh2-front-number-small">
+                            {currentSelectedBid.bidNo ||
+                              currentSelectedBid.bidNumber}
+                          </div>
+                        </div>
+                      </div>
                     ) : null}
                   </div>
                 </div>
