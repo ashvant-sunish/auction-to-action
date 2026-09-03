@@ -78,83 +78,7 @@ exports.getAllTeams = async (req, res) => {
     const teams = await Team.find(query).select('-password');
 
     // Debug log
-    console.log(`Team lookup for code: ${teamCode}, found ${teams.length} teams`);
-    if (teams.length > 0) {
-      console.log('Found teams:', teams.map(t => ({ code: t.teamCode, name: t.teamName })));
-    }
-
-    res.status(200).json(teams);
-  } catch (error) {
-    console.error('Error fetching teams:', error);
-    res.status(500).json({ message: 'Server error fetching teams.' });
-  }
-};
-
-exports.addTeam = async (req, res) => {
-  try {
-    const { teamCode, teamName, password, initialBalance } = req.body;
-    if (!teamCode || !teamName || !password) {
-      return res.status(400).json({ message: 'Team Code, Name, and Password are required.' });
-    }
-    const existingTeam = await Team.findOne({ teamCode });
-    if (existingTeam) {
-      return res.status(400).json({ message: 'Team Code already exists.' });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newTeam = new Team({
-      teamCode,
-      teamName,
-      password: hashedPassword,
-      credit: initialBalance || 20000
-    });
-    await newTeam.save();
-    res.status(201).json({ message: 'Team created successfully.', team: newTeam });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error while creating team.', error: error.message });
-  }
-};
-
-exports.updateTeam = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { teamName, password, credit, debit, resources } = req.body;
-    const updateData = {};
-    if (teamName) updateData.teamName = teamName;
-    if (credit !== undefined && credit !== null) updateData.credit = credit;
-    if (debit !== undefined && debit !== null) updateData.debit = debit;
-    if (resources) updateData.resources = resources;
-    if (password) {
-      updateData.password = await bcrypt.hash(password, 10);
-    }
-    const updatedTeam = await Team.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
-    if (!updatedTeam) {
-      return res.status(404).json({ message: 'Team not found.' });
-    }
-    res.status(200).json({ message: 'Team updated successfully.', team: updatedTeam });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error while updating team.', error: error.message });
-  }
-};
-
-exports.deleteTeam = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedTeam = await Team.findByIdAndDelete(id);
-    if (!deletedTeam) {
-      return res.status(404).json({ message: 'Team not found.' });
-    }
-    res.status(200).json({ message: 'Team deleted successfully.' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error while deleting team.', error: error.message });
-  }
-};
-
-// --- GAME LOGIC ---
-
-exports.awardBid = async (req, res) => {
-  try {
-    const { teamCode, itemCode, bidAmount } = req.body;
-    const team = await Team.findOne({ teamCode });
+    
     const item = await GameItem.findOne({ itemCode });
 
     if (!team || !item) {
@@ -255,115 +179,7 @@ exports.getBidHistory = async (req, res) => {
   try {
     const { round } = req.query;
 
-    console.log('🔍 getBidHistory called with query:', req.query);
-    console.log('🔍 Round parameter:', round, 'Type:', typeof round);
-
-    let filter = {};
-    if (round) {
-      filter.round = parseInt(round);
-      console.log('🔍 Filter object:', filter);
-    }
-
-    console.log('🔍 Searching BidHistory with filter:', filter);
-    const history = await BidHistory.find(filter).sort({ createdAt: -1 });
-    console.log('🔍 Found history items:', history.length);
-
-    history.forEach((item, index) => {
-      console.log(`Item ${index + 1}: Round ${item.round}, Item: ${item.itemName}`);
-    });
-
-    res.status(200).json(history);
-  } catch (error) {
-    console.error('❌ Error in getBidHistory:', error);
-    res.status(500).json({ message: 'Error fetching bid history' });
-  }
-};
-
-exports.updateBidHistory = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { itemName, bidAmount, teamName, teamCode } = req.body;
-
-    const updateData = {};
-    if (itemName) updateData.itemName = itemName;
-    if (bidAmount) updateData.bidAmount = Number(bidAmount);
-    if (teamName) updateData.teamName = teamName;
-    if (teamCode) updateData.teamCode = teamCode;
-
-    const updatedBid = await BidHistory.findByIdAndUpdate(id, updateData, { new: true });
-
-    if (!updatedBid) {
-      return res.status(404).json({ message: 'Bid history not found.' });
-    }
-
-    res.status(200).json({ message: 'Bid history updated successfully.', bid: updatedBid });
-  } catch (error) {
-    console.error('❌ Error updating bid history:', error);
-    res.status(500).json({ message: 'Error updating bid history', error: error.message });
-  }
-};
-
-exports.deleteBidHistory = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deletedBid = await BidHistory.findByIdAndDelete(id);
-
-    if (!deletedBid) {
-      return res.status(404).json({ message: 'Bid history not found.' });
-    }
-
-    res.status(200).json({ message: 'Bid history deleted successfully.' });
-  } catch (error) {
-    console.error('❌ Error deleting bid history:', error);
-    res.status(500).json({ message: 'Error deleting bid history', error: error.message });
-  }
-};
-
-exports.getTradeHistory = async (req, res) => {
-  try {
-    const history = await TradeHistory.find({}).sort({ createdAt: -1 });
-    res.status(200).json(history);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching trade history' });
-  }
-};
-
-exports.updateTradeHistory = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedTrade = await TradeHistory.findByIdAndUpdate(id, req.body, { new: true });
-    if (!updatedTrade) {
-      return res.status(404).json({ message: 'Trade history not found' });
-    }
-    res.status(200).json(updatedTrade);
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating trade history' });
-  }
-};
-
-exports.deleteTradeHistory = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedTrade = await TradeHistory.findByIdAndDelete(id);
-    if (!deletedTrade) {
-      return res.status(404).json({ message: 'Trade history not found' });
-    }
-    res.status(200).json({ message: 'Trade history deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error deleting trade history' });
-  }
-};
-
-// --- ROUND 1 SPINNING WHEEL INTEGRATION ---
-
-/**
- * Get game items by round for spinning wheel
- */
-exports.getGameItemsByRound = async (req, res) => {
-    try {
-        const { round } = req.params;
-        const roundNumber = parseInt(round);
+    
         
         if (![1, 2].includes(roundNumber)) {
             return res.status(400).json({ message: 'Invalid round number. Must be 1 or 2.' });
@@ -408,63 +224,7 @@ exports.getGameItemsByRound = async (req, res) => {
                 bidAmount: item.bidAmount
             }));
             
-            console.log('📊 Round 1 Data loaded:');
-            console.log(`Available items: ${availableItems.length}`);
-            console.log(`Selected items: ${selectedItems.length}`);
             
-            return res.status(200).json({
-                availableItems,
-                selectedItems
-            });
-        }
-        
-        // For Round 2, still use GameItem model (if needed)
-        const availableItems = await GameItem.find({ 
-            round: roundNumber, 
-            isBidOn: false 
-        }).sort({ itemCode: 1 });
-        
-        const selectedItems = await GameItem.find({ 
-            round: roundNumber, 
-            isBidOn: true 
-        }).sort({ itemCode: 1 });
-        
-        res.status(200).json({
-            availableItems: availableItems.map(item => ({
-                id: item._id,
-                bidNo: item.itemCode,
-                title: item.name,
-                details: item.description || `Base Price: ₹${item.basePrice}`,
-                category: `Round ${item.round}`,
-                itemCode: item.itemCode,
-                basePrice: item.basePrice,
-                resources: item.resources
-            })),
-            selectedItems: selectedItems.map(item => ({
-                id: item._id,
-                bidNo: item.itemCode,
-                title: item.name,
-                details: item.description || `Base Price: ₹${item.basePrice}`,
-                category: `Round ${item.round}`,
-                itemCode: item.itemCode,
-                basePrice: item.basePrice,
-                resources: item.resources
-            }))
-        });
-    } catch (error) {
-        console.error('Error fetching game items:', error);
-        res.status(500).json({ message: 'Error fetching game items' });
-    }
-};
-
-/**
- * Select a game item from spinning wheel and update live state
- */
-exports.selectGameItem = async (req, res) => {
-    try {
-        const { itemId, itemCode, bidNo, bidNumber } = req.body;
-        
-        console.log('📥 Received selection request:', { itemId, itemCode, bidNo, bidNumber });
         
         // Validation - accept either bidNo or bidNumber
         const finalBidNo = bidNo || bidNumber;
@@ -480,29 +240,13 @@ exports.selectGameItem = async (req, res) => {
             return res.status(404).json({ message: 'Round 1 data not found' });
         }
         
-        console.log('📊 Current available items:', roundData.item_list.length);
-        console.log('🔍 Looking for item with:', { itemId, itemCode, finalBidNo });
         
-        // Find the item in item_list by matching itemId, itemCode, or bidNo/bidNumber
-        const itemIndex = roundData.item_list.findIndex(item => {
-            const matches = (itemId && item._id?.toString() === itemId) ||
-                           (itemCode && item.itemCode === itemCode) ||
-                           (finalBidNo && (item.bidNumber === finalBidNo || item.itemCode === finalBidNo));
-            
-            if (matches) {
-                console.log('✅ Found matching item:', { 
-                    itemCode: item.itemCode, 
-                    bidNumber: item.bidNumber,
-                    name: item.name 
-                });
             }
             return matches;
         });
         
         if (itemIndex === -1) {
-            console.log('❌ Item not found. Available items:');
-            roundData.item_list.forEach((item, index) => {
-                console.log(`  ${index}: ${item.itemCode} (bidNumber: ${item.bidNumber})`);
+            
             });
             return res.status(404).json({ message: 'Game item not found in available items' });
         }
@@ -521,25 +265,7 @@ exports.selectGameItem = async (req, res) => {
         // Save the updated document
         await roundData.save();
         
-        console.log(`📦 Item moved: ${selectedItem.itemCode} from item_list to item_list_2`);
-        console.log(`📊 Available items: ${roundData.item_list.length}, Selected items: ${roundData.item_list_2.length}`);
-        
-        // Update game state
-        let gameState = await GameState.findOne({ singleton: 'main' });
-        if (!gameState) {
-            gameState = new GameState({ singleton: 'main' });
-        }
-        
-        gameState.currentRound = 1;
-        gameState.isAuctionLive = true;
-        gameState.currentItemUpForBidding = {
-            itemCode: selectedItem.itemCode,
-            name: selectedItem.name,
-            description: `Base Price: ₹${selectedItem.basePrice}`,
-            basePrice: selectedItem.basePrice,
-            round: 1
-        };
-        gameState.liveMessage = `${selectedItem.name} (${selectedItem.itemCode}) has been selected from the wheel!`;
+        has been selected from the wheel!`;
         await gameState.save();
         
         // Emit socket event for real-time updates to ALL connected clients
@@ -562,56 +288,7 @@ exports.selectGameItem = async (req, res) => {
             req.app.get('io').emit('roundItemUpdate', updateData);
             req.app.get('io').emit('wheelUpdate', updateData);
             
-            console.log('📡 Broadcasted wheel update to all clients');
-        }
-        
-        res.status(201).json({
-            message: 'Game item selected and moved to item_list_2 successfully',
-            selectedItem: {
-                itemCode: selectedItem.itemCode,
-                name: selectedItem.name,
-                basePrice: selectedItem.basePrice
-            },
-            availableCount: roundData.item_list.length,
-            selectedCount: roundData.item_list_2.length,
-            gameState: {
-                currentItem: gameState.currentItemUpForBidding,
-                liveMessage: gameState.liveMessage
-            }
-        });
-    } catch (error) {
-        console.error('Error selecting game item:', error);
-        res.status(500).json({ message: 'Error selecting game item' });
-    }
-};
-
-/**
- * Complete trade with inventory and account updates
- */
-exports.completeTrade = async (req, res) => {
-    try {
-        const {
-            round,
-            itemCode,
-            itemName,
-            resources,
-            teamCode,
-            teamName,
-            bidAmount,
-            tradeType = 'AUCTION_WIN',
-            actionType = 'BUY',
-            updateInventory = true,
-            updateAccount = true
-        } = req.body;
-
-        console.log('🔄 Processing complete trade:', {
-            teamCode,
-            itemName,
-            resources,
-            bidAmount,
-            updateInventory,
-            updateAccount
-        });
+            
 
         // Find the team
         const team = await Team.findOne({ teamCode });
@@ -640,105 +317,13 @@ exports.completeTrade = async (req, res) => {
             }
             
             team.inventory.push(itemCode);  // Just add the item code as string
-            console.log('📦 Added to inventory:', itemCode);
-        }
-
-        // Update team resources (add the actual resources from the GameItem)
-        if (gameItem && gameItem.resources) {
-            gameItem.resources.forEach((quantity, resourceName) => {
-                const currentQuantity = team.resources.get(resourceName) || 0;
-                team.resources.set(resourceName, currentQuantity + quantity);
-                console.log(`🔧 Added ${quantity} ${resourceName} to team resources`);
-            });
-        }
-
-        // Update team account balance (increase debit)
-        if (updateAccount) {
-            team.debit += bidAmount;
-            console.log('💰 Updated debit:', `₹${team.debit}`);
-        }
-
-        // Save team updates
-        await team.save();
-
-        // Create bid history record for tracking
-        const bidHistoryRecord = {
-            round,
-            itemCode,
-            itemName,
-            resourcesGained: {},
-            teamCode,
-            teamName,
-            bidAmount
-        };
-
-        // Add resources gained to bid history
-        if (gameItem && gameItem.resources) {
-            gameItem.resources.forEach((quantity, resourceName) => {
-                bidHistoryRecord.resourcesGained[resourceName] = quantity;
-            });
+            
         }
 
         // Save bid history
         const bidHistory = new BidHistory(bidHistoryRecord);
         await bidHistory.save();
-        console.log('📊 Bid history created:', bidHistory._id);
-
-        res.status(201).json({
-            success: true,
-            message: 'Trade completed successfully',
-            data: {
-                bidHistoryId: bidHistory._id,
-                teamCode,
-                teamName,
-                itemName,
-                bidAmount,
-                newBalance: team.credit - team.debit,
-                inventoryCount: team.inventory?.length || 0,
-                resourcesGained: Object.fromEntries(team.resourcesGained || new Map())
-            }
-        });
-
-    } catch (error) {
-        console.error('❌ Error completing trade:', error);
-        res.status(500).json({ 
-            success: false,
-            message: 'Error completing trade',
-            error: error.message 
-        });
-    }
-};
-
-/**
- * Get current game state for live updates
- */
-exports.getGameState = async (req, res) => {
-    try {
-        let gameState = await GameState.findOne({ singleton: 'main' });
-        if (!gameState) {
-            gameState = new GameState({ singleton: 'main' });
-            await gameState.save();
-        }
-        
-        res.status(200).json(gameState);
-    } catch (error) {
-        console.error('Error fetching game state:', error);
-        res.status(500).json({ message: 'Error fetching game state' });
-    }
-};
-// --- TEAM STATUS MANAGEMENT (isActive toggle) ---
-
-/**
- * Activate or deactivate a team (set isActive = true/false).
- * Admins can use this to allow or block login access for teams.
- */
-exports.setTeamActiveStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { isActive } = req.body;
-
-    if (typeof isActive !== 'boolean') {
-      return res.status(400).json({ message: 'isActive must be a boolean (true/false).' });
+        .' });
     }
 
     const team = await Team.findByIdAndUpdate(
@@ -776,57 +361,7 @@ exports.getLiveAuctionStatus = async (req, res) => {
       selectedNumber = latestSelection.itemDetails.bidNumber.toString();
     }
     
-    console.log('Latest wheel selection:', latestSelection);
-    console.log('Selected number:', selectedNumber);
-    
-    res.json({
-      selectedNumber,
-      currentItem: `Item ${selectedNumber}`,
-      timestamp: latestSelection?.timestamp || null
-    });
-  } catch (error) {
-    console.error('Error getting live auction status:', error);
-    res.status(500).json({ error: 'Failed to get live auction status' });
-  }
-};
-
-/**
- * Update team wishlist (admin only) - removes items after trade
- */
-exports.updateTeamWishlist = async (req, res) => {
-  try {
-    const { teamCode, itemsToRemove } = req.body;
-    
-    console.log(`🔄 Admin updating wishlist for team ${teamCode}`);
-    console.log('Items to remove:', itemsToRemove);
-    
-    if (!teamCode || !itemsToRemove) {
-      return res.status(400).json({
-        success: false,
-        message: 'teamCode and itemsToRemove are required'
-      });
-    }
-    
-    // Find the active wishlist for this team
-    const wishlist = await TradeWishlist.findOne({
-      teamCode: teamCode,
-      status: 'active',
-      round: 3
-    });
-    
-    if (!wishlist) {
-      console.log(`❌ No wishlist found for team ${teamCode}`);
-      return res.status(404).json({
-        success: false,
-        message: 'No active wishlist found for this team'
-      });
-    }
-    
-    console.log(`📋 Current wishlist for ${teamCode}:`, wishlist.itemsToTrade);
-    
-    // Update item counts in wishlist (don't delete items)
-    for (const item of itemsToRemove) {
-      console.log(`Processing item: ${item.name} (quantity: ${item.quantity})`);
+    `);
       
       const wishlistItemIndex = wishlist.itemsToTrade.findIndex(
         wItem => wItem.name === item.name
@@ -838,37 +373,4 @@ exports.updateTeamWishlist = async (req, res) => {
         const newCount = Math.max(0, currentCount - item.quantity);
         
         wishlist.itemsToTrade[wishlistItemIndex].count = newCount;
-        console.log(`Updated ${item.name} from ${currentCount} to ${newCount} (reduced by ${item.quantity})`);
         
-        // Keep the item in wishlist even if count becomes 0
-        console.log(`Keeping ${item.name} in wishlist with count: ${newCount}`);
-      } else {
-        console.log(`⚠️ Item ${item.name} not found in wishlist for team ${teamCode}`);
-      }
-    }
-    
-    // Recalculate total items
-    wishlist.totalItems = wishlist.itemsToTrade.reduce((sum, item) => sum + item.count, 0);
-    
-    // Save updated wishlist
-    await wishlist.save();
-    
-    console.log(`✅ Wishlist updated for ${teamCode}, new total: ${wishlist.totalItems}`);
-    console.log(`📋 Updated wishlist:`, wishlist.itemsToTrade);
-    
-    res.status(200).json({
-      success: true,
-      message: 'Wishlist updated successfully',
-      updatedWishlist: wishlist.itemsToTrade
-    });
-    
-  } catch (error) {
-    console.error("❌ Error updating wishlist:", error);
-    console.error("❌ Stack trace:", error.stack);
-    res.status(500).json({ 
-      success: false,
-      message: 'Server error while updating wishlist.',
-      error: error.message
-    });
-  }
-};

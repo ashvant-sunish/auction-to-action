@@ -15,20 +15,7 @@ const finalProductsData = require('./enterprisesAndProductsData');
 const seedDatabase = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ MongoDB connected for seeding...');
-
-    // --- Seed Game Items (Replaces seedItems.js) ---
-    await GameItem.deleteMany({});
-    await GameItem.insertMany(round1BidsData);
-    console.log(`🌱 Seeded ${round1BidsData.length} items for Round 1.`);
-
-    // --- Seed Final Products ---
-    await FinalProduct.deleteMany({});
-    await FinalProduct.insertMany(finalProductsData);
-    console.log(`🌱 Seeded ${finalProductsData.length} final enterprises and products.`);
     
-    // --- Seed Teams (Replaces creatEventTeam.js) ---
-    await Team.deleteMany({});
     const teamsToCreate = [];
     const numberOfTeams = 65; // Set how many teams you want to create
 
@@ -45,15 +32,4 @@ const seedDatabase = async () => {
       });
     }
     await Team.insertMany(teamsToCreate);
-    console.log(`🌱 Seeded ${teamsToCreate.length} teams.`);
-
-    console.log('✅ Seeding complete!');
-  } catch (error) {
-    console.error('❌ Error during seeding:', error);
-  } finally {
-    await mongoose.connection.close();
-    console.log('🔌 MongoDB connection closed.');
-  }
-};
-
-seedDatabase();
+    
