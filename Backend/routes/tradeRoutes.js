@@ -14,5 +14,5 @@ const {
 // Test route to verify routing is working
 router.get('/test', (req, res) => {
   router.get('/team/:teamNumber', getTeamTrades);
-
+});
 module.exports = router;

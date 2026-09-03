@@ -43,7 +43,16 @@ router.post('/admin/updateRound', protectAdmin, async (req, res) => {
     if (io) {
       // Broadcast round update to all connected clients
       io.emit('roundUpdated', currentRoundState);
-      
+    }
+  } catch (error) {
+    console.error('Error updating round:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error updating round',
+      error: error.message
+    });
+  }
+});   
 
 /**
  * Execute trade with real-time broadcasting
@@ -83,7 +92,8 @@ router.post('/admin/trade', protectAdmin, (req, res) => {
         // Broadcast to both teams involved
         io.to(`team_${teamA}`).emit('tradeExecuted', tradeData);
         io.to(`team_${teamB}`).emit('tradeExecuted', tradeData);
-        
+      }
+    }  
     
     if (io) {
       if (targetTeam) {
