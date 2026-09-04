@@ -76,7 +76,10 @@ const Sidebar = ({
             color="white"
             aria-label="Toggle Sidebar"
             fontSize="24px"
-            _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+            _hover={{ bg: "rgba(255, 255, 255, 0.1)" ,
+              shadow: "2px 8px 16px rgba(0, 0, 0, 0.15)",
+              color: "#FF0052"
+            }}
           />
         </Flex>
 

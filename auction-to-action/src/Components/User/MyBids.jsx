@@ -34,6 +34,84 @@ import {
 import { FiChevronDown } from "react-icons/fi";
 import serverUrl from "../../servercon";
 
+// Reusable Stat Box with mouse-following 100px spotlight frosted glass effect
+const StatBox = (props) => {
+  const { title, value, valueColor, subtitleText, worthValue } = props;
+  const [mousePos, setMousePos] = useState({ x: -200, y: -200 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  return (
+    <Box
+      position="relative"
+      bg="rgba(15, 59, 61, 0.3)"
+      backdropFilter="blur(5px)"
+      p={5}
+      borderRadius="lg"
+      shadow="md"
+      flex="1"
+      minW={{ base: "100%", md: "300px" }}
+      h="120px"
+      border="1px solid"
+      borderColor="rgba(255, 255, 255, 0.2)"
+      color="white"
+      overflow="hidden"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setMousePos({ x: -200, y: -200 });
+      }}
+    >
+      {/* 100px spotlight radius frosted glass overlay */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        pointerEvents="none"
+        opacity={isHovered ? 1 : 0}
+        transition="opacity 0.2s ease-in-out"
+        background={`radial-gradient(75px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255, 255, 255, 0.18), transparent 100%)`}
+        backdropFilter="blur(16px)"
+        zIndex={1}
+      />
+
+      <VStack
+        align="start"
+        spacing={1}
+        justifyContent="center"
+        h="100%"
+        position="relative"
+        zIndex={2}
+      >
+        <Text fontSize="md" color="gray.300" fontWeight="medium">
+          {title}
+        </Text>
+        <Text fontSize="3xl" fontWeight="bold" color={valueColor}>
+          {value}
+        </Text>
+        <Text fontSize="md" color="gray.400">
+          {subtitleText}{" "}
+          {worthValue && (
+            <Text as="span" fontWeight="semibold">
+              {worthValue}
+            </Text>
+          )}
+        </Text>
+      </VStack>
+    </Box>
+  );
+};
+
 function MyBids() {
   const [selectedRound, setSelectedRound] = useState("1");
   const [bidsData, setBidsData] = useState([]);
@@ -204,7 +282,7 @@ function MyBids() {
         </Tr>
       </Thead>
       <Tbody>
-        {data.map((trade, index) => (
+        {data.map((trade) => (
           <Tr key={trade._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
             <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
               <Text fontSize="sm">
@@ -290,7 +368,7 @@ function MyBids() {
         </Tr>
       </Thead>
       <Tbody>
-        {data.map((enterprise, index) => (
+        {data.map((enterprise) => (
           <Tr key={enterprise._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
             <Td
               py={4}
@@ -352,7 +430,7 @@ function MyBids() {
         </Tr>
       </Thead>
       <Tbody>
-        {data.map((product, index) => (
+        {data.map((product) => (
           <Tr key={product._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
             <Td
               py={4}
@@ -399,6 +477,19 @@ function MyBids() {
     { value: "enterprises", label: "Constructed Enterprises" },
     { value: "products", label: "Purchased Products" },
   ];
+
+  const totalEnterprisesWorth = enterprisesData
+    .reduce((sum, ent) => sum + Number(ent.worth || 0), 0)
+    .toLocaleString();
+
+  const totalProductsWorth = productsData
+    .reduce((sum, prod) => sum + Number(prod.worth || 0), 0)
+    .toLocaleString();
+
+  const totalPortfolioValue = (
+    enterprisesData.reduce((sum, ent) => sum + Number(ent.worth || 0), 0) +
+    productsData.reduce((sum, prod) => sum + Number(prod.worth || 0), 0)
+  ).toLocaleString();
 
   return (
     <>
@@ -509,7 +600,7 @@ function MyBids() {
               _hover={{ bg: "rgba(13, 17, 23, 1)" }}
               _active={{ bg: "rgba(13, 17, 23, 1)" }}
               borderRadius="lg"
-              width="250px" // Set a specific width
+              width="250px"
             >
               {ROUND_OPTIONS.find((o) => o.value === selectedRound)?.label ||
                 "Select Round"}
@@ -522,8 +613,8 @@ function MyBids() {
               borderRadius="lg"
               border="1px solid rgba(255,255,255,0.08)"
               boxShadow="0 8px 32px rgba(0, 0, 0, 0.3)"
-              width="250px" // Match the MenuButton width
-              minWidth="250px" // Ensure minimum width
+              width="250px"
+              minWidth="250px"
             >
               {ROUND_OPTIONS.map((opt) => (
                 <MenuItem

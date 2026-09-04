@@ -93,7 +93,6 @@ const Navbar = ({
                 bg: "rgba(255, 255, 255, 0.1)",
                 color: "white"
               }}
-              _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
               size="lg"
               aria-label="Rules"
               variant="ghost"
@@ -120,7 +119,11 @@ const Navbar = ({
                   bg: "rgba(255, 255, 255, 0.1)",
                   color: "white"
                 }}
-                _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
+                _active={{ bg: "rgba(255, 255, 255, 0.05)",
+                  shadow: "2px 8px 16px rgba(0, 0, 0, 0.15)",
+                  color: "#FF0052",
+                  border: "1px solid rgba(255, 255, 255, 0.2)"
+                 }}
                 size="lg"
               />
             </Tooltip>
