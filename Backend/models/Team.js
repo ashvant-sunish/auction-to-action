@@ -46,6 +46,12 @@ const teamSchema = new mongoose.Schema({
     default: false   // Team is inactive by default, active only when logged in
   },
 
+  // Tracks when the active session JWT expires, used to detect stale sessions
+  sessionExpiry: {
+    type: Date,
+    default: null
+  },
+
   // Constructed enterprises with details
   enterprises: [{
     id: { type: Number, required: true },

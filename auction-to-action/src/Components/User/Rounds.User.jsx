@@ -21,13 +21,13 @@ function RoundsUser({ gameState }) {
     switch (gameState) {
       case 1: // Round 1 ongoing
         return (
-          <Box borderRadius={"xl"}>
+          <Box width="100%" height="100%">
             <Round1User />
           </Box>
         );
       case 3: // Round 2 ongoing
         return (
-          <Box borderRadius="full" bg="primary.200">
+          <Box borderRadius="full" bg="transparent">
             <Round2User />
           </Box>
         );
@@ -45,12 +45,12 @@ function RoundsUser({ gameState }) {
             borderRadius="2xl"
             mt={4}
             textAlign="center"
-            bg="rgba(0,0,0,0.3)"
+            bg="rgba(13, 17, 23, 0.8)"
             backdropFilter="blur(10px)"
             border="1px solid"
             borderColor="whiteAlpha.200"
           >
-            <Text fontSize="2xl" fontWeight="bold">
+            <Text fontSize="2xl" fontWeight="bold" color="#e8ff00">
               Please Wait
             </Text>
             <Text mt={4} fontSize="lg" opacity={0.8}>
@@ -62,10 +62,8 @@ function RoundsUser({ gameState }) {
   };
 
   return (
-    <Box bg="transparent" minH="100vh" p={4}>
-      <Box p={4} mt={2} borderRadius="xl" width="100%">
-        {renderRoundContent()}
-      </Box>
+    <Box width="100%" height="100%">
+      {renderRoundContent()}
     </Box>
   );
 }

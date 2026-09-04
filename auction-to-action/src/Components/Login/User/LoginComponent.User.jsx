@@ -97,18 +97,18 @@ function LoginComponentUser() {
   const CustomAlert = ({ status, children }) => {
     const cfg = {
       success: {
-        bg: "green.900",
-        borderColor: "green.700",
-        color: "green.100",
+        bg: "rgba(13, 17, 23, 0.95)",
+        borderColor: "#e8ff00",
+        color: "white",
         icon: AiOutlineCheckCircle,
-        iconColor: "green.300",
+        iconColor: "#e8ff00",
       },
       error: {
-        bg: "red.900",
-        borderColor: "red.700",
-        color: "red.100",
+        bg: "rgba(13, 17, 23, 0.95)",
+        borderColor: "red.500",
+        color: "white",
         icon: AiOutlineExclamationCircle,
-        iconColor: "red.300",
+        iconColor: "red.400",
       },
     }[status];
     if (!cfg) return null;
@@ -144,20 +144,18 @@ function LoginComponentUser() {
         objectFit="contain"
         zIndex={10}
       />
-      <Box
-        bg="rgba(255,255,255,0.15)"
-        borderRadius="2xl"
-        p={{ base: 10, md: 12 }}
-      >
+      <Box w="100%">
         <VStack spacing={6}>
           <Heading
-            as="h1"
-            size="2xl"
+            as="h2"
+            size="xl"
             color="white"
+            fontWeight="300"
             fontFamily="'Inter', sans-serif"
-            p={{ base: 5 }}
+            mb={6}
+            letterSpacing="wider"
           >
-            Team Login
+            Authenticate <Text as="span" color="#e8ff00" fontWeight="bold">Session</Text>
           </Heading>
 
           {message && <CustomAlert status={messageType}>{message}</CustomAlert>}
@@ -174,12 +172,17 @@ function LoginComponentUser() {
                   placeholder="e.g: TEAM101"
                   value={formData.teamNumber}
                   onChange={handleInputChange}
-                  bg="rgba(255, 255, 255, 0.1)"
-                  borderColor="rgba(255, 255, 255, 0.2)"
+                  bg="transparent"
+                  border="none"
+                  borderBottom="2px solid rgba(255, 255, 255, 0.2)"
+                  borderRadius="0"
+                  _hover={{ borderColor: "rgba(255, 255, 255, 0.5)" }}
+                  _focus={{ borderColor: "#e8ff00", boxShadow: "none", bg: "rgba(255,255,255,0.02)" }}
                   color="white"
-                  borderRadius="lg"
                   size="lg"
-                  _placeholder={{ color: "gray.400" }}
+                  px={2}
+                  _placeholder={{ color: "gray.500", letterSpacing: "wide" }}
+                  transition="all 0.3s"
                 />
                 {errors.teamNumber && (
                   <Text color="red.500" fontSize="xs" mt={1}>
@@ -200,12 +203,17 @@ function LoginComponentUser() {
                     placeholder="Enter your password"
                     value={formData.teamCredential}
                     onChange={handleInputChange}
-                    bg="rgba(255, 255, 255, 0.1)"
-                    borderColor="rgba(255, 255, 255, 0.2)"
+                    bg="transparent"
+                    border="none"
+                    borderBottom="2px solid rgba(255, 255, 255, 0.2)"
+                    borderRadius="0"
+                    _hover={{ borderColor: "rgba(255, 255, 255, 0.5)" }}
+                    _focus={{ borderColor: "#e8ff00", boxShadow: "none", bg: "rgba(255,255,255,0.02)" }}
                     color="white"
-                    borderRadius="lg"
                     size="lg"
-                    _placeholder={{ color: "gray.400" }}
+                    px={2}
+                    _placeholder={{ color: "gray.500", letterSpacing: "wide" }}
+                    transition="all 0.3s"
                   />
                   <InputRightElement h="full">
                     <IconButton
@@ -231,17 +239,23 @@ function LoginComponentUser() {
 
               <Button
                 type="submit"
-                bg="gray.50"
-                color="gray.900"
+                bg="transparent"
+                color="#e8ff00"
+                border="1px solid #e8ff00"
+                fontWeight="600"
+                letterSpacing="widest"
+                textTransform="uppercase"
                 size="lg"
                 w="100%"
                 isLoading={isLoading}
-                loadingText="Signing in..."
-                mt={4}
-                borderRadius="xl"
-                _hover={{ bg: "gray.200" }}
+                loadingText="INITIALIZING..."
+                mt={8}
+                borderRadius="0"
+                transition="all 0.3s"
+                _hover={{ bg: "rgba(232, 255, 0, 0.1)", transform: "translateY(-2px)", boxShadow: "0 10px 20px rgba(232,255,0,0.15)" }}
+                _active={{ bg: "rgba(232, 255, 0, 0.2)", transform: "translateY(0)" }}
               >
-                Login
+                ACCESS TERMINAL
               </Button>
             </VStack>
           </Box>

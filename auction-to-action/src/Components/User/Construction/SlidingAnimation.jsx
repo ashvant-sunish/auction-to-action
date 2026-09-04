@@ -403,13 +403,13 @@ const SlidingAnimation = forwardRef((props, ref) => {
     .card-image::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 40%, transparent 70%);
-      opacity: 0.8;
+      background: linear-gradient(to top, rgba(13, 17, 23, 1) 0%, rgba(13, 17, 23, 0.7) 40%, rgba(13, 17, 23, 0) 100%);
+      opacity: 0.9;
       transition: opacity 0.3s ease;
       pointer-events: none;
     }
     .card-image.expanded { width: 360px; transform: translateY(-3px); }
-    .card-image.selected { border-color: #0C969C; box-shadow: 0 0 0 2px rgba(12,150,156,0.25); }
+    .card-image.selected { border-color: #e8ff00; box-shadow: 0 0 0 2px rgba(232, 255, 0, 0.25); }
     .card-content {
       position: absolute;
       bottom: 0;
@@ -427,10 +427,10 @@ const SlidingAnimation = forwardRef((props, ref) => {
       display: flex;
       pointer-events: auto;
     }
-    .card-title { font-size: 1.2rem; font-weight:700; margin:0; text-shadow:0 2px 4px rgba(0,0,0,0.5); line-height: 1.2; }
-    .card-worth { font-size: 1rem; color:#a0deca; margin-top:0.15rem; }
-    .card-requirements { margin:0.6rem 0 0 0; font-size: 0.75rem; color:#e2e8f0; list-style:none; padding-left:0; }
-    .card-requirements li { margin-bottom: 0.15rem; }
+    .card-title { font-size: 1.2rem; font-weight:300; letter-spacing: 2px; text-transform: uppercase; margin:0; text-shadow:0 2px 4px rgba(0,0,0,0.5); line-height: 1.2; }
+    .card-worth { font-size: 1rem; color:#e8ff00; margin-top:0.25rem; font-weight: 600; }
+    .card-requirements { margin:0.8rem 0 0 0; font-size: 0.75rem; color:#e2e8f0; list-style:none; padding-left:0; font-family: monospace; letter-spacing: 1px; }
+    .card-requirements li { margin-bottom: 0.25rem; }
   `;
 
   const expandedIndex =

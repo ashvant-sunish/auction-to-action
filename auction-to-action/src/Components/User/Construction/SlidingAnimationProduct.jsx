@@ -437,17 +437,17 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
     .card-image::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 40%, transparent 70%);
-      opacity: 0.8;
+      background: linear-gradient(to top, rgba(13, 17, 23, 1) 0%, rgba(13, 17, 23, 0.7) 40%, rgba(13, 17, 23, 0) 100%);
+      opacity: 0.9;
       transition: opacity 0.3s ease;
       pointer-events: none;
     }
     .card-image.unavailable::before {
-      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.2) 70%);
+      background: linear-gradient(to top, rgba(13, 17, 23, 1) 0%, rgba(13, 17, 23, 0.8) 40%, rgba(13, 17, 23, 0.4) 100%);
     }
     .card-image.expanded { width: 360px; transform: translateY(-3px); }
     .card-image.unavailable.expanded { transform: translateY(0px); }
-    .card-image.selected { border-color: #0C969C; box-shadow: 0 0 0 2px rgba(12,150,156,0.25); }
+    .card-image.selected { border-color: #e8ff00; box-shadow: 0 0 0 2px rgba(232, 255, 0, 0.25); }
     
     .card-content { 
       position: absolute; 
@@ -467,25 +467,30 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
     
     .card-title { 
       font-size: 1.2rem; 
-      font-weight:700; 
+      font-weight:300; 
+      letter-spacing: 2px;
+      text-transform: uppercase;
       margin:0; 
       text-shadow:0 2px 4px rgba(0,0,0,0.5); 
       line-height: 1.2; 
     }
     .card-worth { 
       font-size: 1rem; 
-      color:#a0deca; 
-      margin-top:0.15rem; 
+      color:#e8ff00; 
+      margin-top:0.25rem; 
+      font-weight: 600;
     }
     .card-requirements { 
-      margin:0.6rem 0 0 0; 
+      margin:0.8rem 0 0 0; 
       font-size: 0.75rem; 
       color:#e2e8f0; 
       list-style:none; 
       padding-left:0; 
+      font-family: monospace;
+      letter-spacing: 1px;
     }
     .card-requirements li { 
-      margin-bottom: 0.15rem; 
+      margin-bottom: 0.25rem; 
     }
     
     .lock-overlay {
@@ -509,17 +514,21 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(255, 0, 0, 0.85);
-      color: white;
+      background: rgba(13, 17, 23, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: #ff3333;
       padding: 0.7rem 1.2rem;
-      border-radius: 8px;
-      font-size: 1rem;
+      border-radius: 0px;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
       text-align: center;
       opacity: 0;
       z-index: 3;
       pointer-events: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      font-weight: 300;
       display: flex;
       align-items: center;
       justify-content: center;
