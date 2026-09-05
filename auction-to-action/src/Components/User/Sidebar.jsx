@@ -57,14 +57,14 @@ const Sidebar = ({
       left="0"
       h="full"
       w={isCollapsed ? "80px" : "260px"}
-      bg="rgba(10, 13, 18, 0.97)"
+      bg="rgba(15, 59, 61, 0.5)"
       backdropFilter="blur(10px)"
       color="white"
       p={4}
       display={{ base: "none", md: "block" }}
       transition="width 0.2s ease-in-out"
       borderRight="1px solid"
-      borderColor="rgba(255, 255, 255, 0.08)"
+      borderColor="rgba(255, 255, 255, 0.2)"
     >
       <VStack align="stretch" spacing={4} h="full">
         <Flex align="center" justify={isCollapsed ? "center" : "space-between"}>
@@ -76,14 +76,11 @@ const Sidebar = ({
             color="white"
             aria-label="Toggle Sidebar"
             fontSize="24px"
-            _hover={{ bg: "rgba(255, 255, 255, 0.1)" ,
-              shadow: "2px 8px 16px rgba(0, 0, 0, 0.15)",
-              color: "#FF0052"
-            }}
+            _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
           />
         </Flex>
 
-        <Divider borderColor="rgba(255, 255, 255, 0.08)" />
+        <Divider borderColor="rgba(255, 255, 255, 0.2)" />
 
         <VStack align="stretch" spacing={2} mt={4}>
           {navItems.map((item) => (
@@ -102,25 +99,14 @@ const Sidebar = ({
                 borderRadius="md"
                 bg={
                   activeComponent === item.key
-                    ? "rgba(255, 255, 255, 0.05)"
+                    ? "rgba(255, 255, 255, 0.1)"
                     : "transparent"
-                }
-                color={
-                  activeComponent === item.key
-                    ? "#e8ff00"
-                    : "rgba(255, 255, 255, 0.45)"
-                }
-                borderLeft={
-                  activeComponent === item.key
-                    ? "3px solid #e8ff00"
-                    : "3px solid transparent"
                 }
                 fontWeight={activeComponent === item.key ? "bold" : "normal"}
                 display="flex"
                 alignItems="center"
                 justifyContent={isCollapsed ? "center" : "flex-start"}
-                _hover={{ bg: "rgba(255, 255, 255, 0.05)", cursor: "pointer", color: "white" }}
-                transition="all 0.2s"
+                _hover={{ bg: "rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
               >
                 <Icon as={item.icon} boxSize={6} />
                 {!isCollapsed && (

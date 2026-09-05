@@ -35,14 +35,18 @@ const Navbar = ({
   // let [rulebutton, setrulebutton] = React.useState(localStorage.getItem("rulebutton"));
 
   // console.log("Rule View:", ruleview);
-  const getBadgeStyle = () => {
+  // Function to determine badge color based on game state
+  const getBadgeColorScheme = () => {
+    // States 1, 3, 5 are "Ongoing"
     if ([1, 3, 5].includes(gameState)) {
-      return { bg: "#e8ff00", color: "#080b0f" };
+      return "green";
     }
+    // States 2, 4, 6 are "Ended"
     if ([2, 4, 6].includes(gameState)) {
-      return { bg: "red.500", color: "white" };
+      return "red";
     }
-    return { bg: "gray.600", color: "white" };
+    // State 0 is "Not Started"
+    return "gray";
   };
 
   return (
@@ -53,10 +57,10 @@ const Navbar = ({
       w="full"
       px="4"
       py="2"
-      bg="rgba(10, 13, 18, 0.95)"
+      bg="rgba(10, 112, 117, 0.6)"
       backdropFilter="blur(15px)"
       borderBottomWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.08)"
+      borderColor="rgba(255, 255, 255, 0.2)"
       boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
     >
       <HStack spacing={4}>
@@ -73,7 +77,8 @@ const Navbar = ({
           </BreadcrumbItem>
         </Breadcrumb>
         <Badge
-          {...getBadgeStyle()}
+          colorScheme={getBadgeColorScheme()}
+          variant="subtle"
           px={3}
           py={1}
           borderRadius="full"
@@ -88,11 +93,11 @@ const Navbar = ({
               icon={<IoDocumentTextOutline />}
               onClick={onViewRules}
               bg="transparent"
-              color="rgba(255, 255, 255, 0.7)"
+              color="white"
               _hover={{
                 bg: "rgba(255, 255, 255, 0.1)",
-                color: "white"
               }}
+              _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
               size="lg"
               aria-label="Rules"
               variant="ghost"
@@ -113,25 +118,20 @@ const Navbar = ({
                 aria-label="Profile Options"
                 icon={<BsPersonCircle />}
                 variant="ghost"
-                color="rgba(255, 255, 255, 0.7)"
+                color="white"
                 bg="transparent"
                 _hover={{
                   bg: "rgba(255, 255, 255, 0.1)",
-                  color: "white"
                 }}
-                _active={{ bg: "rgba(255, 255, 255, 0.05)",
-                  shadow: "2px 8px 16px rgba(0, 0, 0, 0.15)",
-                  color: "#FF0052",
-                  border: "1px solid rgba(255, 255, 255, 0.2)"
-                 }}
+                _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
                 size="lg"
               />
             </Tooltip>
             <Portal>
               <MenuList
-                bg="rgba(13, 17, 23, 0.98)"
+                bg="rgba(15, 59, 61, 0.95)"
                 backdropFilter="blur(20px)"
-                border="1px solid rgba(255, 255, 255, 0.08)"
+                border="1px solid rgba(255, 255, 255, 0.3)"
                 borderRadius="lg"
                 boxShadow="0 8px 32px rgba(0, 0, 0, 0.4)"
                 color="white"
@@ -142,8 +142,8 @@ const Navbar = ({
               >
                 <MenuItem
                   bg="transparent"
-                  _hover={{ bg: "rgba(232, 255, 0, 0.1)", color: "#e8ff00" }}
-                  _focus={{ bg: "rgba(232, 255, 0, 0.1)", color: "#e8ff00" }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                  _focus={{ bg: "rgba(255, 255, 255, 0.1)" }}
                   borderRadius="md"
                   mx={0.25}
                   my={0.5}
@@ -154,12 +154,12 @@ const Navbar = ({
                 >
                   Logged in as: {teamCode || "Team"}
                 </MenuItem>
-                <Divider borderColor="rgba(255, 255, 255, 0.08)" my={1} />
+                <Divider borderColor="rgba(255, 255, 255, 0.3)" my={1} />
                 <MenuItem
                   onClick={onLogout}
                   bg="transparent"
-                  _hover={{ bg: "rgba(232, 255, 0, 0.1)", color: "#e8ff00" }}
-                  _focus={{ bg: "rgba(232, 255, 0, 0.1)", color: "#e8ff00" }}
+                  _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                  _focus={{ bg: "rgba(255, 255, 255, 0.1)" }}
                   borderRadius="md"
                   mx={0.25}
                   my={0.5}

@@ -300,20 +300,17 @@ const TradingMarket = () => {
       fontFamily="Inter, sans-serif"
     >
       <Box maxW="1200px" w="full">
-        <Flex justify="space-between" align="center" mb={8} borderBottom="1px solid rgba(255,255,255,0.05)" pb={4}>
+        <Flex justify="space-between" align="center" mb={8}>
           <Heading
-            size="lg"
+            size="xl"
             color="white"
-            fontWeight="300"
-            letterSpacing="widest"
-            textTransform="uppercase"
             fontFamily="Inter, sans-serif"
           >
-            Live Market Feed
+            Trading Offers
           </Heading>
           <Flex align="center" gap={3}>
             {refreshing && (
-              <Flex align="center" gap={2} color="#e8ff00">
+              <Flex align="center" gap={2} color="blue.300">
                 <Spinner size="sm" />
                 <Text fontSize="sm" fontFamily="Inter, sans-serif">
                   Updating...
@@ -323,14 +320,14 @@ const TradingMarket = () => {
             <IconButton
               icon={<FaSync />}
               aria-label="Refresh trading offers"
-              size="sm"
-              bg="transparent"
-              color="#e8ff00"
-              border="1px solid #e8ff00"
-              borderRadius="0"
+              size="md"
+              bg="rgba(59, 130, 246, 0.2)"
+              color="blue.300"
+              border="1px solid"
+              borderColor="rgba(59, 130, 246, 0.3)"
               _hover={{
-                bg: "rgba(232, 255, 0, 0.1)",
-                boxShadow: "0 0 10px rgba(232,255,0,0.2)",
+                bg: "rgba(59, 130, 246, 0.3)",
+                borderColor: "rgba(59, 130, 246, 0.5)",
               }}
               onClick={() => fetchTeamsData(true)}
               isLoading={refreshing}
@@ -339,40 +336,41 @@ const TradingMarket = () => {
           </Flex>
         </Flex>
 
-        {/* Search Bar */}
+        {/* Search Bar - matching dashboard style */}
         <Box mb={8}>
           <InputGroup size="lg">
             <InputLeftElement pointerEvents="none" h="full">
-              <Icon as={FaSearch} color="#e8ff00" />
+              <Icon as={FaSearch} color="gray.400" />
             </InputLeftElement>
             <Input
-              placeholder="SEARCH MARKET..."
+              placeholder="Search for items teams want to trade (e.g., 'Property')"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              bg="rgba(13, 17, 23, 0.6)"
-              border="1px solid rgba(255, 255, 255, 0.05)"
-              borderRadius="0"
+              bg="rgba(0, 0, 0, 0.2)"
+              border="1px solid"
+              borderColor="rgba(255, 255, 255, 0.2)"
+              borderRadius="lg"
               color="white"
-              letterSpacing="widest"
               fontFamily="Inter, sans-serif"
-              _placeholder={{ color: "gray.500" }}
+              _placeholder={{ color: "gray.400" }}
               _focus={{
-                bg: "rgba(255, 255, 255, 0.02)",
-                borderColor: "#e8ff00",
-                boxShadow: "none",
+                bg: "rgba(0, 0, 0, 0.3)",
+                borderColor: "blue.300",
+                boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
               }}
               _hover={{
-                borderColor: "rgba(255, 255, 255, 0.1)",
+                borderColor: "rgba(255, 255, 255, 0.3)",
               }}
             />
           </InputGroup>
         </Box>
 
-        {/* Order Book Grid */}
+        {/* Teams Grid */}
         <Grid
           templateColumns={{
             base: "1fr",
-            lg: "repeat(2, 1fr)",
+            md: "repeat(2, 1fr)",
+            lg: "repeat(3, 1fr)",
           }}
           gap={6}
           alignItems="start"
@@ -381,41 +379,52 @@ const TradingMarket = () => {
             filteredTeams.map((team) => (
               <Box
                 key={team._id}
-                bg="rgba(13, 17, 23, 0.6)"
+                bg="rgba(15, 59, 61, 0.5)"
                 backdropFilter="blur(10px)"
-                p={5}
-                borderRadius="0"
-                borderTop="1px solid rgba(255, 255, 255, 0.05)"
-                borderBottom="1px solid rgba(255, 255, 255, 0.05)"
-                borderLeft="4px solid transparent"
+                p={6}
+                borderRadius="xl"
+                shadow="lg"
+                border="1px solid"
+                borderColor="rgba(255, 255, 255, 0.2)"
                 color="white"
-                transition="all 0.3s"
+                transition="all 0.2s"
                 alignSelf="start"
                 _hover={{
-                  borderLeftColor: "#e8ff00",
-                  bg: "rgba(255, 255, 255, 0.02)",
+                  transform: "translateY(-2px)",
+                  shadow: "xl",
+                  borderColor: "rgba(255, 255, 255, 0.3)",
                 }}
               >
-                <Flex justify="space-between" align="center" cursor="pointer" onClick={() => toggleDetails(team._id)}>
+                <Flex justify="space-between" align="center" mb={4}>
                   <Heading
-                    size="sm"
+                    size="md"
                     color="white"
-                    fontWeight="400"
-                    letterSpacing="widest"
-                    textTransform="uppercase"
+                    fontFamily="Inter, sans-serif"
                   >
                     {team.teamCode}
                   </Heading>
                   <Button
-                    size="xs"
-                    bg="transparent"
-                    color={visibleDetails.has(team._id) ? "#e8ff00" : "gray.500"}
-                    _hover={{ bg: "transparent", color: "white" }}
+                    onClick={() => toggleDetails(team._id)}
+                    size="sm"
+                    bg="rgba(59, 130, 246, 0.2)"
+                    color="blue.300"
+                    border="1px solid"
+                    borderColor="rgba(59, 130, 246, 0.3)"
+                    borderRadius="full"
+                    minW="40px"
+                    h="40px"
+                    _hover={{
+                      bg: "rgba(59, 130, 246, 0.3)",
+                      borderColor: "rgba(59, 130, 246, 0.5)",
+                    }}
+                    _active={{
+                      bg: "rgba(59, 130, 246, 0.2)",
+                    }}
                   >
                     {visibleDetails.has(team._id) ? (
-                      <Text>COLLAPSE</Text>
+                      <Icon as={FaChevronUp} />
                     ) : (
-                      <Text>VIEW ORDER</Text>
+                      <Icon as={FaChevronDown} />
                     )}
                   </Button>
                 </Flex>
@@ -423,34 +432,45 @@ const TradingMarket = () => {
                 <Collapse in={visibleDetails.has(team._id)} animateOpacity>
                   <Box
                     pt={4}
-                    mt={4}
-                    borderTop="1px solid rgba(255, 255, 255, 0.05)"
+                    borderTop="1px solid"
+                    borderColor="rgba(255, 255, 255, 0.1)"
                   >
                     <Text
-                      fontWeight="300"
-                      color="gray.400"
-                      fontSize="xs"
-                      letterSpacing="widest"
+                      fontWeight="600"
+                      color="blue.300"
                       mb={3}
-                      textTransform="uppercase"
+                      fontFamily="Inter, sans-serif"
                     >
-                      Requested Assets
+                      Items They Want to Trade:
                     </Text>
-                    <VStack align="start" spacing={3}>
+                    <VStack align="start" spacing={2}>
                       {team.tradeWishlist && team.tradeWishlist.length > 0 ? (
                         team.tradeWishlist.map((item, index) => (
-                          <HStack key={index} spacing={4} w="full" justify="space-between" borderBottom="1px dashed rgba(255,255,255,0.1)" pb={2}>
-                            <Text color="gray.300" fontSize="sm" textTransform="uppercase" letterSpacing="wide">
+                          <HStack key={index} spacing={2}>
+                            <Box
+                              w={2}
+                              h={2}
+                              bg="blue.400"
+                              borderRadius="full"
+                            />
+                            <Text
+                              color="gray.200"
+                              fontFamily="Inter, sans-serif"
+                            >
+                              <Text as="span" fontWeight="600" color="white">
+                                {item.count}x
+                              </Text>{" "}
                               {item.name}
-                            </Text>
-                            <Text color="#e8ff00" fontWeight="600">
-                              {item.count}x
                             </Text>
                           </HStack>
                         ))
                       ) : (
-                        <Text color="gray.600" fontSize="sm" fontStyle="italic">
-                          NO ACTIVE ORDERS
+                        <Text
+                          color="gray.400"
+                          fontStyle="italic"
+                          fontFamily="Inter, sans-serif"
+                        >
+                          No trade wishlist submitted yet
                         </Text>
                       )}
                     </VStack>

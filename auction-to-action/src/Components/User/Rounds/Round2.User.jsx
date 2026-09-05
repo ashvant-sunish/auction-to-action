@@ -7,13 +7,13 @@ import serverUrl from "./../../../servercon";
 // Custom theme colors
 const colors = {
   primary: {
-    50: "rgba(232, 255, 0, 0.7)",
-    100: "#e8ff00",
-    150: "#1c2330",
-    200: "#080b0f",
+    50: "#6BA3BE",
+    100: "#0C969C",
+    150: "#0A7075",
+    200: "#032F30",
   },
   dark: "#031716",
-  bg: "#141920",
+  bg: "#274D60",
   white: "#FFFFFF",
 };
 
@@ -125,13 +125,12 @@ const Round2User = () => {
 
   return (
     <Box
-      w="100%"
-      minH="calc(100vh - 80px)"
-      bg="radial-gradient(circle at center, rgba(13, 17, 23, 0) 0%, rgba(8, 11, 15, 0.95) 100%), #080b0f"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      borderRadius="16px"
+      position="absolute"
+      top="50%"
+      left="50%"
+      transform="translate(-50%, -50%)"
+      bg="transparent"
+      zIndex={10}
     >
       <VStack spacing={6}>
         {/* Status Header */}
@@ -150,9 +149,9 @@ const Round2User = () => {
               fontSize="lg"
               p={3}
               borderRadius="full"
-              bg="rgba(13, 17, 23, 0.9)"
+              bg="rgba(15, 59, 61, 0.8)"
               backdropFilter="blur(15px)"
-              border="1px solid rgba(255, 255, 255, 0.08)"
+              border="1px solid rgba(255, 255, 255, 0.3)"
               color="white"
             >
               Box {revealedBox.boxId} - {revealedBox.itemName}
@@ -162,12 +161,12 @@ const Round2User = () => {
                 color="white"
                 fontSize="sm"
                 fontWeight="bold"
-                bg="rgba(13, 17, 23, 0.8)"
+                bg="rgba(15, 59, 61, 0.7)"
                 backdropFilter="blur(10px)"
                 px={3}
                 py={1}
                 borderRadius="full"
-                border="1px solid rgba(255, 255, 255, 0.08)"
+                border="1px solid rgba(255, 255, 255, 0.2)"
               >
                 Auto-reset in {countdown}s
               </Text>
@@ -243,11 +242,10 @@ const Round2User = () => {
             {/* Glow effect */}
             <Box
               position="absolute"
-              inset="-30px"
-              borderRadius="40px"
-              bg={`radial-gradient(circle, ${colors.primary[100]}44 0%, transparent 70%)`}
+              inset="-20px"
+              borderRadius="30px"
+              bg={`radial-gradient(circle, ${colors.primary[100]}22 0%, transparent 70%)`}
               zIndex={-1}
-              animation="pulse 2s infinite"
             />
           </Box>
         )}
@@ -255,45 +253,35 @@ const Round2User = () => {
         {/* Revealed Card */}
         {isRevealed && (
           <Box
-            width="500px"
-            height="300px"
-            bg={`linear-gradient(135deg, rgba(232, 255, 0, 0.1) 0%, rgba(8, 11, 15, 0.95) 100%)`}
-            borderRadius="16px"
-            border={`1px solid ${colors.primary[50]}`}
-            borderTop={`4px solid ${colors.primary[100]}`}
+            width="400px"
+            height="250px"
+            bg={`linear-gradient(135deg, ${colors.primary[200]} 0%, ${colors.bg} 100%)`}
+            borderRadius="20px"
+            border={`3px solid ${colors.primary[100]}`}
             animation={`${cardPop} 0.8s ease-out`}
             position="relative"
             overflow="hidden"
-            backdropFilter="blur(16px)"
-            boxShadow={`0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(232,255,0,0.15)`}
+            boxShadow={`0 20px 40px rgba(0,0,0,0.5), 0 0 30px ${colors.primary[100]}44`}
           >
             {/* Card background pattern */}
             <Box
               position="absolute"
               inset={0}
-              opacity={0.3}
-              bg={`radial-gradient(circle at 50% 0%, rgba(232,255,0,0.2) 0%, transparent 70%)`}
+              opacity={0.1}
+              bg={`radial-gradient(circle at 20% 80%, ${colors.primary[50]} 0%, transparent 50%),
+                       radial-gradient(circle at 80% 20%, ${colors.primary[100]} 0%, transparent 50%)`}
             />
 
             {/* Card content */}
-            <Center height="100%" p={8}>
-              <VStack spacing={6}>
+            <Center height="100%" p={6}>
+              <VStack spacing={4}>
                 <Text
-                  color={colors.primary[100]}
-                  fontSize="sm"
-                  letterSpacing="widest"
-                  textTransform="uppercase"
-                  fontWeight="600"
-                >
-                  REWARD UNLOCKED
-                </Text>
-                <Text
-                  fontSize="3xl"
-                  fontWeight="300"
+                  fontSize="2xl"
+                  fontWeight="bold"
                   color={colors.white}
                   textAlign="center"
-                  letterSpacing="wide"
-                  lineHeight="1.2"
+                  textShadow={`2px 2px 4px ${colors.dark}`}
+                  letterSpacing="wider"
                 >
                   {revealedBox?.content ||
                     revealedBox?.description ||
@@ -334,18 +322,15 @@ const Round2User = () => {
               <Box
                 key={i}
                 position="absolute"
-                width="15px"
-                height="15px"
-                border={`1px solid ${colors.primary[50]}`}
+                width="30px"
+                height="30px"
+                border={`2px solid ${colors.primary[50]}`}
+                borderRadius="50%"
                 {...{
                   top: i < 2 ? "15px" : "auto",
                   bottom: i >= 2 ? "15px" : "auto",
                   left: i % 2 === 0 ? "15px" : "auto",
                   right: i % 2 === 1 ? "15px" : "auto",
-                  borderTop: i >= 2 ? "none" : undefined,
-                  borderBottom: i < 2 ? "none" : undefined,
-                  borderLeft: i % 2 === 1 ? "none" : undefined,
-                  borderRight: i % 2 === 0 ? "none" : undefined,
                 }}
               />
             ))}
@@ -355,11 +340,11 @@ const Round2User = () => {
         {/* Waiting Status - Only when box is not revealed */}
         {!isRevealed && (
           <Box
-            bg="rgba(13, 17, 23, 0.8)"
+            bg="rgba(15, 59, 61, 0.7)"
             backdropFilter="blur(15px)"
             borderRadius="12"
             p={4}
-            border="1px solid rgba(255, 255, 255, 0.08)"
+            border="1px solid rgba(255, 255, 255, 0.3)"
             textAlign="center"
             boxShadow="0 8px 32px rgba(0, 0, 0, 0.3)"
           >

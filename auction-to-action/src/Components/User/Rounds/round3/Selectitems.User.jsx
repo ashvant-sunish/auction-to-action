@@ -190,38 +190,24 @@ const TradingWishlistTable = () => {
     }));
   };
 
-  const handleQuantityChange = (itemName, valueAsString) => {
+  const handleQuantityChange = (itemName, value) => {
     const resource = availableResources.find((r) => r.name === itemName);
     const maxAvailable = resource?.available || 0;
-
-    if (valueAsString === "") {
-      setTradeItems((prev) => ({
-        ...prev,
-        [itemName]: { ...prev[itemName], count: "" },
-      }));
-      return;
-    }
-
-    let parsedCount = parseInt(valueAsString, 10);
-    if (isNaN(parsedCount)) return;
-
-    parsedCount = Math.min(parsedCount, maxAvailable);
+    const newCount = Math.max(
+      0,
+      Math.min(parseInt(value, 10) || 0, maxAvailable)
+    );
 
     setTradeItems((prev) => ({
       ...prev,
-      [itemName]: { ...prev[itemName], count: parsedCount },
+      [itemName]: { ...prev[itemName], count: newCount },
     }));
   };
 
   const handleSubmitTrade = async () => {
     const itemsToTrade = Object.entries(tradeItems)
-      .filter(([_, data]) => data.isSelected && (parseInt(data.count, 10) || 0) > 0)
-      .map(([name, data]) => {
-        const resource = availableResources.find((r) => r.name === name);
-        const maxAvailable = resource?.available || 0;
-        const clampedCount = Math.max(0, Math.min(parseInt(data.count, 10) || 0, maxAvailable));
-        return { name, count: clampedCount };
-      });
+      .filter(([_, data]) => data.isSelected && data.count > 0)
+      .map(([name, data]) => ({ name, count: data.count }));
 
     if (itemsToTrade.length === 0) {
       toast({
@@ -353,7 +339,7 @@ const TradingWishlistTable = () => {
     (item) => item.isSelected
   ).length;
   const totalTradeQuantity = Object.values(tradeItems).reduce(
-    (sum, item) => (item.isSelected ? sum + (parseInt(item.count, 10) || 0) : sum),
+    (sum, item) => (item.isSelected ? sum + (item.count || 0) : sum),
     0
   );
 
@@ -390,32 +376,36 @@ const TradingWishlistTable = () => {
       <VStack spacing={6} align="stretch">
         {/* Header Card */}
         <Box
-          bg="rgba(13, 17, 23, 0.8)"
+          bg="rgba(15, 59, 61, 0.5)"
           backdropFilter="blur(10px)"
           p={6}
-          borderRadius="0"
+          borderRadius="xl"
           shadow="lg"
-          borderTop="1px solid rgba(255, 255, 255, 0.05)"
-          borderBottom="1px solid rgba(255, 255, 255, 0.05)"
-          borderLeft="4px solid #e8ff00"
+          border="1px solid"
+          borderColor="rgba(255, 255, 255, 0.2)"
           color="white"
         >
           <HStack justify="space-between" align="center">
             <HStack>
+              <Icon as={FaHandshake} color="blue.400" boxSize={6} />
               <VStack align="start" spacing={1}>
-                <Heading size="md" color="white" fontWeight="300" letterSpacing="widest" textTransform="uppercase">
-                  Round 3: Trading Terminal
+                <Heading size="lg" color="white">
+                  Round 3: Trading Wishlist
                 </Heading>
-                <Text fontSize="sm" color="gray.500">
-                  Select assets to add to your trade wishlist.
+                <Text fontSize="sm" color="gray.300">
+                  Select items to add to your trade wishlist. You can submit
+                  multiple times to accumulate items.
                 </Text>
               </VStack>
             </HStack>
             <VStack align="end" spacing={1}>
               <Box
-                bg="transparent"
-                px={0}
-                py={0}
+                bg="rgba(255, 255, 255, 0.1)"
+                px={3}
+                py={1}
+                borderRadius="full"
+                border="1px solid"
+                borderColor="rgba(255, 255, 255, 0.2)"
               >
                 <Text fontSize="md" color="white" fontWeight="semibold">
                   {teamData.teamName}
@@ -431,24 +421,33 @@ const TradingWishlistTable = () => {
         {/* Current Wishlist Display */}
         {currentWishlist.length > 0 && (
           <Box
-            bg="rgba(13, 17, 23, 0.6)"
+            bg="rgba(15, 59, 61, 0.5)"
             backdropFilter="blur(10px)"
             p={6}
-            borderRadius="0"
-            borderTop="1px solid rgba(255, 255, 255, 0.05)"
-            borderBottom="1px solid rgba(255, 255, 255, 0.05)"
+            borderRadius="xl"
+            shadow="lg"
+            border="1px solid"
+            borderColor="rgba(255, 255, 255, 0.2)"
             color="white"
           >
             <HStack justify="space-between" mb={4}>
               <HStack>
-                <Heading size="sm" color="white" fontWeight="300" letterSpacing="widest" textTransform="uppercase">
-                  Active Wishlist
+                <Icon as={FaList} color="purple.400" boxSize={5} />
+                <Heading size="md" color="white">
+                  Your Current Trading Wishlist
                 </Heading>
               </HStack>
-              <Box>
-                <Text fontSize="sm" color="#e8ff00" fontWeight="600">
+              <Box
+                bg="rgba(255, 255, 255, 0.1)"
+                px={3}
+                py={1}
+                borderRadius="full"
+                border="1px solid"
+                borderColor="rgba(255, 255, 255, 0.2)"
+              >
+                <Text fontSize="sm" color="white" fontWeight="semibold">
                   {currentWishlist.reduce((sum, item) => sum + item.count, 0)}{" "}
-                  TOTAL ASSETS
+                  Total Items
                 </Text>
               </Box>
             </HStack>
@@ -457,9 +456,11 @@ const TradingWishlistTable = () => {
                 <Box
                   key={index}
                   p={3}
-                  bg="transparent"
-                  borderLeft="2px solid rgba(255, 255, 255, 0.2)"
-                  _hover={{ borderLeftColor: "#e8ff00", bg: "rgba(255,255,255,0.02)" }}
+                  bg="rgba(255, 255, 255, 0.1)"
+                  borderRadius="md"
+                  border="1px solid"
+                  borderColor="rgba(255, 255, 255, 0.2)"
+                  backdropFilter="blur(5px)"
                 >
                   <Text fontWeight="bold" color="purple.300" fontSize="sm">
                     {item.name}
@@ -479,11 +480,13 @@ const TradingWishlistTable = () => {
 
         {/* Inventory Overview */}
         <Box
-          bg="transparent"
+          bg="rgba(15, 59, 61, 0.5)"
+          backdropFilter="blur(10px)"
           p={6}
-          borderRadius="0"
-          borderTop="1px solid rgba(255, 255, 255, 0.05)"
-          borderBottom="1px solid rgba(255, 255, 255, 0.05)"
+          borderRadius="xl"
+          shadow="lg"
+          border="1px solid"
+          borderColor="rgba(255, 255, 255, 0.2)"
           color="white"
           display="flex"
           flexDirection="column"
@@ -630,12 +633,12 @@ const TradingWishlistTable = () => {
 
               {/* Trading Table */}
               <TableContainer
-                borderRadius="0"
-                borderTop="1px solid rgba(255, 255, 255, 0.1)"
-                borderBottom="1px solid rgba(255, 255, 255, 0.1)"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="rgba(255, 255, 255, 0.2)"
                 maxH="400px"
                 overflowY="auto"
-                bg="transparent"
+                bg="rgba(0, 0, 0, 0.2)"
                 css={{
                   "&::-webkit-scrollbar": { width: "8px" },
                   "&::-webkit-scrollbar-track": { background: "transparent" },
@@ -822,7 +825,6 @@ const TradingWishlistTable = () => {
                               border="1px solid"
                               borderColor="rgba(255, 255, 255, 0.2)"
                               color="white"
-                              onFocus={(e) => e.target.select()}
                               _disabled={{
                                 bg: "rgba(0, 0, 0, 0.1)",
                                 color: "gray.500",
@@ -843,30 +845,27 @@ const TradingWishlistTable = () => {
               {/* Submit Button */}
               <Flex justify="center" pt={4}>
                 <Button
-                  colorScheme="yellow"
+                  colorScheme="blue"
                   size="lg"
+                  leftIcon={<FaHandshake />}
                   onClick={handleSubmitTrade}
                   isLoading={submitting}
-                  loadingText="AUTHORIZING..."
+                  loadingText="Adding to Wishlist..."
                   isDisabled={selectedItemsCount === 0}
                   px={8}
-                  bg="transparent"
-                  color="#e8ff00"
-                  border="1px solid #e8ff00"
-                  borderRadius="0"
-                  letterSpacing="widest"
-                  fontWeight="600"
-                  textTransform="uppercase"
+                  bg="rgba(59, 130, 246, 0.8)"
+                  backdropFilter="blur(10px)"
+                  border="1px solid"
+                  borderColor="rgba(59, 130, 246, 0.3)"
                   _hover={{
-                    bg: "rgba(232, 255, 0, 0.1)",
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 10px 20px rgba(232,255,0,0.15)",
+                    bg: "rgba(59, 130, 246, 0.9)",
+                    borderColor: "rgba(59, 130, 246, 0.5)",
                   }}
                   _active={{
-                    bg: "rgba(232, 255, 0, 0.2)",
+                    bg: "rgba(59, 130, 246, 0.7)",
                   }}
                 >
-                  Confirm Wishlist
+                  Add to Trading Wishlist
                 </Button>
               </Flex>
             </VStack>
