@@ -1681,4 +1681,21 @@ async function seedData() {
   try {
     await mongoose.connect(MONGO_URI);
 
-    
+    console.log("✅ Connected to MongoDB");
+
+    // Clear old round one data
+    await RoundOne.deleteMany({});
+    console.log("🗑️ Cleared old Round 1 bids");
+
+    // Insert fresh data
+    await RoundOne.insertMany(bids);
+    console.log("🎉 Round 1 bids seeded successfully");
+
+    process.exit(0);
+  } catch (err) {
+    console.error("❌ Error seeding data:", err);
+    process.exit(1);
+  }
+}
+
+seedData();

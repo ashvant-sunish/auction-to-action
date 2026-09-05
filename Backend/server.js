@@ -39,9 +39,9 @@ app.use(express.json());
 
 // Add request logging middleware
 app.use((req, res, next) => {
-  
+  console.log(`📡 ${req.method} ${req.url} - Headers:`, JSON.stringify(req.headers, null, 2));
   if (req.body && Object.keys(req.body).length > 0) {
-    
+    console.log(`📡 Request Body:`, JSON.stringify(req.body, null, 2));
   }
   next();
 });
@@ -53,7 +53,7 @@ app.set('io', io); // Also set as 'io' for the wheel routes
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
-    
+    console.log('✅ Successfully connected to MongoDB!');
   })
   .catch((err) => console.error('❌ Database connection error:', err));
 
@@ -73,7 +73,6 @@ app.get('/', (req, res) => {
 
 // Maps socket.id → teamCode so we can clear the session when a socket disconnects
 const socketTeamMap = new Map();
-  
 
 // Socket.io Connection Logic
 io.on('connection', (socket) => {
@@ -83,33 +82,32 @@ io.on('connection', (socket) => {
   socket.on('joinTeam', (teamCode) => {
     socket.join(`team_${teamCode}`);
     socketTeamMap.set(socket.id, teamCode);
-    
+    console.log(`👥 Socket ${socket.id} joined team room: team_${teamCode}`);
   });
-  
 
   // Handle team room leaving
   socket.on('leaveTeam', (teamCode) => {
     socket.leave(`team_${teamCode}`);
     socketTeamMap.delete(socket.id);
-    
+    console.log(`👋 Socket ${socket.id} left team room: team_${teamCode}`);
   });
 
   // Handle admin room joining
   socket.on('joinAdmin', () => {
     socket.join('admin');
-    
+    console.log(`👑 Socket ${socket.id} joined admin room`);
   });
 
   // Handle admin room leaving
   socket.on('leaveAdmin', () => {
     socket.leave('admin');
-    
+    console.log(`👑 Socket ${socket.id} left admin room`);
   });
 
   socket.on('disconnect', async () => {
     const teamCode = socketTeamMap.get(socket.id);
     socketTeamMap.delete(socket.id);
-    
+    console.log(`🔌 Client disconnected: ${socket.id}${teamCode ? ` (team: ${teamCode})` : ''}`);
 
     // If this socket was associated with a team, wait a short moment to see if they reconnect (e.g. page refresh).
     // If they don't reconnect within 5 seconds, assume the tab was permanently closed and log them out immediately.
@@ -124,12 +122,12 @@ io.on('connection', (socket) => {
               { teamCode },
               { isActive: false, sessionExpiry: null }
             );
-           
+            console.log(`✅ Session cleared for team ${teamCode} after tab close`);
           } catch (err) {
             console.error(`❌ Failed to clear session for team ${teamCode}:`, err.message);
           }
         } else {
-          
+          console.log(`🔄 Session kept alive for team ${teamCode} (reconnected)`);
         }
       }, 5000);
     }
@@ -139,8 +137,5 @@ io.on('connection', (socket) => {
 // Start Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
-  socket.on('leaveTeam', (teamNumber) => {
-    socket.leave(`team_${teamNumber}`);
-    
