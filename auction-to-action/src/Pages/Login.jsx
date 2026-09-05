@@ -18,26 +18,33 @@ function Login() {
     };
   }, []); // Empty dependency array ensures this runs only once on mount and cleanup on unmount
 
-  // sample exact hex from design (approx)
-  const tealBase = "#0f3b3d"; // dark teal
-  const tealMid = "#154a4c"; // mid teal stroke
-  const tealDeep = "#0a2f31"; // deepest strokes
+  // Admin (Teal) Theme
+  const tealBase = "#0f3b3d"; 
+  const tealMid = "#154a4c"; 
+  const tealDeep = "#0a2f31"; 
   const goldSoft = "rgba(199,152,58,0.18)";
   const whiteSoft = "rgba(255,255,255,0.10)";
 
+  // User (Graphite) Theme
+  const graphBase = "#080b0f";
+  const graphMid = "#11161d";
+  const yellowSoft = "rgba(232,255,0,0.1)";
+  const yellowGlow = "rgba(232,255,0,0.05)";
+
   return (
-    // Root: teal + gradient + soft glows
     <Box
       minH="100vh"
       position="relative"
       overflow="hidden"
-      bg={tealBase}
+      bg={page ? graphBase : tealBase}
+      className={page ? "user-app-root" : ""}
       _before={{
         content: '""',
         position: "absolute",
         inset: 0,
-        // diagonal teal strokes
-        bgGradient: `linear(135deg, ${tealDeep} 0%, ${tealBase} 40%, ${tealMid} 70%, ${tealDeep} 100%)`,
+        bgGradient: page 
+          ? `linear(135deg, ${graphBase} 0%, ${graphMid} 50%, ${graphBase} 100%)`
+          : `linear(135deg, ${tealDeep} 0%, ${tealBase} 40%, ${tealMid} 70%, ${tealDeep} 100%)`,
         opacity: 0.9,
         zIndex: 0,
       }}
@@ -45,12 +52,16 @@ function Login() {
         content: '""',
         position: "absolute",
         inset: 0,
-        // soft gold + white blotches like the poster
-        bgImage: `
-          radial-gradient(600px 300px at 85% 20%, ${goldSoft} 0%, transparent 60%),
-          radial-gradient(520px 260px at 15% 70%, ${whiteSoft} 0%, transparent 65%),
-          radial-gradient(380px 240px at 60% 80%, ${goldSoft} 0%, transparent 70%)
-        `,
+        bgImage: page 
+          ? `
+              radial-gradient(800px 800px at 50% -20%, ${yellowSoft} 0%, transparent 60%),
+              radial-gradient(600px 600px at -10% 80%, ${yellowGlow} 0%, transparent 60%)
+            `
+          : `
+              radial-gradient(600px 300px at 85% 20%, ${goldSoft} 0%, transparent 60%),
+              radial-gradient(520px 260px at 15% 70%, ${whiteSoft} 0%, transparent 65%),
+              radial-gradient(380px 240px at 60% 80%, ${goldSoft} 0%, transparent 70%)
+            `,
         pointerEvents: "none",
         zIndex: 1,
       }}
@@ -117,7 +128,7 @@ function Login() {
             <Text mt={6} textAlign="center" color="white">
               {page ? "Are you an Admin?" : "Are you a Player?"}{" "}
               <Link
-                color="teal.200"
+                color={page ? "#e8ff00" : "teal.200"}
                 fontWeight="bold"
                 onClick={() => setPage(!page)}
               >

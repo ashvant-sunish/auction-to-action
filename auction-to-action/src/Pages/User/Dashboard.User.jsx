@@ -48,11 +48,29 @@ function UserDashboard() {
     fetchTeamData();
     fetchCurrentRound();
 
+    // Refresh team data every 30 seconds
     const refreshInterval = setInterval(fetchTeamData, 30000);
+
+    // Send a heartbeat every 5 minutes to keep the session alive.
+    // If this tab is closed, heartbeats stop and the session expires in ≤10 min.
+    const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+    const sendHeartbeat = async () => {
+      try {
+        const t = localStorage.getItem('token');
+        if (t) {
+          await axios.post(`${serverUrl}/api/team/heartbeat`, {}, {
+            headers: { Authorization: `Bearer ${t}` }
+          });
+        }
+      } catch (_) { /* silent — non-critical */ }
+    };
+    sendHeartbeat(); // immediate on mount
+    const heartbeatInterval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
 
     return () => {
       socketService.disconnect();
       clearInterval(refreshInterval);
+      clearInterval(heartbeatInterval);
     };
   }, [navigate]);
 
@@ -68,10 +86,10 @@ function UserDashboard() {
   }, [teamData]);
 
   useEffect(() => {
-    if (teamData?.teamNumber) {
-      socketService.joinTeam(teamData.teamNumber);
+    if (teamData?.teamCode) {
+      socketService.joinTeam(teamData.teamCode);
     }
-  }, [teamData?.teamNumber]);
+  }, [teamData?.teamCode]);
 
   const processRoundData = (roundData) => {
     const { roundNumber, roundStatus } = roundData;
@@ -189,8 +207,8 @@ function UserDashboard() {
       console.error("Error during logout:", error);
     }
 
-    if (teamData?.teamNumber) {
-      socketService.leaveTeam(teamData.teamNumber);
+    if (teamData?.teamCode) {
+      socketService.leaveTeam(teamData.teamCode);
     }
     socketService.disconnect();
     localStorage.removeItem("token");
@@ -258,10 +276,8 @@ function UserDashboard() {
     <Flex
       h="100vh"
       overflow="hidden"
-      bgImage={`url(${dashboardBg})`}
-      bgSize="cover"
-      bgPosition="center"
-      bgRepeat="no-repeat"
+      className="user-app-root"
+      bg="#080b0f"
     >
       {showRules && (
         <RulesUser onClose={handleCloseRules} isFirstTime={isFirstTimeLogin} />
@@ -276,8 +292,7 @@ function UserDashboard() {
       <Box
         flex="1"
         ml={{ base: 0, md: isSidebarCollapsed ? "80px" : "260px" }}
-        bg="rgba(0, 0, 0, 0.3)"
-        backdropFilter="blur(2px)"
+        bg="transparent"
         h="100vh"
         overflow="hidden"
         transition="margin-left 0.2s ease-in-out"
@@ -309,13 +324,13 @@ function UserDashboard() {
             overflowY="auto"
             css={{
               "&::-webkit-scrollbar": { width: "8px" },
-              "&::-webkit-scrollbar-track": { background: "transparent" },
+              "&::-webkit-scrollbar-track": { background: "rgba(0, 0, 0, 0.2)" },
               "&::-webkit-scrollbar-thumb": {
-                background: "rgba(255, 255, 255, 0.2)",
+                background: "rgba(255, 255, 255, 0.1)",
                 borderRadius: "8px",
               },
               "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(255, 255, 255, 0.3)",
+                background: "rgba(232, 255, 0, 0.3)",
               },
             }}
           >

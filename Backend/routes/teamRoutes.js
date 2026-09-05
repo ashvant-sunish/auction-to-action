@@ -10,6 +10,9 @@ router.post('/login', authController.loginTeam);
 // Protected route for a team to log out
 router.post('/logout', protectTeam, authController.logoutTeam);
 
+// Heartbeat — called every 5 min by the dashboard to refresh the inactive-session timer
+router.post('/heartbeat', protectTeam, authController.heartbeatTeam);
+
 // --- Protected Routes ---
 // The following routes require a valid team JWT to be sent in the Authorization header.
 

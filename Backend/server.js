@@ -1,4 +1,11 @@
 // server.js
+
+//MONGO-DB OVER DEFAULT DNS
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+dns.setServers(['1.1.1.1', '8.8.8.8']);
+//FIXED for now
+
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -13,6 +20,7 @@ const tradeRoutes = require('./routes/tradeRoutes');
 const wheelRoutes = require('./routes/wheelRoutes');
 const mysteryBoxRoutes = require('./routes/mysteryBoxRoutes');
 const constructionRoutes = require('./routes/constructionRoutes');
+const Team = require('./models/Team');
 
 const app = express();
 const server = http.createServer(app);
@@ -63,20 +71,25 @@ app.get('/', (req, res) => {
   res.send('🚀 Auction to Action API is live!');
 });
 
+// Maps socket.id → teamCode so we can clear the session when a socket disconnects
+const socketTeamMap = new Map();
+
 // Socket.io Connection Logic
 io.on('connection', (socket) => {
   console.log('🔌 New client connected:', socket.id);
 
-  // Handle team room joining
-  socket.on('joinTeam', (teamNumber) => {
-    socket.join(`team_${teamNumber}`);
-    console.log(`👥 Socket ${socket.id} joined team room: team_${teamNumber}`);
+  // Handle team room joining — also tracks which team owns this socket
+  socket.on('joinTeam', (teamCode) => {
+    socket.join(`team_${teamCode}`);
+    socketTeamMap.set(socket.id, teamCode);
+    console.log(`👥 Socket ${socket.id} joined team room: team_${teamCode}`);
   });
 
   // Handle team room leaving
-  socket.on('leaveTeam', (teamNumber) => {
-    socket.leave(`team_${teamNumber}`);
-    console.log(`👋 Socket ${socket.id} left team room: team_${teamNumber}`);
+  socket.on('leaveTeam', (teamCode) => {
+    socket.leave(`team_${teamCode}`);
+    socketTeamMap.delete(socket.id);
+    console.log(`👋 Socket ${socket.id} left team room: team_${teamCode}`);
   });
 
   // Handle admin room joining
@@ -91,8 +104,33 @@ io.on('connection', (socket) => {
     console.log(`👑 Socket ${socket.id} left admin room`);
   });
 
-  socket.on('disconnect', () => {
-    console.log('🔌 Client disconnected:', socket.id);
+  socket.on('disconnect', async () => {
+    const teamCode = socketTeamMap.get(socket.id);
+    socketTeamMap.delete(socket.id);
+    console.log(`🔌 Client disconnected: ${socket.id}${teamCode ? ` (team: ${teamCode})` : ''}`);
+
+    // If this socket was associated with a team, wait a short moment to see if they reconnect (e.g. page refresh).
+    // If they don't reconnect within 5 seconds, assume the tab was permanently closed and log them out immediately.
+    if (teamCode) {
+      setTimeout(async () => {
+        // Check if there are any active sockets remaining for this team
+        const activeSockets = Array.from(socketTeamMap.values()).filter(code => code === teamCode);
+        
+        if (activeSockets.length === 0) {
+          try {
+            await Team.findOneAndUpdate(
+              { teamCode },
+              { isActive: false, sessionExpiry: null }
+            );
+            console.log(`✅ Session cleared for team ${teamCode} after tab close`);
+          } catch (err) {
+            console.error(`❌ Failed to clear session for team ${teamCode}:`, err.message);
+          }
+        } else {
+          console.log(`🔄 Session kept alive for team ${teamCode} (reconnected)`);
+        }
+      }, 5000);
+    }
   });
 });
 
