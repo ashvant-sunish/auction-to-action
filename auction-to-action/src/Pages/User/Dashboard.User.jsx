@@ -23,6 +23,9 @@ function UserDashboard() {
   const [showRules, setShowRules] = useState(false);
   const [isFirstTimeLogin, setIsFirstTimeLogin] = useState(false);
   const [imageLoading, setImageLoading] = useState(true); // State for preloading
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const processedNotificationIds = React.useRef(new Set());
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -47,6 +50,7 @@ function UserDashboard() {
     setupRealTimeConnection();
     fetchTeamData();
     fetchCurrentRound();
+    fetchNotifications();
 
     // Refresh team data every 30 seconds
     const refreshInterval = setInterval(fetchTeamData, 30000);
@@ -156,6 +160,133 @@ function UserDashboard() {
         isClosable: true,
       });
     });
+
+    // Targeted notification listener with deduplication
+    socketService.onNotification((notif) => {
+      if (!notif) return;
+      const notifId = notif._id || `${notif.recipientTeamCode}_${notif.createdAt}`;
+
+      // Prevent duplicate processing from reconnects or multiple renders
+      if (processedNotificationIds.current.has(notifId)) {
+        return;
+      }
+      processedNotificationIds.current.add(notifId);
+
+      // Prepend to notifications list and update unread count
+      setNotifications((prev) => [notif, ...prev.filter((n) => n._id !== notif._id)]);
+      setUnreadCount((prev) => prev + 1);
+
+      // Display real-time notification toast card matching UI design
+      toast({
+        position: "top-right",
+        duration: 8000,
+        isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            color="white"
+            p={4}
+            bg="rgba(15, 59, 61, 0.98)"
+            backdropFilter="blur(20px)"
+            borderRadius="xl"
+            border="1px solid rgba(232, 255, 0, 0.4)"
+            boxShadow="0 8px 32px rgba(0, 0, 0, 0.6)"
+            cursor="pointer"
+            onClick={onClose}
+            maxW="400px"
+          >
+            <Flex justify="space-between" align="center" mb={2}>
+              <Text fontWeight="bold" fontSize="md" color="#E8FF00">
+                {notif.title || "Targeted Notification"}
+              </Text>
+              <Badge colorScheme="yellow" fontSize="xs">
+                Just now
+              </Badge>
+            </Flex>
+            <Text
+              fontSize="xs"
+              whiteSpace="pre-line"
+              lineHeight="tall"
+              color="gray.100"
+            >
+              {notif.message}
+            </Text>
+          </Box>
+        ),
+      });
+
+      // Also refresh team data in background to ensure balance & inventory are synced
+      fetchTeamData();
+    });
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.get(`${serverUrl}/api/team/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data?.success) {
+        const fetchedNotifs = response.data.notifications || [];
+        setNotifications(fetchedNotifs);
+        setUnreadCount(response.data.unreadCount || 0);
+
+        // Pre-fill deduplication set so page refresh doesn't trigger alerts for past notifications
+        fetchedNotifs.forEach((n) => {
+          if (n._id) processedNotificationIds.current.add(n._id);
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.put(
+        `${serverUrl}/api/team/notifications/${id}/read`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data?.success) {
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === id ? { ...n, read: true } : n))
+        );
+        setUnreadCount(response.data.unreadCount);
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.put(
+        `${serverUrl}/api/team/notifications/read-all`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data?.success) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
   };
 
   const fetchTeamData = async () => {
@@ -304,6 +435,10 @@ function UserDashboard() {
           teamCode={teamData?.teamName}
           currentRound={getRoundDisplayText(gameState)}
           gameState={gameState}
+          notifications={notifications}
+          unreadCount={unreadCount}
+          onMarkAsRead={handleMarkAsRead}
+          onMarkAllAsRead={handleMarkAllAsRead}
         />
         {imageLoading ? (
           <Flex h="calc(100vh - 72px)" align="center" justify="center">

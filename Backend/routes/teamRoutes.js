@@ -36,5 +36,10 @@ router.put('/update-wishlist', protectTeam, teamController.updateWishlist);
 // All teams trade offers for the trading market view
 router.get('/all-trade-offers', protectTeam, teamController.getAllTeamsTradeOffers);
 
+// Notification routes for the logged-in team
+router.get('/notifications', protectTeam, teamController.getNotifications);
+router.put('/notifications/:id/read', protectTeam, teamController.markNotificationAsRead);
+router.put('/notifications/read-all', protectTeam, teamController.markAllNotificationsAsRead);
+
 module.exports = router;
 

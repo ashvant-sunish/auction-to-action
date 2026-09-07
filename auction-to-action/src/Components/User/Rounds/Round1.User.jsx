@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import io from "socket.io-client";
+import { FaBuilding, FaCubes, FaHome, FaMicrochip } from "react-icons/fa";
 import { FrameImages } from "../../../utils/spinthewheelimagepath";
 import serverUrl from "./../../../servercon";
 
@@ -239,14 +240,24 @@ function injectStyles() {
       flex-direction: column;
     }
 
-    /* Top Right Lot Number */
+    /* Reference card layout */
     .csh2-front-lot-text {
       position: absolute;
-      top: 55px;
-      right: 30px;
+      top: 36px;
+      right: 20px;
       text-align: right;
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .csh2-front-lot-label {
+      display: block;
+      color: currentColor;
+      opacity: 0.58;
+      font-size: 10px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
     }
 
     /* Top Left Symbol & Number */
@@ -259,120 +270,131 @@ function injectStyles() {
       align-items: center;
     }
     .csh2-front-symbol-large {
-      font-size: 64px;
+      font-size: 44px;
       line-height: 1;
     }
     .csh2-front-number-large {
-      font-size: 32px;
-      font-weight: 700;
-      margin-top: 0px;
+      font-size: 26px;
+      font-weight: 800;
+      margin-top: 0;
     }
 
     /* Middle Resources & Divider */
     .csh2-front-divider {
       display: flex;
       align-items: center;
-      margin: 10px 20px;
+      margin: 8px 20px;
     }
     .csh2-front-divider.top-div {
-      margin-top: 130px;
+      margin-top: 106px;
     }
     .csh2-front-divider::before,
     .csh2-front-divider::after {
       content: '';
       flex: 1;
       height: 1px;
-      opacity: 0.6;
+      opacity: 0.48;
     }
     .csh2-front-divider-icon {
-      margin: 0 10px;
-      font-size: 14px;
+      margin: 0 8px;
+      font-size: 11px;
       line-height: 1;
     }
     
     .csh2-front-resources-container {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      padding: 10px 20px;
+      gap: 9px;
+      padding: 7px 20px;
     }
-    .csh2-front-pill {
-      color: #f1e9d2;
-      padding: 6px 20px;
-      border-radius: 99px;
-      font-size: 15px;
-      font-weight: 500;
-      text-align: center;
-      width: fit-content;
+    .csh2-front-resource-row {
+      min-height: 54px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      border: 1.5px solid currentColor;
+      border-radius: 8px;
+      padding: 6px;
+      gap: 9px;
     }
-    .pos-0 { margin-left: 0; align-self: flex-start; }
-    .pos-1 { margin-left: auto; margin-right: 20px; align-self: flex-end; }
-    .pos-2 { margin-left: 0; align-self: flex-start; }
+    .csh2-front-resource-icon {
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 5px;
+      background: currentColor;
+      font-size: 20px;
+    }
+    .csh2-front-resource-icon svg { color: #f1e9d2; }
+    .csh2-front-resource-copy { min-width: 0; }
+    .csh2-front-resource-name {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    .csh2-front-resource-units {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.82;
+    }
 
     /* Bottom Info */
     .csh2-front-bottom {
       margin-top: auto;
-      padding: 0 20px 30px;
+      padding: 0 20px 24px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 20px;
+      gap: 0;
     }
     .csh2-front-price-row {
       display: flex;
       align-items: baseline;
-      gap: 10px;
+      gap: 5px;
     }
     .csh2-front-price-label {
-      font-size: 18px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
     }
     .csh2-front-price-value {
-      font-size: 42px;
-      font-weight: 700;
-    }
-    .csh2-front-selected-btn {
-      color: #f1e9d2;
-      padding: 8px 32px;
-      border-radius: 99px;
-      font-size: 16px;
-      font-weight: 500;
-      text-align: center;
-      align-self: center;
-      margin: 0 auto;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
     }
 
     /* Bottom Right Symbol */
     .csh2-front-bottomright {
       position: absolute;
-      bottom: 20px;
+      bottom: 17px;
       right: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .csh2-front-number-small {
-      font-size: 28px;
-      font-weight: 700;
+      font-size: 26px;
+      font-weight: 800;
       line-height: 1;
       margin-bottom: 2px;
     }
     .csh2-front-symbol-small {
-      font-size: 40px;
+      font-size: 36px;
       line-height: 1;
     }
 
     /* ── FRONT SPADE VARIANT ── */
     .csh2-front.is-spade { border-color: #002366; color: #002366; }
-    .csh2-front.is-spade .csh2-front-pill { background: #002366; }
-    .csh2-front.is-spade .csh2-front-selected-btn { background: #002366; }
     .csh2-front.is-spade .csh2-front-divider::before,
     .csh2-front.is-spade .csh2-front-divider::after { background-color: #002366; }
 
     /* ── FRONT DIAMOND VARIANT ── */
     .csh2-front.is-diamond { border-color: #510400; color: #510400; }
-    .csh2-front.is-diamond .csh2-front-pill { background: #510400; }
-    .csh2-front.is-diamond .csh2-front-selected-btn { background: #510400; }
     .csh2-front.is-diamond .csh2-front-divider::before,
     .csh2-front.is-diamond .csh2-front-divider::after { background-color: #510400; }
 
@@ -1286,8 +1308,11 @@ export default function Spin3DCards({
           >
             {deckItems.map((item, i) => {
               const isSelectedCard = i === selectedIndexRef.current;
-              // Alternate suits: even cards = diamond (♦), odd cards = spade (♠)
-              const isSpade = i % 2 === 1;
+              // Preserve the requested suit coding: even lots are diamonds, odd lots are spades.
+              const lotNumber = Number(item.bidNo || item.bidNumber);
+              const isSpade = Number.isFinite(lotNumber)
+                ? lotNumber % 2 !== 0
+                : i % 2 === 1;
               return (
                 <div key={`csh2-${item.id}-${i}`} className="csh2-card">
                   {/* ── Back face — color-coded by suit ── */}
@@ -1323,9 +1348,8 @@ export default function Spin3DCards({
                       <div className="csh2-front-inner">
                         {/* Top Right Lot Number */}
                         <div className="csh2-front-lot-text">
-                          Lot Number:{" "}
-                          {currentSelectedBid.bidNo ||
-                            currentSelectedBid.bidNumber}
+                          <span className="csh2-front-lot-label">Selected Bid</span>
+                          Lot Number: {currentSelectedBid.bidNo || currentSelectedBid.bidNumber}
                         </div>
 
                         {/* Top Left Symbol & Number */}
@@ -1353,15 +1377,33 @@ export default function Spin3DCards({
                         <div className="csh2-front-resources-container">
                           {currentSelectedBid.resources &&
                             Object.entries(currentSelectedBid.resources)
-                              .filter(([k, v]) => v > 0)
-                              .map(([k, v], idx) => (
+                              .filter(([, v]) => v > 0)
+                              .map(([k, v]) => {
+                                const resourceName = String(k).toLowerCase();
+                                const ResourceIcon = resourceName.includes("property")
+                                  ? FaHome
+                                  : resourceName.includes("technology")
+                                    ? FaMicrochip
+                                    : resourceName.includes("building")
+                                      ? FaBuilding
+                                      : FaCubes;
+                                return (
                                 <div
                                   key={k}
-                                  className={`csh2-front-pill pos-${idx % 3}`}
+                                  className="csh2-front-resource-row"
                                 >
-                                  {k} x {v}
+                                  <span className="csh2-front-resource-icon">
+                                    <ResourceIcon aria-hidden="true" />
+                                  </span>
+                                  <span className="csh2-front-resource-copy">
+                                    <span className="csh2-front-resource-name">{k}</span>
+                                    <span className="csh2-front-resource-units">
+                                      {v} {v === 1 ? "Unit" : "Units"}
+                                    </span>
+                                  </span>
                                 </div>
-                              ))}
+                                );
+                              })}
                         </div>
                         {currentSelectedBid.resources &&
                           Object.keys(currentSelectedBid.resources).filter(
@@ -1384,19 +1426,16 @@ export default function Spin3DCards({
                               ₹{currentSelectedBid.basePrice?.toLocaleString()}
                             </span>
                           </div>
-                          <div className="csh2-front-selected-btn">
-                            Selected Bid
-                          </div>
                         </div>
 
                         {/* Bottom Right Symbol */}
                         <div className="csh2-front-bottomright">
-                          <div className="csh2-front-symbol-small">
-                            {isSpade ? "♠" : "♦"}
-                          </div>
                           <div className="csh2-front-number-small">
                             {currentSelectedBid.bidNo ||
                               currentSelectedBid.bidNumber}
+                          </div>
+                          <div className="csh2-front-symbol-small">
+                            {isSpade ? "♠" : "♦"}
                           </div>
                         </div>
                       </div>

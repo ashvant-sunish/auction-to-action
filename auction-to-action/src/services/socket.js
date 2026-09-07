@@ -81,6 +81,21 @@ class SocketService {
     }
   }
 
+  // Listen for targeted team notifications
+  onNotification(callback) {
+    if (this.socket) {
+      this.socket.on('newNotification', callback);
+    }
+  }
+
+  // Join admin room (for superadmin/admin notifications)
+  joinAdmin() {
+    if (this.socket) {
+      this.socket.emit('joinAdmin');
+      console.log('👑 Joined admin room');
+    }
+  }
+
   // Remove listeners
   removeListener(eventName, callback) {
     if (this.socket) {

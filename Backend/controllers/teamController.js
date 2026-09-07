@@ -481,3 +481,96 @@ exports.updateWishlist = async (req, res) => {
         });
     }
 };
+
+/**
+ * Gets notifications for the authenticated team.
+ */
+exports.getNotifications = async (req, res) => {
+  try {
+    const teamCode = req.user.teamCode;
+    const { limit = 50, unreadOnly } = req.query;
+
+    const Notification = require('../models/Notification');
+    const query = { recipientTeamCode: teamCode };
+    if (unreadOnly === 'true') {
+      query.read = false;
+    }
+
+    const notifications = await Notification.find(query)
+      .sort({ createdAt: -1 })
+      .limit(Math.min(parseInt(limit) || 50, 100));
+
+    const unreadCount = await Notification.countDocuments({
+      recipientTeamCode: teamCode,
+      read: false
+    });
+
+    res.status(200).json({
+      success: true,
+      notifications,
+      unreadCount
+    });
+  } catch (error) {
+    console.error('Error fetching team notifications:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch notifications.' });
+  }
+};
+
+/**
+ * Marks a specific notification as read for the authenticated team.
+ */
+exports.markNotificationAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const teamCode = req.user.teamCode;
+
+    const Notification = require('../models/Notification');
+    const notification = await Notification.findOneAndUpdate(
+      { _id: id, recipientTeamCode: teamCode },
+      { read: true },
+      { new: true }
+    );
+
+    if (!notification) {
+      return res.status(404).json({ success: false, message: 'Notification not found' });
+    }
+
+    const unreadCount = await Notification.countDocuments({
+      recipientTeamCode: teamCode,
+      read: false
+    });
+
+    res.status(200).json({
+      success: true,
+      notification,
+      unreadCount
+    });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({ success: false, message: 'Failed to update notification.' });
+  }
+};
+
+/**
+ * Marks all notifications as read for the authenticated team.
+ */
+exports.markAllNotificationsAsRead = async (req, res) => {
+  try {
+    const teamCode = req.user.teamCode;
+
+    const Notification = require('../models/Notification');
+    await Notification.updateMany(
+      { recipientTeamCode: teamCode, read: false },
+      { read: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'All notifications marked as read.',
+      unreadCount: 0
+    });
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    res.status(500).json({ success: false, message: 'Failed to update notifications.' });
+  }
+};

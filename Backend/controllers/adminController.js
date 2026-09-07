@@ -7,6 +7,7 @@ const TradeWishlist = require('../models/TradeWishlist');
 const AdminUser = require('../models/AdminUser');
 const GameState = require('../models/GameState');
 const Round1Bids = require('../models/Round1Bids');
+const { formatResourcesList, sendTargetedNotification } = require('../utils/notificationHelper');
 
 // --- ADMIN MANAGEMENT (CRUD for other admins) ---
 
@@ -189,6 +190,34 @@ exports.awardBid = async (req, res) => {
     });
     await history.save();
 
+    // Send targeted notification to the winning team (Round 1 / general bid)
+    const io = req.app.get('socketio') || req.app.get('io');
+    const formattedResources = formatResourcesList(item.resources);
+    const resourceSection = formattedResources
+      ? `\n\nResources acquired:\n${formattedResources}`
+      : '';
+    const notificationMessage = `🎉 You won ${item.name} for ₹${Number(bidAmount).toLocaleString('en-IN')}.${resourceSection}\n\n(If bid is not updated, kindly refresh the page)`;
+
+    await sendTargetedNotification(io, {
+      teamCode: team.teamCode,
+      teamName: team.teamName,
+      title: 'Bid Won 🎉',
+      message: notificationMessage,
+      round: Number(item.round) || 1,
+      type: 'BID_WON',
+      data: {
+        itemCode: item.itemCode,
+        itemName: item.name,
+        bidAmount,
+        resources: Object.fromEntries(item.resources || new Map()),
+        bidHistoryId: history._id
+      }
+    });
+
+    if (io) {
+      io.to(`team_${team.teamCode}`).emit('teamUpdated', team);
+    }
+
     res.status(200).json({ message: 'Bid awarded successfully.', team, history });
   } catch (error) {
     res.status(500).json({ message: 'Server error awarding bid.', error: error.message });
@@ -242,6 +271,44 @@ exports.executeTrade = async (req, res) => {
       tradeDetails: tradeDetails
     });
     await history.save();
+
+    // Send targeted notifications to both teams
+    const io = req.app.get('socketio') || req.app.get('io');
+
+    const gaveTeamA = [
+      teamOneGivesMoney > 0 ? `₹${Number(teamOneGivesMoney).toLocaleString('en-IN')}` : null,
+      (teamOneGivesItems && teamOneGivesItems.length > 0) ? teamOneGivesItems.map(i => `${i} ×1`).join(' + ') : null
+    ].filter(Boolean).join(' + ') || 'Nothing';
+
+    const receivedTeamA = [
+      teamTwoGivesMoney > 0 ? `₹${Number(teamTwoGivesMoney).toLocaleString('en-IN')}` : null,
+      (teamTwoGivesItems && teamTwoGivesItems.length > 0) ? teamTwoGivesItems.map(i => `${i} ×1`).join(' + ') : null
+    ].filter(Boolean).join(' + ') || 'Nothing';
+
+    await sendTargetedNotification(io, {
+      teamCode: teamA.teamCode,
+      teamName: teamA.teamName,
+      title: 'Trade Completed 🤝',
+      message: `Trade Completed 🤝\nYour trade with ${teamB.teamName} was successful.\nYou gave: ${gaveTeamA}\nYou received: ${receivedTeamA}\nYour inventory and balance have been updated.`,
+      round: 3,
+      type: 'TRADE_COMPLETED',
+      data: { tradeDetails }
+    });
+
+    await sendTargetedNotification(io, {
+      teamCode: teamB.teamCode,
+      teamName: teamB.teamName,
+      title: 'Trade Completed 🤝',
+      message: `Trade Completed 🤝\nYour trade with ${teamA.teamName} was successful.\nYou gave: ${receivedTeamA}\nYou received: ${gaveTeamA}\nYour inventory and balance have been updated.`,
+      round: 3,
+      type: 'TRADE_COMPLETED',
+      data: { tradeDetails }
+    });
+
+    if (io) {
+      io.to(`team_${teamA.teamCode}`).emit('teamUpdated', teamA);
+      io.to(`team_${teamB.teamCode}`).emit('teamUpdated', teamB);
+    }
 
     res.status(200).json({ message: 'Trade executed successfully!', history });
   } catch (error) {
@@ -679,10 +746,58 @@ exports.completeTrade = async (req, res) => {
             });
         }
 
+        // Also incorporate resources passed directly from request body if available
+        if (resources && typeof resources === 'object') {
+            if (resources instanceof Map) {
+                resources.forEach((qty, name) => {
+                    if (Number(qty) > 0) bidHistoryRecord.resourcesGained[name] = Number(qty);
+                });
+            } else if (Array.isArray(resources)) {
+                resources.forEach(item => {
+                    const name = item.name || item.resourceName;
+                    const qty = Number(item.quantity || item.count || 1);
+                    if (name && qty > 0) bidHistoryRecord.resourcesGained[name] = qty;
+                });
+            } else {
+                Object.entries(resources).forEach(([name, qty]) => {
+                    if (Number(qty) > 0) bidHistoryRecord.resourcesGained[name] = Number(qty);
+                });
+            }
+        }
+
         // Save bid history
         const bidHistory = new BidHistory(bidHistoryRecord);
         await bidHistory.save();
         console.log('📊 Bid history created:', bidHistory._id);
+
+        // --- TARGETED NOTIFICATION (ROUND 1) ---
+        const io = req.app.get('socketio') || req.app.get('io');
+        const formattedResources = formatResourcesList(bidHistoryRecord.resourcesGained);
+        const resourceSection = formattedResources 
+            ? `\n\nResources acquired:\n${formattedResources}` 
+            : '';
+        const notificationMessage = `🎉 You won ${itemName || 'Bid'} for ₹${Number(bidAmount).toLocaleString('en-IN')}.${resourceSection}\n\n(If bid is not updated, kindly refresh the page)`;
+
+        await sendTargetedNotification(io, {
+            teamCode: team.teamCode,
+            teamName: team.teamName,
+            title: 'Bid Won 🎉',
+            message: notificationMessage,
+            round: Number(round) || 1,
+            type: 'BID_WON',
+            data: {
+                itemCode,
+                itemName,
+                bidAmount,
+                resources: bidHistoryRecord.resourcesGained,
+                bidHistoryId: bidHistory._id
+            }
+        });
+
+        // Also emit real-time team balance update to this team's room
+        if (io) {
+            io.to(`team_${team.teamCode}`).emit('teamUpdated', team);
+        }
 
         res.status(201).json({
             success: true,
