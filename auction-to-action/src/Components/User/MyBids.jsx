@@ -155,8 +155,10 @@ function MyBids() {
             <Td borderColor="rgba(255, 255, 255, 0.1)">
               {formatBidItems(bid)}
             </Td>
-            <Td isNumeric borderColor="rgba(255, 255, 255, 0.1)">
-              ₹{bid.bidAmount.toLocaleString()}
+            <Td isNumeric borderColor="rgba(255, 255, 255, 0.1)" color="green.300">
+              <Text fontWeight="bold">
+                ₹{bid.bidAmount.toLocaleString()}
+              </Text>
             </Td>
             <Td borderColor="rgba(255, 255, 255, 0.1)">
               {bid.resourcesGained ? (
@@ -402,6 +404,7 @@ function MyBids() {
 
   return (
     <>
+    
       <VStack spacing={6} align="stretch">
         {!loading && (
           <Flex
@@ -411,6 +414,7 @@ function MyBids() {
             width="100%"
             direction={{ base: "column", md: "row" }}
           >
+            {/*
             <Box
               bg="rgba(15, 59, 61, 0.5)"
               backdropFilter="blur(10px)"
@@ -525,6 +529,7 @@ function MyBids() {
                 </Text>
               </VStack>
             </Box>
+            */}
           </Flex>
         )}
 
@@ -540,7 +545,7 @@ function MyBids() {
               _hover={{ bg: "rgba(15, 59, 61, 0.7)" }}
               _active={{ bg: "rgba(15, 59, 61, 0.7)" }}
               borderRadius="lg"
-              width="250px" // Set a specific width
+              width="350px" // Set a specific width
             >
               {ROUND_OPTIONS.find((o) => o.value === selectedRound)?.label ||
                 "Select Round"}
@@ -659,13 +664,7 @@ function MyBids() {
             )}
           </ModalBody>
           <ModalFooter>
-            <ChakraButton
-              onClick={onClose}
-              bg="rgba(255,255,255,0.1)"
-              _hover={{ bg: "rgba(255,255,255,0.2)" }}
-            >
-              Close
-            </ChakraButton>
+            <box width="20px"></box>
           </ModalFooter>
         </ModalContent>
       </Modal>

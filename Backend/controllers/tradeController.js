@@ -4,6 +4,7 @@ const TradeHistory = require('../models/TradeHistory');
 const Team = require('../models/Team');
 const BidHistory = require('../models/BidHistory');
 const TradeWishlist = require('../models/TradeWishlist');
+const { formatResourcesList, formatTradeTransfer, sendTargetedNotification } = require('../utils/notificationHelper');
 
 // CORRECT APPROACH - Remove traded items from the GIVING team's wishlist
 const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems) => {
@@ -382,14 +383,57 @@ const executeTrade = async (req, res) => {
         teams: [team1.teamCode, team2.teamCode]
       });
       
-      // Also notify specific team rooms if they exist
-      io.to(`team_${team1.teamNumber || team1._id}`).emit('tradeExecuted', tradeUpdate);
-      io.to(`team_${team2.teamNumber || team2._id}`).emit('tradeExecuted', tradeUpdate);
+      // Also notify specific team rooms
+      io.to(`team_${team1.teamCode}`).emit('tradeExecuted', tradeUpdate);
+      io.to(`team_${team2.teamCode}`).emit('tradeExecuted', tradeUpdate);
+      io.to(`team_${team1.teamCode}`).emit('teamUpdated', team1);
+      io.to(`team_${team2.teamCode}`).emit('teamUpdated', team2);
       
       // Notify all admins
       io.emit('adminTradeUpdate', tradeRecord);
+
+      // --- TARGETED NOTIFICATIONS (ROUND 3 TRADES) ---
+      const gaveTeam1 = formatTradeTransfer(teamOneGives);
+      const receivedTeam1 = formatTradeTransfer(teamTwoGives);
+
+      const notifTeam1 = `Trade Completed 🤝\nYour trade with ${team2.teamName} was successful.\nYou gave: ${gaveTeam1}\nYou received: ${receivedTeam1}\nYour inventory and balance have been updated.`;
+      const notifTeam2 = `Trade Completed 🤝\nYour trade with ${team1.teamName} was successful.\nYou gave: ${receivedTeam1}\nYou received: ${gaveTeam1}\nYour inventory and balance have been updated.`;
+
+      // Target Team 1 strictly
+      await sendTargetedNotification(io, {
+        teamCode: team1.teamCode,
+        teamName: team1.teamName,
+        title: 'Trade Completed 🤝',
+        message: notifTeam1,
+        round: 3,
+        type: 'TRADE_COMPLETED',
+        data: {
+          tradeId,
+          partnerTeamCode: team2.teamCode,
+          partnerTeamName: team2.teamName,
+          gave: teamOneGives,
+          received: teamTwoGives
+        }
+      });
+
+      // Target Team 2 strictly
+      await sendTargetedNotification(io, {
+        teamCode: team2.teamCode,
+        teamName: team2.teamName,
+        title: 'Trade Completed 🤝',
+        message: notifTeam2,
+        round: 3,
+        type: 'TRADE_COMPLETED',
+        data: {
+          tradeId,
+          partnerTeamCode: team1.teamCode,
+          partnerTeamName: team1.teamName,
+          gave: teamTwoGives,
+          received: teamOneGives
+        }
+      });
       
-      console.log('📡 ALL socket events emitted successfully - wishlists should refresh now!');
+      console.log('📡 ALL socket events and targeted notifications emitted successfully!');
     } else {
       console.log('❌ Socket.IO not found - real-time updates unavailable');
     }
@@ -683,7 +727,7 @@ const submitTrade = async (req, res) => {
     await tradeHistory.save();
 
     // Emit socket event for real-time updates
-    const io = req.app.get('io');
+    const io = req.app.get('io') || req.app.get('socketio');
     if (io) {
       io.emit('tradeCompleted', {
         teamCode: team.teamCode,
@@ -696,6 +740,38 @@ const submitTrade = async (req, res) => {
         newCredit: team.credit,
         newDebit: team.debit,
         resourcesGained: bidHistoryData.resourcesGained
+      });
+
+      io.to(`team_${team.teamCode}`).emit('teamUpdated', team);
+
+      // --- TARGETED NOTIFICATION (ROUND 2 MYSTERY BOX) ---
+      const formattedResources = formatResourcesList(bidHistoryData.resourcesGained);
+      const resourceSection = formattedResources 
+        ? `\n\nResources acquired:\n${formattedResources}` 
+        : '';
+      
+      let rewardText = mysteryBoxReward ? ` (${mysteryBoxReward})` : '';
+      if (cashReward > 0) {
+        rewardText += ` [Cash Reward: ₹${Number(cashReward).toLocaleString('en-IN')}]`;
+      }
+
+      const notifMessage = `🎉 You won Mystery Box${rewardText} for ₹${Number(bidAmount).toLocaleString('en-IN')}.${resourceSection}\n\n(If balance is not updated, kindly refresh the page)`;
+
+      await sendTargetedNotification(io, {
+        teamCode: team.teamCode,
+        teamName: team.teamName,
+        title: 'Mystery Box Won 🎁',
+        message: notifMessage,
+        round: Number(round) || 2,
+        type: 'MYSTERY_BOX',
+        data: {
+          mysteryBoxReward,
+          bidAmount,
+          cashReward,
+          deductionAmount,
+          resourcesGained: bidHistoryData.resourcesGained,
+          bidHistoryId: bidHistory._id
+        }
       });
     }
 

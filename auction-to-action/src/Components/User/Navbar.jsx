@@ -21,6 +21,7 @@ import {
 import { BsPersonCircle } from "react-icons/bs";
 import { CiLogout } from "react-icons/ci";
 import { IoDocumentTextOutline } from "react-icons/io5";
+import NotificationCenter from "./NotificationCenter";
 
 const Navbar = ({
   pageTitle,
@@ -29,6 +30,10 @@ const Navbar = ({
   teamCode,
   currentRound,
   gameState,
+  notifications = [],
+  unreadCount = 0,
+  onMarkAsRead,
+  onMarkAllAsRead,
 }) => {
   // Remove the old rule state management
   // let [ruleview, setruleview] = React.useState(localStorage.getItem("rulestate"));
@@ -87,7 +92,13 @@ const Navbar = ({
         </Badge>
       </HStack>
       <Flex flex="1" justify="flex-end" gap={4}>
-        <HStack>
+        <HStack spacing={2}>
+          <NotificationCenter
+            notifications={notifications}
+            unreadCount={unreadCount}
+            onMarkAsRead={onMarkAsRead}
+            onMarkAllAsRead={onMarkAllAsRead}
+          />
           <Tooltip label="Rules" placement="bottom" bg="gray.800" color="white">
             <IconButton
               icon={<IoDocumentTextOutline />}
@@ -96,6 +107,9 @@ const Navbar = ({
               color="white"
               _hover={{
                 bg: "rgba(255, 255, 255, 0.1)",
+                color: "#F62440",
+                shadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
               }}
               _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
               size="lg"
@@ -122,6 +136,9 @@ const Navbar = ({
                 bg="transparent"
                 _hover={{
                   bg: "rgba(255, 255, 255, 0.1)",
+                  color: "#F62440",
+                  shadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
                 }}
                 _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
                 size="lg"

@@ -159,7 +159,7 @@ const EnterpriseConstruction = ({ gameState }) => {
       left: 0;
       right: 0;
       height: 3px;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), rgba(107, 163, 190, 0.8));
+      background: #F62440;
       border-radius: 0 0 8px 8px;
     }
     

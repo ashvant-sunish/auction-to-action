@@ -434,17 +434,6 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       cursor: not-allowed;
       filter: grayscale(0.4);
     }
-    .card-image::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 40%, transparent 70%);
-      opacity: 0.8;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-    .card-image.unavailable::before {
-      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.2) 70%);
-    }
     .card-image.expanded { width: 360px; transform: translateY(-3px); }
     .card-image.unavailable.expanded { transform: translateY(0px); }
     .card-image.selected { border-color: #0C969C; box-shadow: 0 0 0 2px rgba(12,150,156,0.25); }
