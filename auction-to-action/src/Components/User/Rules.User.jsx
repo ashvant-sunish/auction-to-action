@@ -45,6 +45,7 @@ function RulesUser({ onClose, isFirstTime }) {
         bg="rgba(0,0,0,0.5)"
         zIndex="999"
         onClick={handleClose}
+        color={"blackAlpha.700"}
       >
         <AbsoluteCenter axis="both">
           {/* Outer container for styling (background, border-radius) */}
