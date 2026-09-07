@@ -111,7 +111,7 @@ const AvailableMaterialsTable = ({
             border="1px solid"
             borderColor="rgba(255, 255, 255, 0.2)"
           >
-            <Text fontSize="xs" color="white" fontWeight="semibold">
+            <Text fontSize="xs" color="white" fontWeight="semibold" shadow="2xl">
               {filteredHistory.length} Types
             </Text>
           </Box>
@@ -142,7 +142,7 @@ const AvailableMaterialsTable = ({
           _focus={{
             bg: "rgba(0, 0, 0, 0.3)",
             borderColor: "blue.300",
-            boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
+            boxShadow: "0 0 0 1px #F62440",
           }}
           _hover={{
             borderColor: "rgba(255, 255, 255, 0.3)",
@@ -195,7 +195,12 @@ const AvailableMaterialsTable = ({
           </Thead>
           <Tbody>
             {filteredHistory.map((item, index) => (
-              <Tr key={index} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
+              <Tr key={index} _hover={{ bg: "rgba(255, 255, 255, 0.05)",
+                color: "#F62440",
+                shadow: "0 6px 12px rgba(0, 0, 0, 0.2)",
+                transform: "scale(1.02)",
+                transition: "all 0.3s ease-in-out",
+               }}>
                 <Td borderColor="rgba(255, 255, 255, 0.1)" fontWeight="500">
                   <HStack>
                     <Box w={2} h={2} bg="blue.400" borderRadius="full" />
@@ -230,6 +235,8 @@ const AvailableMaterialsTable = ({
 };
 
 function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
+  const [enterprisesData, setEnterprisesData] = useState([]);
+  const [productsData, setProductsData] = useState([]);
   const [isMaterialsFullScreen, setMaterialsFullScreen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState("0");
   const [currentRevealedBox, setCurrentRevealedBox] = useState("0");
@@ -240,6 +247,22 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
+
+      const inventoryResponse = await fetch(
+        `${serverUrl}/api/construction/inventory`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (inventoryResponse.ok) {
+        const inventoryData = await inventoryResponse.json();
+        setEnterprisesData(inventoryData.enterprises || []);
+        setProductsData(inventoryData.products || []);
+      }
 
       if (gameState === 1) {
         const response = await fetch(
@@ -337,6 +360,12 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
       backdropFilter="blur(10px)"
       border="1px solid rgba(255, 255, 255, 0.2)"
       mb={4}
+      _hover={{ bg: "rgba(15, 59, 61, 0.7)",
+        transform: "translateY(4px) scale(1.01)",
+        transition: "all 0.3s ease-in-out",
+        shadow: "0 6px 12px rgba(0, 0, 0, 0.2)",
+        borderColor: "rgba(255, 255, 255, 0.3)",
+       }}
     >
       <Flex>
         <Box
@@ -356,6 +385,40 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
           </Text>
           <Text fontWeight="bold" fontSize="2xl" color={valueColor}>
             {value}
+          </Text>
+        </Box>
+      </Flex>
+    </Box>
+  );
+
+  const InfoCard = ({ title, value, valueColor, secondaryValue }) => (
+    <Box
+      flex="1"
+      minW="200px"
+      p={4}
+      shadow="md"
+      borderRadius="lg"
+      bg="rgba(15, 59, 61, 0.5)"
+      backdropFilter="blur(10px)"
+      border="1px solid rgba(255, 255, 255, 0.2)"
+      mb={4}
+      _hover={{ bg: "rgba(15, 59, 61, 0.7)",
+        transform: "translateY(-4px) scale(1.01)",
+        transition: "all 0.3s ease-in-out",
+        shadow: "0 6px 12px rgba(0, 0, 0, 0.2)",
+        borderColor: "rgba(255, 255, 255, 0.3)",
+       }}
+    >
+      <Flex>
+        <Box>
+          <Text color="gray.300" fontSize="sm">
+            {title}
+          </Text>
+          <Text fontWeight="bold" fontSize="2xl" color={valueColor} paddingLeft={3}>
+            {value}
+          </Text>
+          <Text as="span" fontWeight="semibold" color="gray.400" fontSize="sm">
+            {secondaryValue}
           </Text>
         </Box>
       </Flex>
@@ -411,9 +474,9 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
       <Box
         display="flex"
         flexDirection="column"
-        gap={4}
         overflow="hidden"
         h="full"
+        wrap="wrap"
       >
         <Flex gap={4} flexWrap="wrap">
           <StatCard
@@ -432,6 +495,26 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
           />
           {dynamicCard}
         </Flex>
+        <Flex gap={4} flexWrap="wrap">
+          <InfoCard title={"Total Enterprises"} value={enterprisesData.length} 
+            valueColor={"blue.300"}
+            secondaryValue={`Worth: ₹${enterprisesData
+                      .reduce((sum, prod) => sum + Number(prod.worth || 0), 0)
+                      .toLocaleString()}`}
+          />
+          <InfoCard title={"Total Products"} value={productsData.length}
+            valueColor={"orange.300"}
+            secondaryValue={`Worth: ₹${productsData
+                      .reduce((sum, prod) => sum + Number(prod.worth || 0), 0)
+                      .toLocaleString()}`}
+          />
+          <InfoCard title={"Total Portfolio Value"}
+          value={`₹${(enterpriseWorth + productWorth).toLocaleString()}`}
+            valueColor={"purple.300"}
+            secondaryValue={'Enterprises + Products'}
+          />
+        </Flex>
+        <Box height={"3"}></Box>
         <Box w="100%" flex="1" minH="0">
           <AvailableMaterialsTable
             resources={resources}

@@ -96,6 +96,9 @@ const Navbar = ({
               color="white"
               _hover={{
                 bg: "rgba(255, 255, 255, 0.1)",
+                color: "#F62440",
+                shadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
               }}
               _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
               size="lg"
@@ -122,6 +125,9 @@ const Navbar = ({
                 bg="transparent"
                 _hover={{
                   bg: "rgba(255, 255, 255, 0.1)",
+                  color: "#F62440",
+                  shadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
                 }}
                 _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
                 size="lg"

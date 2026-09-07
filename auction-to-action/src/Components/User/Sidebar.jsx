@@ -76,7 +76,10 @@ const Sidebar = ({
             color="white"
             aria-label="Toggle Sidebar"
             fontSize="24px"
-            _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+            _hover={{ bg: "rgba(255, 255, 255, 0.1)",
+              color: "#F62440",
+              shadow: "0 4px 8px rgba(0, 0, 0, 0.2)"
+             }}
           />
         </Flex>
 
@@ -102,11 +105,17 @@ const Sidebar = ({
                     ? "rgba(255, 255, 255, 0.1)"
                     : "transparent"
                 }
+                color={activeComponent === item.key ? "#F62440" : "white"}
+                border={activeComponent === item.key ? "1px solid rgba(255, 255, 255, 0.2)" : "none"}
+                shadow={activeComponent === item.key ? "0 8px 16px rgba(0, 0, 0, 0.2)" : "none"}
                 fontWeight={activeComponent === item.key ? "bold" : "normal"}
                 display="flex"
                 alignItems="center"
                 justifyContent={isCollapsed ? "center" : "flex-start"}
-                _hover={{ bg: "rgba(255, 255, 255, 0.1)", cursor: "pointer" }}
+                _hover={{ bg: "rgba(255, 255, 255, 0.05)", cursor: "pointer",
+                  color: "#F62440",
+                  shadow: "0 4px 8px rgba(0, 0, 0, 0.2)"
+                 }}
               >
                 <Icon as={item.icon} boxSize={6} />
                 {!isCollapsed && (
