@@ -70,9 +70,9 @@ function AdminDashboard() {
         }
       });
 
-      console.log("✅ Socket connections established for admin dashboard");
+      console.log("Socket connections established for admin dashboard");
     } catch (error) {
-      console.error("❌ Error setting up socket connection:", error);
+      console.error("Error setting up socket connection:", error);
     }
   };
 

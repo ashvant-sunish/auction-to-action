@@ -51,9 +51,9 @@ app.set('io', io); // Also set as 'io' for the wheel routes
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log('✅ Successfully connected to MongoDB!');
+    console.log('Successfully connected to MongoDB!');
   })
-  .catch((err) => console.error('❌ Database connection error:', err));
+  .catch((err) => console.error('Database connection error:', err));
 
 // API Routes
 app.use('/api/admin', adminRoutes);
@@ -66,7 +66,7 @@ app.use('/', socketRoutes); // Socket routes for real-time updates
 
 // Welcome Route
 app.get('/', (req, res) => {
-  res.send('🚀 Auction to Action API is live!');
+  res.send('Auction to Action API is live!');
 });
 
 // Maps socket.id → teamCode so we can clear the session when a socket disconnects
@@ -117,7 +117,7 @@ io.on('connection', (socket) => {
               { isActive: false, sessionExpiry: null }
             );
           } catch (err) {
-            console.error(`❌ Failed to clear session for team ${teamCode}:`, err.message);
+            console.error(`Failed to clear session for team ${teamCode}:`, err.message);
           }
         }
       }, 5000);

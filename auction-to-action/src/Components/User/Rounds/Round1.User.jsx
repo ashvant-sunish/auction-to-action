@@ -593,7 +593,7 @@ export default function Spin3DCards({
         throw new Error("API response not successful");
       }
     } catch (error) {
-      console.error("❌ Error fetching game items:", error);
+      console.error("Error fetching game items:", error);
       if (error.response)
         console.error(
           "Backend error:",
@@ -665,7 +665,7 @@ export default function Spin3DCards({
           }
         }
       } catch (error) {
-        console.error("❌ Error fetching live wheel selection:", error);
+        console.error("Error fetching live wheel selection:", error);
         // Fallback to local storage if API fails
         if (wheelState) {
           setCurrentSelectedBid(wheelState.selectedBid);

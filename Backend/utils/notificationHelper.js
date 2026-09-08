@@ -79,7 +79,7 @@ async function sendTargetedNotification(io, {
   data = {}
 }) {
   if (!teamCode || !title || !message) {
-    console.warn('⚠️ Missing required parameters for targeted notification:', { teamCode, title });
+    console.warn('Missing required parameters for targeted notification:', { teamCode, title });
     return null;
   }
 
@@ -124,12 +124,12 @@ async function sendTargetedNotification(io, {
         targetTeamCode: notification.recipientTeamCode
       });
       } else {
-      console.warn('⚠️ Socket.IO instance not available on req.app');
+      console.warn('Socket.IO instance not available on req.app');
     }
 
     return notification;
   } catch (error) {
-    console.error('❌ Error sending targeted notification:', error.message);
+    console.error('Error sending targeted notification:', error.message);
     // Return null so the main admin operation isn't broken
     return null;
   }
