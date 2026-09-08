@@ -427,7 +427,7 @@ const FormRound2 = () => {
         ).reduce((sum, val) => sum + val, 0);
 
         if (resourcesReceived > 0 && resourcesProcessed === 0) {
-          console.warn("⚠️ BACKEND ISSUE: Resources sent but not processed!", {
+          console.warn("BACKEND ISSUE: Resources sent but not processed!", {
             resourcesSent: formData.resources,
             resourcesReceived: result.data?.resourcesGained || {},
           });
@@ -676,7 +676,7 @@ const FormRound2 = () => {
                               color="green.600"
                               fontWeight="medium"
                             >
-                              ✅ Rewards will be added directly to inventory
+                              Rewards will be added directly to inventory
                             </Text>
                           </VStack>
                         </Box>
