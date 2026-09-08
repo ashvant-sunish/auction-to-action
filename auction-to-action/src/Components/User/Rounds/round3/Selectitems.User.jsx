@@ -67,7 +67,6 @@ const TradingWishlistTable = () => {
 
     // Listen for trade updates
     newSocket.on("tradeWishlistUpdated", (data) => {
-      console.log("Trade wishlist updated:", data);
       toast({
         title: "Trade Wishlist Updated",
         description: `${data.teamName} updated their trade wishlist`,
@@ -104,7 +103,6 @@ const TradingWishlistTable = () => {
         const result = await response.json();
         if (result.success && result.data) {
           setCurrentWishlist(result.data.itemsToTrade || []);
-          console.log("Current wishlist loaded:", result.data.itemsToTrade);
         }
       }
     } catch (error) {
@@ -137,12 +135,10 @@ const TradingWishlistTable = () => {
       if (response.ok) {
         const data = await response.json();
         setTeamData(data);
-        console.log("Team data loaded:", data);
       } else {
         throw new Error("Failed to fetch team data");
       }
     } catch (error) {
-      console.error("Error fetching team data:", error);
       toast({
         title: "Error",
         description: "Failed to load team data",
@@ -195,7 +191,7 @@ const TradingWishlistTable = () => {
     const maxAvailable = resource?.available || 0;
     const newCount = Math.max(
       0,
-      Math.min(parseInt(value, 10) || 0, maxAvailable)
+      Math.min(parseInt(value, 10) || 0, maxAvailable),
     );
 
     setTradeItems((prev) => ({
@@ -229,8 +225,6 @@ const TradingWishlistTable = () => {
         totalItems: itemsToTrade.reduce((sum, item) => sum + item.count, 0),
       };
 
-      console.log("Submitting trade wishlist:", tradeWishlistData);
-
       const response = await fetch(`${serverUrl}/api/team/trade-wishlist`, {
         method: "POST",
         headers: {
@@ -241,7 +235,6 @@ const TradingWishlistTable = () => {
       });
 
       const result = await response.json();
-      console.log("Backend response:", result);
 
       if (response.ok) {
         // Emit socket event for real-time updates
@@ -259,7 +252,7 @@ const TradingWishlistTable = () => {
           description: `Added ${itemsToTrade
             .map((item) => `${item.count} × ${item.name}`)
             .join(
-              ", "
+              ", ",
             )} to your trading wishlist. You can add more items anytime.`,
           status: "success",
           duration: 5000,
@@ -332,15 +325,15 @@ const TradingWishlistTable = () => {
   };
 
   const filteredResources = availableResources.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const selectedItemsCount = Object.values(tradeItems).filter(
-    (item) => item.isSelected
+    (item) => item.isSelected,
   ).length;
   const totalTradeQuantity = Object.values(tradeItems).reduce(
     (sum, item) => (item.isSelected ? sum + (item.count || 0) : sum),
-    0
+    0,
   );
 
   if (loading) {
@@ -522,7 +515,7 @@ const TradingWishlistTable = () => {
                 <Text fontSize="xs" color="white" fontWeight="semibold">
                   {availableResources.reduce(
                     (sum, item) => sum + item.totalCount,
-                    0
+                    0,
                   )}{" "}
                   Total
                 </Text>
@@ -538,7 +531,7 @@ const TradingWishlistTable = () => {
                 <Text fontSize="xs" color="white" fontWeight="semibold">
                   {availableResources.reduce(
                     (sum, item) => sum + item.committed,
-                    0
+                    0,
                   )}{" "}
                   Committed
                 </Text>
@@ -554,7 +547,7 @@ const TradingWishlistTable = () => {
                 <Text fontSize="xs" color="white" fontWeight="semibold">
                   {availableResources.reduce(
                     (sum, item) => sum + item.available,
-                    0
+                    0,
                   )}{" "}
                   Available
                 </Text>

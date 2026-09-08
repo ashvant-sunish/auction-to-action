@@ -99,11 +99,14 @@ function UserDashboard() {
     const { roundNumber, roundStatus } = roundData;
     let newGameState = 0;
     if (roundNumber === 1) {
-      newGameState = roundStatus === "ongoing" ? 1 : 2;
+      if (roundStatus === 'paused') newGameState = 7;
+      else newGameState = roundStatus === "ongoing" ? 1 : 2;
     } else if (roundNumber === 2) {
-      newGameState = roundStatus === "ongoing" ? 3 : 4;
+      if (roundStatus === 'paused') newGameState = 8;
+      else newGameState = roundStatus === "ongoing" ? 3 : 4;
     } else if (roundNumber === 3) {
-      newGameState = roundStatus === "ongoing" ? 5 : 6;
+      if (roundStatus === 'paused') newGameState = 9;
+      else newGameState = roundStatus === "ongoing" ? 5 : 6;
     }
     setGameState(newGameState);
     return newGameState;
@@ -118,6 +121,9 @@ function UserDashboard() {
       4: "Round 2 - Ended",
       5: "Round 3 - Ongoing",
       6: "Round 3 - Ended",
+      7: "Round 1 - ⏸️ Paused",
+      8: "Round 2 - ⏸️ Paused",
+      9: "Round 3 - ⏸️ Paused",
     };
     return displays[state] || "Not Started";
   };

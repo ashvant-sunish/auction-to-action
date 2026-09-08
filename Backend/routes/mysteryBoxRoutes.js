@@ -70,12 +70,6 @@ router.get('/revealed-count', async (req, res) => {
     const latestReveal = await MysteryBoxReveal.getLatestRevealedBox(round);
     const currentRevealedBox = latestReveal ? latestReveal.boxId : 0;
     
-    console.log('Mystery box reveal data:', {
-      revealedCount,
-      currentRevealedBox,
-      latestReveal: latestReveal?._id
-    });
-    
     res.json({ 
       revealedCount,
       totalBoxes: mockMysteryBoxes.length,
@@ -121,8 +115,6 @@ router.post('/reveal/:boxId', protectAdmin, async (req, res) => {
 
     await mysteryBoxReveal.save();
 
-    console.log('Box revealed and saved to database:', mysteryBoxReveal);
-
     // Emit socket event for real-time updates
     const io = req.app.get('io');
     if (io) {
@@ -162,8 +154,6 @@ router.post('/undo', protectAdmin, async (req, res) => {
     latestReveal.isActive = false;
     await latestReveal.save();
 
-    console.log('Undid reveal for box:', latestReveal.boxId);
-
     // Emit socket event for real-time updates
     const io = req.app.get('io');
     if (io) {
@@ -192,8 +182,6 @@ router.post('/reset', protectAdmin, async (req, res) => {
       { round: 2, isActive: true },
       { isActive: false }
     );
-
-    console.log('Reset all mystery boxes, marked inactive:', result.modifiedCount);
     
     // Emit socket event for real-time updates
     const io = req.app.get('io');

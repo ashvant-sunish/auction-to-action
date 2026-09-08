@@ -28,6 +28,7 @@ router.post('/admin/updateRound', protectAdmin, async (req, res) => {
     // Update game state in database
     gameState.currentRound = roundNumber;
     gameState.isAuctionLive = roundStatus === 'ongoing';
+    gameState.isPaused = false; // Reset pause state on any round transition
     await gameState.save();
 
     // Create current round state for broadcasting
@@ -43,7 +44,6 @@ router.post('/admin/updateRound', protectAdmin, async (req, res) => {
     if (io) {
       // Broadcast round update to all connected clients
       io.emit('roundUpdated', currentRoundState);
-      console.log('📡 Round update broadcasted:', currentRoundState);
     }
 
     res.json({
@@ -62,6 +62,60 @@ router.post('/admin/updateRound', protectAdmin, async (req, res) => {
 });
 
 /**
+ * Pause or resume an ongoing round
+ * POST /admin/pauseRound
+ */
+router.post('/admin/pauseRound', protectAdmin, async (req, res) => {
+  try {
+    const { action } = req.body; // 'pause' or 'resume'
+
+    if (!action || !['pause', 'resume'].includes(action)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid action. Must be 'pause' or 'resume'."
+      });
+    }
+
+    const gameState = await GameState.findOne({ singleton: 'main' });
+    if (!gameState || !gameState.isAuctionLive) {
+      return res.status(400).json({
+        success: false,
+        message: 'No ongoing round to pause/resume.'
+      });
+    }
+
+    const isPaused = action === 'pause';
+    gameState.isPaused = isPaused;
+    await gameState.save();
+
+    const roundStatus = isPaused ? 'paused' : 'ongoing';
+    const currentRoundState = {
+      roundNumber: gameState.currentRound,
+      roundStatus,
+      timestamp: new Date().toISOString()
+    };
+
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('roundUpdated', currentRoundState);
+    }
+
+    res.json({
+      success: true,
+      message: `Round ${isPaused ? 'paused' : 'resumed'} successfully`,
+      roundData: currentRoundState
+    });
+  } catch (error) {
+    console.error('Error pausing/resuming round:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error pausing/resuming round',
+      error: error.message
+    });
+  }
+});
+
+/**
  * Get current round state
  * GET /api/round/current
  */
@@ -72,9 +126,13 @@ router.get('/api/round/current', async (req, res) => {
     
     let currentRoundState;
     if (gameState) {
+      let roundStatus = 'ended';
+      if (gameState.isAuctionLive) {
+        roundStatus = gameState.isPaused ? 'paused' : 'ongoing';
+      }
       currentRoundState = {
         roundNumber: gameState.currentRound,
-        roundStatus: gameState.isAuctionLive ? 'ongoing' : 'ended',
+        roundStatus,
         timestamp: gameState.updatedAt || new Date().toISOString()
       };
     } else {
@@ -139,11 +197,9 @@ router.post('/admin/updateTeam', protectAdmin, (req, res) => {
       if (broadcastScope === 'team') {
         // Broadcast only to specific team room
         io.to(`team_${teamNumber}`).emit('teamUpdated', updateData);
-        console.log(`📡 Team update sent to team ${teamNumber}:`, updateData);
       } else {
         // Broadcast to all clients
         io.emit('teamUpdated', updateData);
-        console.log('📡 Team update broadcasted to all clients:', updateData);
       }
     }
 
@@ -200,11 +256,9 @@ router.post('/admin/trade', protectAdmin, (req, res) => {
         // Broadcast to both teams involved
         io.to(`team_${teamA}`).emit('tradeExecuted', tradeData);
         io.to(`team_${teamB}`).emit('tradeExecuted', tradeData);
-        console.log(`📡 Trade update sent to teams ${teamA} and ${teamB}:`, tradeData);
       } else {
         // Broadcast to all clients
         io.emit('tradeExecuted', tradeData);
-        console.log('📡 Trade update broadcasted to all clients:', tradeData);
       }
     }
 
@@ -244,11 +298,9 @@ router.post('/admin/broadcastUpdate', protectAdmin, (req, res) => {
       if (targetTeam) {
         // Broadcast to specific team
         io.to(`team_${targetTeam}`).emit('databaseUpdate', updateData);
-        console.log(`📡 Database update sent to team ${targetTeam}:`, updateData);
       } else {
         // Broadcast to all clients
         io.emit('databaseUpdate', updateData);
-        console.log('📡 Database update broadcasted to all clients:', updateData);
       }
     }
 

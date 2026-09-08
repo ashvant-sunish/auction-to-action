@@ -33,7 +33,7 @@ import { FaRandom, FaCheck } from "react-icons/fa";
 import { MdSkipNext } from "react-icons/md";
 import axios from "axios";
 import io from "socket.io-client";
-import serverUrl from './../../../../../servercon';
+import serverUrl from "./../../../../../servercon";
 
 function FormRound1() {
   const [formData, setFormData] = useState({
@@ -80,7 +80,6 @@ function FormRound1() {
           status: "SELECTED",
           timestamp: new Date(data.timestamp),
         });
-
 
         if (autoFillEnabled) {
           setFormData((prev) => ({
@@ -164,15 +163,12 @@ function FormRound1() {
   const fetchGameState = async () => {
     try {
       const adminToken = localStorage.getItem("adminToken");
-      const response = await axios.get(
-        `${serverUrl}/api/admin/game-state`,
-        {
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.get(`${serverUrl}/api/admin/game-state`, {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (
         response.data &&
@@ -200,7 +196,7 @@ function FormRound1() {
             Authorization: `Bearer ${adminToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.data && response.data.latestSelection) {
@@ -225,7 +221,6 @@ function FormRound1() {
       console.error("Error fetching latest wheel selection:", error);
     }
   };
-
 
   // Auto-fill form with wheel selection data
   const autoFillFromWheelSelection = () => {
@@ -278,7 +273,7 @@ function FormRound1() {
             Authorization: `Bearer ${adminToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.data && response.data.length > 0) {
@@ -427,7 +422,7 @@ function FormRound1() {
             Authorization: `Bearer ${adminToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.status === 201) {
@@ -590,7 +585,7 @@ function FormRound1() {
                         <Badge key={type} colorScheme="green" fontSize="xs">
                           {type}: +{qty}
                         </Badge>
-                      )
+                      ),
                     )}
                   </HStack>
                 </Box>
@@ -598,16 +593,18 @@ function FormRound1() {
             <Text fontSize="xs" color="gray.500">
               {wheelSelection.timestamp?.toLocaleString()}
             </Text>
-            {(((wheelSelection.status === "SELECTED") || (wheelSelection.status === "CONFIRMED")) && autoFillEnabled) && (
-              <Button
-                size="sm"
-                mt={2}
-                colorScheme="blue"
-                onClick={autoFillFromWheelSelection}
-              >
-                Auto-Fill Form
-              </Button>
-            )}
+            {(wheelSelection.status === "SELECTED" ||
+              wheelSelection.status === "CONFIRMED") &&
+              autoFillEnabled && (
+                <Button
+                  size="sm"
+                  mt={2}
+                  colorScheme="blue"
+                  onClick={autoFillFromWheelSelection}
+                >
+                  Auto-Fill Form
+                </Button>
+              )}
           </CardBody>
         </Card>
       )}
@@ -632,29 +629,6 @@ function FormRound1() {
           </HStack>
         </CardBody>
       </Card>
-
-      <Alert status="info" mb={6}>
-        <AlertIcon />
-        <Box>
-          <AlertTitle>Round 1 Bid Entry</AlertTitle>
-          <AlertDescription>
-            Enter the details of bids won by teams in Round 1. Team information
-            will be auto-fetched when you enter a valid team code.
-            {wheelSelection && (
-              <Text mt={2} color="blue.600" fontWeight="bold">
-                🎯 Connected to spinning wheel! Item details can be auto-filled
-                from wheel selections.
-              </Text>
-            )}
-            {liveGameState && (
-              <Text mt={2} color="red.600" fontWeight="bold">
-                🔴 Live spinning wheel is active! New bids are being selected in
-                real-time.
-              </Text>
-            )}
-          </AlertDescription>
-        </Box>
-      </Alert>
 
       <VStack spacing={6} align="stretch">
         {/* Item Details Section */}
@@ -696,32 +670,52 @@ function FormRound1() {
           </Heading>
           {/* Resource Summary */}
           {Object.keys(formData.resources).length > 0 && (
-            <Card bg="green.50" borderColor="green.200" borderWidth="1px" mb={4}>
+            <Card
+              bg="green.50"
+              borderColor="green.200"
+              borderWidth="1px"
+              mb={4}
+            >
               <CardBody>
-                <Text fontSize="sm" color="green.700" fontWeight="semibold" mb={3}>
+                <Text
+                  fontSize="sm"
+                  color="green.700"
+                  fontWeight="semibold"
+                  mb={3}
+                >
                   📦 Current Resources:
                 </Text>
                 <SimpleGrid columns={{ base: 2, md: 4 }} spacing={3}>
-                  {Object.entries(formData.resources).map(([type, quantity]) => (
-                    quantity > 0 && (
-                      <Box
-                        key={type}
-                        textAlign="center"
-                        p={2}
-                        bg="white"
-                        borderRadius="md"
-                        border="1px solid"
-                        borderColor="green.200"
-                      >
-                        <Text fontSize="xs" color="gray.600" textTransform="uppercase" letterSpacing="wide">
-                          {type}
-                        </Text>
-                        <Text fontSize="lg" fontWeight="bold" color="green.600">
-                          +{quantity}
-                        </Text>
-                      </Box>
-                    )
-                  ))}
+                  {Object.entries(formData.resources).map(
+                    ([type, quantity]) =>
+                      quantity > 0 && (
+                        <Box
+                          key={type}
+                          textAlign="center"
+                          p={2}
+                          bg="white"
+                          borderRadius="md"
+                          border="1px solid"
+                          borderColor="green.200"
+                        >
+                          <Text
+                            fontSize="xs"
+                            color="gray.600"
+                            textTransform="uppercase"
+                            letterSpacing="wide"
+                          >
+                            {type}
+                          </Text>
+                          <Text
+                            fontSize="lg"
+                            fontWeight="bold"
+                            color="green.600"
+                          >
+                            +{quantity}
+                          </Text>
+                        </Box>
+                      ),
+                  )}
                 </SimpleGrid>
               </CardBody>
             </Card>
@@ -796,8 +790,8 @@ function FormRound1() {
             >
               <NumberInputField />
               <NumberInputStepper>
-                <NumberIncrementStepper color={'white'}/>
-                <NumberDecrementStepper color={'white'}/>
+                <NumberIncrementStepper color={"white"} />
+                <NumberDecrementStepper color={"white"} />
               </NumberInputStepper>
             </NumberInput>
           </FormControl>

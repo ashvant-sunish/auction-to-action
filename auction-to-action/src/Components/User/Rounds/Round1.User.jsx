@@ -626,20 +626,63 @@ export default function Spin3DCards({
   // ── Load + rehydrate (unchanged) ────────────────────────────────────────────
   useEffect(() => {
     const loadData = async () => {
-      if (wheelState) {
-        setCurrentSelectedBid(wheelState.selectedBid);
-        setWheelStopped(wheelState.stopped);
-        setSpinning(!wheelState.stopped);
-        if (wheelState.angle) angleRef.current = wheelState.angle;
+      try {
+        const response = await axios.get(
+          `${serverUrl}/api/wheel/public/wheel-selection/live/${round}`,
+        );
 
-        // Restore index so the card retains its correct suit color (even=0=diamond, odd=1=spade)
-        if (wheelState.selectedBid) {
+        if (response.data && response.data.latestSelection) {
+          const selection = response.data.latestSelection;
+          setCurrentSelectedBid(selection.itemDetails);
+          setIsSelecting(true); // <--- Added this line
+          setWheelStopped(selection.wheelState?.stopped ?? true);
+          setSpinning(!(selection.wheelState?.stopped ?? true));
+
+          if (selection.wheelState?.angle)
+            angleRef.current = selection.wheelState.angle;
+
           const bidNum =
             parseInt(
-              wheelState.selectedBid.bidNo || wheelState.selectedBid.bidNumber,
+              selection.itemDetails.bidNo || selection.itemDetails.bidNumber,
               10,
             ) || 0;
           selectedIndexRef.current = bidNum % 2 !== 0 ? 1 : 0;
+        } else if (wheelState) {
+          setCurrentSelectedBid(wheelState.selectedBid);
+          setIsSelecting(true); // <--- Added this line
+          setWheelStopped(wheelState.stopped);
+          setSpinning(!wheelState.stopped);
+          if (wheelState.angle) angleRef.current = wheelState.angle;
+
+          if (wheelState.selectedBid) {
+            const bidNum =
+              parseInt(
+                wheelState.selectedBid.bidNo ||
+                  wheelState.selectedBid.bidNumber,
+                10,
+              ) || 0;
+            selectedIndexRef.current = bidNum % 2 !== 0 ? 1 : 0;
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error fetching live wheel selection:", error);
+        // Fallback to local storage if API fails
+        if (wheelState) {
+          setCurrentSelectedBid(wheelState.selectedBid);
+          setIsSelecting(true); // <--- Added this line
+          setWheelStopped(wheelState.stopped);
+          setSpinning(!wheelState.stopped);
+          if (wheelState.angle) angleRef.current = wheelState.angle;
+
+          if (wheelState.selectedBid) {
+            const bidNum =
+              parseInt(
+                wheelState.selectedBid.bidNo ||
+                  wheelState.selectedBid.bidNumber,
+                10,
+              ) || 0;
+            selectedIndexRef.current = bidNum % 2 !== 0 ? 1 : 0;
+          }
         }
       }
       await fetchGameItems();
@@ -680,6 +723,20 @@ export default function Spin3DCards({
     revealedRef.current = false;
     flickingRef.current = false;
     if (glowRef.current) glowRef.current.classList.remove("active");
+
+    // Clean up DOM styles that might have been left over from a flip/reveal
+    if (deckRootRef.current) {
+      const cards = Array.from(deckRootRef.current.children).filter((c) =>
+        c.classList.contains("csh2-card"),
+      );
+      cards.forEach((card) => {
+        const backFace = card.querySelector(".csh2-back");
+        const frontFace = card.querySelector(".csh2-front");
+        if (backFace) backFace.style.visibility = "visible";
+        if (frontFace) frontFace.style.visibility = "hidden";
+        // Let the update loop manage transforms/opacity again
+      });
+    }
   };
 
   // ── animateToPosition – visual replacement (API contract preserved) ──────────
@@ -705,88 +762,51 @@ export default function Spin3DCards({
 
   // ── triggerAdminSpin (COMPLETELY UNCHANGED LOGIC) ────────────────────────────
   const triggerAdminSpin = async (itemDetails) => {
-    console.log("🚀 triggerAdminSpin called with:", itemDetails);
-    console.log("🚀 Current availableItems length:", availableItems.length);
-    console.log("🚀 Current isSelecting:", isSelecting);
-    console.log("🚀 Current wheelStopped:", wheelStopped);
-
     if (availableItems.length === 0 || isSelecting) {
       const reason =
         availableItems.length === 0
           ? "No items available"
           : "Already selecting";
-      console.log("❌ Early return -", reason);
       return;
     }
-
-    console.log("🎯 Triggering admin spin with item details:", itemDetails);
     setIsSelecting(true);
 
     let targetItem = null;
     let matchStrategy = "none";
-    console.log("🔍 Starting item matching...");
 
     if (itemDetails.itemId || itemDetails.id) {
       const searchId = itemDetails.itemId || itemDetails.id;
-      console.log("🔍 Strategy 1: Matching by ID:", searchId);
       targetItem = availableItems.find((item) => item.id === searchId);
       if (targetItem) matchStrategy = "id";
-      console.log("🔍 Strategy 1 result:", targetItem ? "FOUND" : "NOT FOUND");
     }
     if (!targetItem && itemDetails.itemCode) {
-      console.log("🔍 Strategy 2: Matching by itemCode:", itemDetails.itemCode);
       targetItem = availableItems.find(
         (item) => item.itemCode === itemDetails.itemCode,
       );
       if (targetItem) matchStrategy = "itemCode";
-      console.log("🔍 Strategy 2 result:", targetItem ? "FOUND" : "NOT FOUND");
     }
     if (!targetItem && (itemDetails.bidNumber || itemDetails.bidNo)) {
       const bidNum = itemDetails.bidNumber || itemDetails.bidNo;
-      console.log(
-        "🔍 Strategy 3: Matching by bidNum:",
-        bidNum,
-        "(type:",
-        typeof bidNum,
-        ")",
-      );
       targetItem = availableItems.find((item) => {
         const m1 = item.bidNo == bidNum,
           m2 = item.bidNumber == bidNum;
         const m3 = String(item.bidNo) === String(bidNum),
           m4 = String(item.bidNumber) === String(bidNum);
-        if (m1 || m2 || m3 || m4)
-          console.log("🔍 Strategy 3 MATCH:", {
-            itemBidNo: item.bidNo,
-            bidNum,
-          });
-        return m1 || m2 || m3 || m4;
+        if (m1 || m2 || m3 || m4) return m1 || m2 || m3 || m4;
       });
       if (targetItem) matchStrategy = "bidNumber";
-      console.log("🔍 Strategy 3 result:", targetItem ? "FOUND" : "NOT FOUND");
     }
     if (!targetItem && itemDetails.title) {
-      console.log("🔍 Strategy 4: Matching by title:", itemDetails.title);
       targetItem = availableItems.find(
         (item) => item.title === itemDetails.title,
       );
       if (targetItem) matchStrategy = "title";
-      console.log("🔍 Strategy 4 result:", targetItem ? "FOUND" : "NOT FOUND");
     }
 
     if (!targetItem) {
-      console.error("❌ CRITICAL: Selected item not found in available items!");
-      console.error(
-        "❌ Item details received:",
-        JSON.stringify(itemDetails, null, 2),
-      );
       resetWheel();
       return;
     }
-
-    console.log("✅ MATCH FOUND using strategy:", matchStrategy);
-    console.log("✅ Target item:", targetItem);
-    console.log("🎉 Admin Selected Bid for Users:", targetItem);
 
     // Place the winning card at the front of the visual deck.
     // Ensure the suit matches the lot parity: Even -> Diamond (index 0), Odd -> Spade (index 1).
@@ -896,7 +916,32 @@ export default function Spin3DCards({
       console.log("📡 User received wheel skip:", data);
       if (data.round == round) {
         clearSavedState();
-        resetWheel();
+
+        // Add a smooth animation for skipping a bid (shrinks and fades back)
+        flickingRef.current = true;
+        const deck = deckRootRef.current;
+        if (deck) {
+          const cards = Array.from(deck.children).filter((c) =>
+            c.classList.contains("csh2-card"),
+          );
+          const selectedCard = cards[selectedIndexRef.current];
+          if (selectedCard) {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                selectedCard.style.transition =
+                  "transform 0.8s ease-in, opacity 0.6s ease";
+                selectedCard.style.transform =
+                  "translate3d(0px, 0px, -200px) rotateY(180deg) scale(0.5)";
+                selectedCard.style.opacity = "0";
+              });
+            });
+          }
+        }
+
+        setTimeout(() => {
+          fetchGameItems();
+          resetWheel();
+        }, 1000);
       }
     });
 
@@ -1348,8 +1393,12 @@ export default function Spin3DCards({
                       <div className="csh2-front-inner">
                         {/* Top Right Lot Number */}
                         <div className="csh2-front-lot-text">
-                          <span className="csh2-front-lot-label">Selected Bid</span>
-                          Lot Number: {currentSelectedBid.bidNo || currentSelectedBid.bidNumber}
+                          <span className="csh2-front-lot-label">
+                            Selected Bid
+                          </span>
+                          Lot Number:{" "}
+                          {currentSelectedBid.bidNo ||
+                            currentSelectedBid.bidNumber}
                         </div>
 
                         {/* Top Left Symbol & Number */}
@@ -1380,7 +1429,9 @@ export default function Spin3DCards({
                               .filter(([, v]) => v > 0)
                               .map(([k, v]) => {
                                 const resourceName = String(k).toLowerCase();
-                                const ResourceIcon = resourceName.includes("property")
+                                const ResourceIcon = resourceName.includes(
+                                  "property",
+                                )
                                   ? FaHome
                                   : resourceName.includes("technology")
                                     ? FaMicrochip
@@ -1388,20 +1439,22 @@ export default function Spin3DCards({
                                       ? FaBuilding
                                       : FaCubes;
                                 return (
-                                <div
-                                  key={k}
-                                  className="csh2-front-resource-row"
-                                >
-                                  <span className="csh2-front-resource-icon">
-                                    <ResourceIcon aria-hidden="true" />
-                                  </span>
-                                  <span className="csh2-front-resource-copy">
-                                    <span className="csh2-front-resource-name">{k}</span>
-                                    <span className="csh2-front-resource-units">
-                                      {v} {v === 1 ? "Unit" : "Units"}
+                                  <div
+                                    key={k}
+                                    className="csh2-front-resource-row"
+                                  >
+                                    <span className="csh2-front-resource-icon">
+                                      <ResourceIcon aria-hidden="true" />
                                     </span>
-                                  </span>
-                                </div>
+                                    <span className="csh2-front-resource-copy">
+                                      <span className="csh2-front-resource-name">
+                                        {k}
+                                      </span>
+                                      <span className="csh2-front-resource-units">
+                                        {v} {v === 1 ? "Unit" : "Units"}
+                                      </span>
+                                    </span>
+                                  </div>
                                 );
                               })}
                         </div>

@@ -132,10 +132,6 @@ const purchaseProduct = async (req, res) => {
       parseInt(ent.id) === parseInt(requiredEnterpriseId)
     );
     if (!ownsRequiredEnterprise) {
-      console.log('Enterprise check failed:', {
-        requiredEnterpriseId,
-        ownedEnterprises: team.enterprises.map(ent => ({ id: ent.id, title: ent.title }))
-      });
       return res.status(400).json({ 
         error: `You need to own the required enterprise (ID: ${requiredEnterpriseId}) to purchase this product`,
         type: 'missing_enterprise'
@@ -232,43 +228,24 @@ const getTeamPortfolioWorth = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const teamId = decoded.teamId;
 
-    console.log('Getting portfolio worth for team ID:', teamId);
-    console.log('Decoded token:', decoded);
-
     // Use findById since teamId in JWT is the MongoDB _id
     const team = await Team.findById(teamId);
     if (!team) {
-      console.log('Team not found with ID:', teamId);
       return res.status(404).json({ error: 'Team not found' });
     }
-
-    console.log('Found team:', team.teamCode);
-    console.log('Team enterprises:', team.enterprises);
-    console.log('Team products:', team.products);
 
     // Calculate total worth
     const enterpriseWorth = (team.enterprises || []).reduce((total, enterprise) => {
       const worth = parseInt(enterprise.worth) || 0;
-      console.log(`Enterprise ${enterprise.title}: ${worth}`);
       return total + worth;
     }, 0);
 
     const productWorth = (team.products || []).reduce((total, product) => {
       const worth = parseInt(product.worth) || 0;
-      console.log(`Product ${product.title}: ${worth}`);
       return total + worth;
     }, 0);
 
     const totalWorth = enterpriseWorth + productWorth;
-
-    console.log('Portfolio calculation:', {
-      teamCode: team.teamCode,
-      enterpriseWorth,
-      productWorth,
-      totalWorth,
-      enterpriseCount: (team.enterprises || []).length,
-      productCount: (team.products || []).length
-    });
 
     res.json({
       totalWorth,

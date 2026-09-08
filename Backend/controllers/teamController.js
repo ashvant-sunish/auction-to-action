@@ -88,20 +88,13 @@ exports.getTeamProfile = async (req, res) => {
  */
 exports.submitTradeWishlist = async (req, res) => {
     try {
-        console.log('=== TRADE WISHLIST SUBMISSION ===');
-        console.log('Request body:', req.body);
-        console.log('User from token:', req.user);
-
+        
         const { itemsToTrade, totalItems } = req.body;
         const team = await Team.findById(req.user.teamId);
 
         if (!team) {
-            console.log('Team not found for ID:', req.user.teamId);
             return res.status(404).json({ message: 'Team not found' });
         }
-
-        console.log('Team found:', team.teamCode, team.teamName);
-        console.log('Team resources:', Object.fromEntries(team.resources || new Map()));
 
         // Get existing wishlist first to check current commitments
         let existingWishlist = await TradeWishlist.findOne({ 
@@ -117,18 +110,13 @@ exports.submitTradeWishlist = async (req, res) => {
                 currentCommitments.set(item.name, item.count);
             });
         }
-
-        console.log('Current wishlist commitments:', Object.fromEntries(currentCommitments));
-
         // Validate that team has enough resources for total commitment (existing + new)
         for (const item of itemsToTrade) {
             const available = team.resources.get(item.name) || 0;
             const currentlyCommitted = currentCommitments.get(item.name) || 0;
             const newCommitment = item.count;
             const totalCommitment = currentlyCommitted + newCommitment;
-
-            console.log(`Checking ${item.name}: available=${available}, currently_committed=${currentlyCommitted}, new=${newCommitment}, total_needed=${totalCommitment}`);
-            
+ 
             if (totalCommitment > available) {
                 return res.status(400).json({
                     success: false,
@@ -156,8 +144,6 @@ exports.submitTradeWishlist = async (req, res) => {
             status: 'active',
             submittedAt: new Date()
         };
-
-        console.log('Trade wishlist data prepared:', tradeWishlistData);
 
         let wishlistRecord;
 
@@ -208,9 +194,7 @@ exports.submitTradeWishlist = async (req, res) => {
                     runValidators: true
                 }
             );
-            
-            console.log('Updated existing trade wishlist record - items accumulated');
-        } else {
+            } else {
             // Team has no existing wishlist - create new one using upsert
             wishlistRecord = await TradeWishlist.findOneAndUpdate(
                 filter,
@@ -235,20 +219,15 @@ exports.submitTradeWishlist = async (req, res) => {
                     runValidators: true
                 }
             );
-            
-            console.log('Created new trade wishlist record using upsert');
-        }
+            }
 
         if (!wishlistRecord) {
             throw new Error('Failed to create or update wishlist record');
         }
 
-        console.log('Trade wishlist saved successfully with ID:', wishlistRecord._id);
-
         // Emit socket event for real-time updates
         const io = req.app.get('io');
         if (io) {
-            console.log('Emitting socket event for trade wishlist submission');
             io.emit('tradeWishlistSubmitted', {
                 teamCode: team.teamCode,
                 teamName: team.teamName,
@@ -257,7 +236,6 @@ exports.submitTradeWishlist = async (req, res) => {
                 submittedAt: wishlistRecord.submittedAt
             });
         } else {
-            console.log('Socket.io not available');
         }
 
         res.status(200).json({
@@ -343,30 +321,21 @@ exports.getTradeWishlist = async (req, res) => {
  */
 exports.getAllTeamsTradeOffers = async (req, res) => {
     try {
-        console.log('=== FETCHING ALL TEAMS TRADE OFFERS ===');
         
         // Get all teams with their resources
         const teams = await Team.find({}).select('-password').lean();
-        console.log(`Found ${teams.length} teams`);
-
+        
         // Get all active trade wishlists from TradeWishlist model
         const tradeWishlists = await TradeWishlist.find({
             round: 3,
             status: 'active'
         }).sort({ createdAt: -1 });
         
-        console.log(`Found ${tradeWishlists.length} trade wishlists:`, tradeWishlists.map(w => ({
-            teamCode: w.teamCode,
-            items: w.itemsToTrade,
-            createdAt: w.createdAt
-        })));
-
         // Create a map of team codes to their latest trade wishlist
         const wishlistMap = new Map();
         tradeWishlists.forEach(wishlist => {
             const teamCode = wishlist.teamCode;
             if (!wishlistMap.has(teamCode)) {
-                console.log(`Adding wishlist for ${teamCode}:`, wishlist.itemsToTrade);
                 wishlistMap.set(teamCode, wishlist.itemsToTrade.map(item => ({
                     name: item.name,
                     count: item.count
@@ -374,8 +343,7 @@ exports.getAllTeamsTradeOffers = async (req, res) => {
             }
         });
 
-        console.log('Wishlist map:', Object.fromEntries(wishlistMap));
-
+        
         // Combine teams data with their trade wishlists
         const teamsWithWishlists = teams.map(team => {
             // Safely convert resources Map to object
@@ -398,13 +366,6 @@ exports.getAllTeamsTradeOffers = async (req, res) => {
             };
         });
 
-        console.log('Teams with wishlists prepared:', teamsWithWishlists.map(t => ({
-            teamCode: t.teamCode,
-            teamName: t.teamName,
-            resources: Object.keys(t.resources),
-            tradeWishlist: t.tradeWishlist
-        })));
-
         res.status(200).json({
             success: true,
             teams: teamsWithWishlists
@@ -422,9 +383,6 @@ exports.getAllTeamsTradeOffers = async (req, res) => {
 exports.updateWishlist = async (req, res) => {
     try {
         const { teamCode, itemsToRemove } = req.body;
-        
-        console.log(`🔄 Updating wishlist for team ${teamCode}`);
-        console.log('Items to remove:', itemsToRemove);
         
         // Find the active wishlist for this team
         const wishlist = await TradeWishlist.findOne({
@@ -448,13 +406,10 @@ exports.updateWishlist = async (req, res) => {
             
             if (wishlistItemIndex !== -1) {
                 // Reduce the count
-                wishlist.itemsToTrade[wishlistItemIndex].count -= item.quantity;
-                console.log(`Reduced ${item.name} by ${item.quantity}, new count: ${wishlist.itemsToTrade[wishlistItemIndex].count}`);
-                
+                wishlist.itemsToTrade[wishlistItemIndex].count -= item.quantity; 
                 // Remove if count is 0 or less
                 if (wishlist.itemsToTrade[wishlistItemIndex].count <= 0) {
                     wishlist.itemsToTrade.splice(wishlistItemIndex, 1);
-                    console.log(`Removed ${item.name} from wishlist (count reached 0)`);
                 }
             }
         }
@@ -464,8 +419,6 @@ exports.updateWishlist = async (req, res) => {
         
         // Save updated wishlist
         await wishlist.save();
-        
-        console.log(`✅ Wishlist updated for ${teamCode}, new total: ${wishlist.totalItems}`);
         
         res.status(200).json({
             success: true,

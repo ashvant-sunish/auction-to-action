@@ -54,7 +54,6 @@ const Round2User = () => {
 
     // Listen for mystery box reveals
     newSocket.on("mysteryBoxRevealed", (boxData) => {
-      console.log("Mystery box revealed for users:", boxData);
       handleAdminReveal(boxData);
     });
 
@@ -141,10 +140,10 @@ const Round2User = () => {
                 revealedBox.itemType === "cash"
                   ? "green"
                   : revealedBox.itemType === "resources"
-                  ? "blue"
-                  : revealedBox.itemType === "challenge"
-                  ? "orange"
-                  : "gray"
+                    ? "blue"
+                    : revealedBox.itemType === "challenge"
+                      ? "orange"
+                      : "gray"
               }
               fontSize="lg"
               p={3}
@@ -295,10 +294,10 @@ const Round2User = () => {
                       revealedBox.itemType === "cash"
                         ? "green"
                         : revealedBox.itemType === "resources"
-                        ? "blue"
-                        : revealedBox.itemType === "challenge"
-                        ? "orange"
-                        : "gray"
+                          ? "blue"
+                          : revealedBox.itemType === "challenge"
+                            ? "orange"
+                            : "gray"
                     }
                     fontSize="md"
                     p={2}

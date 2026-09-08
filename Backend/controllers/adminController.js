@@ -78,11 +78,6 @@ exports.getAllTeams = async (req, res) => {
 
     const teams = await Team.find(query).select('-password');
 
-    // Debug log
-    console.log(`Team lookup for code: ${teamCode}, found ${teams.length} teams`);
-    if (teams.length > 0) {
-      console.log('Found teams:', teams.map(t => ({ code: t.teamCode, name: t.teamName })));
-    }
 
     res.status(200).json(teams);
   } catch (error) {
@@ -322,21 +317,13 @@ exports.getBidHistory = async (req, res) => {
   try {
     const { round } = req.query;
 
-    console.log('🔍 getBidHistory called with query:', req.query);
-    console.log('🔍 Round parameter:', round, 'Type:', typeof round);
-
     let filter = {};
     if (round) {
       filter.round = parseInt(round);
-      console.log('🔍 Filter object:', filter);
     }
-
-    console.log('🔍 Searching BidHistory with filter:', filter);
     const history = await BidHistory.find(filter).sort({ createdAt: -1 });
-    console.log('🔍 Found history items:', history.length);
-
+    
     history.forEach((item, index) => {
-      console.log(`Item ${index + 1}: Round ${item.round}, Item: ${item.itemName}`);
     });
 
     res.status(200).json(history);
@@ -475,10 +462,6 @@ exports.getGameItemsByRound = async (req, res) => {
                 bidAmount: item.bidAmount
             }));
             
-            console.log('📊 Round 1 Data loaded:');
-            console.log(`Available items: ${availableItems.length}`);
-            console.log(`Selected items: ${selectedItems.length}`);
-            
             return res.status(200).json({
                 availableItems,
                 selectedItems
@@ -531,8 +514,6 @@ exports.selectGameItem = async (req, res) => {
     try {
         const { itemId, itemCode, bidNo, bidNumber } = req.body;
         
-        console.log('📥 Received selection request:', { itemId, itemCode, bidNo, bidNumber });
-        
         // Validation - accept either bidNo or bidNumber
         const finalBidNo = bidNo || bidNumber;
         if (!itemId && !itemCode && !finalBidNo) {
@@ -547,29 +528,16 @@ exports.selectGameItem = async (req, res) => {
             return res.status(404).json({ message: 'Round 1 data not found' });
         }
         
-        console.log('📊 Current available items:', roundData.item_list.length);
-        console.log('🔍 Looking for item with:', { itemId, itemCode, finalBidNo });
-        
         // Find the item in item_list by matching itemId, itemCode, or bidNo/bidNumber
         const itemIndex = roundData.item_list.findIndex(item => {
             const matches = (itemId && item._id?.toString() === itemId) ||
                            (itemCode && item.itemCode === itemCode) ||
                            (finalBidNo && (item.bidNumber === finalBidNo || item.itemCode === finalBidNo));
-            
-            if (matches) {
-                console.log('✅ Found matching item:', { 
-                    itemCode: item.itemCode, 
-                    bidNumber: item.bidNumber,
-                    name: item.name 
-                });
-            }
             return matches;
         });
         
         if (itemIndex === -1) {
-            console.log('❌ Item not found. Available items:');
             roundData.item_list.forEach((item, index) => {
-                console.log(`  ${index}: ${item.itemCode} (bidNumber: ${item.bidNumber})`);
             });
             return res.status(404).json({ message: 'Game item not found in available items' });
         }
@@ -587,9 +555,6 @@ exports.selectGameItem = async (req, res) => {
         
         // Save the updated document
         await roundData.save();
-        
-        console.log(`📦 Item moved: ${selectedItem.itemCode} from item_list to item_list_2`);
-        console.log(`📊 Available items: ${roundData.item_list.length}, Selected items: ${roundData.item_list_2.length}`);
         
         // Update game state
         let gameState = await GameState.findOne({ singleton: 'main' });
@@ -628,8 +593,6 @@ exports.selectGameItem = async (req, res) => {
             // Broadcast to all admin and user clients
             req.app.get('io').emit('roundItemUpdate', updateData);
             req.app.get('io').emit('wheelUpdate', updateData);
-            
-            console.log('📡 Broadcasted wheel update to all clients');
         }
         
         res.status(201).json({
@@ -671,15 +634,6 @@ exports.completeTrade = async (req, res) => {
             updateAccount = true
         } = req.body;
 
-        console.log('🔄 Processing complete trade:', {
-            teamCode,
-            itemName,
-            resources,
-            bidAmount,
-            updateInventory,
-            updateAccount
-        });
-
         // Find the team
         const team = await Team.findOne({ teamCode });
         if (!team) {
@@ -707,7 +661,6 @@ exports.completeTrade = async (req, res) => {
             }
             
             team.inventory.push(itemCode);  // Just add the item code as string
-            console.log('📦 Added to inventory:', itemCode);
         }
 
         // Update team resources (add the actual resources from the GameItem)
@@ -715,14 +668,12 @@ exports.completeTrade = async (req, res) => {
             gameItem.resources.forEach((quantity, resourceName) => {
                 const currentQuantity = team.resources.get(resourceName) || 0;
                 team.resources.set(resourceName, currentQuantity + quantity);
-                console.log(`🔧 Added ${quantity} ${resourceName} to team resources`);
             });
         }
 
         // Update team account balance (increase debit)
         if (updateAccount) {
             team.debit += bidAmount;
-            console.log('💰 Updated debit:', `₹${team.debit}`);
         }
 
         // Save team updates
@@ -768,7 +719,6 @@ exports.completeTrade = async (req, res) => {
         // Save bid history
         const bidHistory = new BidHistory(bidHistoryRecord);
         await bidHistory.save();
-        console.log('📊 Bid history created:', bidHistory._id);
 
         // --- TARGETED NOTIFICATION (ROUND 1) ---
         const io = req.app.get('socketio') || req.app.get('io');
@@ -891,9 +841,6 @@ exports.getLiveAuctionStatus = async (req, res) => {
       selectedNumber = latestSelection.itemDetails.bidNumber.toString();
     }
     
-    console.log('Latest wheel selection:', latestSelection);
-    console.log('Selected number:', selectedNumber);
-    
     res.json({
       selectedNumber,
       currentItem: `Item ${selectedNumber}`,
@@ -912,8 +859,6 @@ exports.updateTeamWishlist = async (req, res) => {
   try {
     const { teamCode, itemsToRemove } = req.body;
     
-    console.log(`🔄 Admin updating wishlist for team ${teamCode}`);
-    console.log('Items to remove:', itemsToRemove);
     
     if (!teamCode || !itemsToRemove) {
       return res.status(400).json({
@@ -930,18 +875,14 @@ exports.updateTeamWishlist = async (req, res) => {
     });
     
     if (!wishlist) {
-      console.log(`❌ No wishlist found for team ${teamCode}`);
       return res.status(404).json({
         success: false,
         message: 'No active wishlist found for this team'
       });
     }
     
-    console.log(`📋 Current wishlist for ${teamCode}:`, wishlist.itemsToTrade);
-    
     // Update item counts in wishlist (don't delete items)
     for (const item of itemsToRemove) {
-      console.log(`Processing item: ${item.name} (quantity: ${item.quantity})`);
       
       const wishlistItemIndex = wishlist.itemsToTrade.findIndex(
         wItem => wItem.name === item.name
@@ -953,12 +894,7 @@ exports.updateTeamWishlist = async (req, res) => {
         const newCount = Math.max(0, currentCount - item.quantity);
         
         wishlist.itemsToTrade[wishlistItemIndex].count = newCount;
-        console.log(`Updated ${item.name} from ${currentCount} to ${newCount} (reduced by ${item.quantity})`);
         
-        // Keep the item in wishlist even if count becomes 0
-        console.log(`Keeping ${item.name} in wishlist with count: ${newCount}`);
-      } else {
-        console.log(`⚠️ Item ${item.name} not found in wishlist for team ${teamCode}`);
       }
     }
     
@@ -967,9 +903,6 @@ exports.updateTeamWishlist = async (req, res) => {
     
     // Save updated wishlist
     await wishlist.save();
-    
-    console.log(`✅ Wishlist updated for ${teamCode}, new total: ${wishlist.totalItems}`);
-    console.log(`📋 Updated wishlist:`, wishlist.itemsToTrade);
     
     res.status(200).json({
       success: true,

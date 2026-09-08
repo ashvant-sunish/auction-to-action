@@ -20,7 +20,6 @@ export const updateRoundRealtime = async (roundNumber, roundStatus = 'ongoing') 
       timestamp: new Date().toISOString()
     }, { headers });
 
-    console.log('✅ Round updated with real-time broadcast:', response.data);
     return response.data;
   } catch (error) {
     console.error('❌ Error updating round:', error);
@@ -57,7 +56,6 @@ export const updateTeamRealtime = async (teamNumber, {
       broadcastScope
     }, { headers });
 
-    console.log('✅ Team updated with real-time broadcast:', response.data);
     return response.data;
   } catch (error) {
     console.error('❌ Error updating team:', error);
@@ -90,7 +88,6 @@ export const executeTradeRealtime = async (teamA, teamB, {
       broadcastScope
     }, { headers });
 
-    console.log('✅ Trade executed with real-time broadcast:', response.data);
     return response.data;
   } catch (error) {
     console.error('❌ Error executing trade:', error);
@@ -119,8 +116,29 @@ export const executeTradeRealtime = async (teamA, teamB, {
 //   broadcastScope: 'all'
 // });
 
+/**
+ * Pause or resume an ongoing round with real-time broadcasting
+ * @param {'pause'|'resume'} action - Whether to pause or resume
+ */
+export const pauseRoundRealtime = async (action) => {
+  try {
+    const token = localStorage.getItem('adminToken');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
+    const response = await axios.post(`${serverUrl}/admin/pauseRound`, {
+      action
+    }, { headers });
+
+    return response.data;
+  } catch (error) {
+    console.error(`❌ Error ${action}ing round:`, error);
+    throw error;
+  }
+};
+
 export default {
   updateRoundRealtime,
   updateTeamRealtime,
-  executeTradeRealtime
+  executeTradeRealtime,
+  pauseRoundRealtime
 };

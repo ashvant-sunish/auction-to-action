@@ -37,7 +37,8 @@ function RoundsUser({ gameState }) {
             <Round3User />
           </Box>
         );
-      default: // Not started, or between rounds (states 0, 2, 4, 6)
+      default: // Not started, between rounds, or paused (0, 2, 4, 6, 7, 8, 9)
+        const isPaused = [7, 8, 9].includes(gameState);
         return (
           <Box
             p={8}
@@ -48,13 +49,15 @@ function RoundsUser({ gameState }) {
             bg="rgba(0,0,0,0.3)"
             backdropFilter="blur(10px)"
             border="1px solid"
-            borderColor="whiteAlpha.200"
+            borderColor={isPaused ? "orange.400" : "whiteAlpha.200"}
           >
             <Text fontSize="2xl" fontWeight="bold">
-              Please Wait
+              {isPaused ? "Round Paused" : "Please Wait"}
             </Text>
             <Text mt={4} fontSize="lg" opacity={0.8}>
-              The current round has not started or has ended.
+              {isPaused 
+                ? "The current round has been paused." 
+                : "The current round has not started or has ended."}
             </Text>
           </Box>
         );

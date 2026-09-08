@@ -98,8 +98,7 @@ async function sendTargetedNotification(io, {
     });
 
     await notification.save();
-    console.log(`💾 Saved notification ${notification._id} for team ${teamCode}`);
-
+    
     // 2. Emit targeted real-time event via Socket.IO
     if (io) {
       const payload = {
@@ -117,16 +116,14 @@ async function sendTargetedNotification(io, {
 
       // Strict targeted emission ONLY to the affected team room
       io.to(`team_${notification.recipientTeamCode}`).emit('newNotification', payload);
-      console.log(`🔔 Targeted notification emitted to room "team_${notification.recipientTeamCode}": "${title}"`);
-
+      
       // Also emit to admin room for superadmin visibility
       io.to('admin').emit('newNotification', {
         ...payload,
         forSuperAdmin: true,
         targetTeamCode: notification.recipientTeamCode
       });
-      console.log(`👑 Notification echoed to admin room for superadmin`);
-    } else {
+      } else {
       console.warn('⚠️ Socket.IO instance not available on req.app');
     }
 

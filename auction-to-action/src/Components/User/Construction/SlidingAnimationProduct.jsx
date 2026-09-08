@@ -58,18 +58,18 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
         `${serverUrl}/api/construction/inventory`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (response.data.enterprises) {
         const enterpriseIds = response.data.enterprises.map((ent) =>
-          parseInt(ent.id)
+          parseInt(ent.id),
         );
         setOwnedEnterprises(enterpriseIds);
       }
       if (response.data.products) {
         setOwnedProducts(
-          response.data.products.map((prod) => parseInt(prod.id))
+          response.data.products.map((prod) => parseInt(prod.id)),
         );
       }
     } catch (error) {
@@ -104,7 +104,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
           requiredEnterpriseId: product.requiredEnterpriseId,
           isAvailable, // Add availability status
         };
-      }
+      },
     );
     setCards(normalized);
   }, [ownedEnterprises]);
@@ -204,7 +204,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
     scrollRef.current.lastTs = null;
     scrollRef.current.currentSpeed = Math.max(
       scrollRef.current.currentSpeed,
-      (scrollRef.current.targetSpeed || BASE_SPEED) * 0.4
+      (scrollRef.current.targetSpeed || BASE_SPEED) * 0.4,
     );
     if (!scrollRef.current.animationFrameId) {
       scrollRef.current.animationFrameId = requestAnimationFrame(scrollLoop);
@@ -235,7 +235,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       } else if (index === cards.length - 1) {
         const maxLeft = Math.max(
           0,
-          container.scrollWidth - container.clientWidth
+          container.scrollWidth - container.clientWidth,
         );
         container.scrollTo({ left: maxLeft, behavior: "smooth" });
       } else {
@@ -251,7 +251,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       hoveredCardRef.current = null;
       setFocusedIndex(index);
     },
-    [cards]
+    [cards],
   );
 
   // Individual lock variables for each product (change to false to unlock)
@@ -280,7 +280,6 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       const isLocked = !card?.isAvailable;
 
       if (isLocked) {
-        console.log("Product not available - required enterprise not owned");
         return;
       }
 
@@ -311,7 +310,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       needsLock3,
       needsLock4,
       needsLock5,
-    ]
+    ],
   );
 
   cardRefs.current = [];
@@ -525,8 +524,8 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
     activeCard != null
       ? cards.findIndex((c) => c.id === activeCard)
       : hoveredCard != null
-      ? cards.findIndex((c) => c.id === hoveredCard)
-      : null;
+        ? cards.findIndex((c) => c.id === hoveredCard)
+        : null;
 
   return (
     <div>

@@ -48,7 +48,6 @@ class SocketService {
   joinTeam(teamNumber) {
     if (this.socket) {
       this.socket.emit('joinTeam', teamNumber);
-      console.log(`🏠 Joined team room: ${teamNumber}`);
     }
   }
 
@@ -56,7 +55,6 @@ class SocketService {
   leaveTeam(teamNumber) {
     if (this.socket) {
       this.socket.emit('leaveTeam', teamNumber);
-      console.log(`🚪 Left team room: ${teamNumber}`);
     }
   }
 
@@ -92,7 +90,6 @@ class SocketService {
   joinAdmin() {
     if (this.socket) {
       this.socket.emit('joinAdmin');
-      console.log('👑 Joined admin room');
     }
   }
 

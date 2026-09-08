@@ -13,7 +13,6 @@ const {
 
 // Test route to verify routing is working
 router.get('/test', (req, res) => {
-  console.log('🧪 TRADE TEST ENDPOINT HIT!');
   res.json({ message: 'Trade routes are working!', timestamp: new Date().toISOString() });
 });
 

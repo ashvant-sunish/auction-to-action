@@ -3,16 +3,33 @@ const router = express.Router();
 const WheelSelection = require('../models/WheelSelection');
 const { protectAdmin } = require('../middleware/authMiddleware');
 
+// Get public live wheel selection for a round (for user side reconnect/mount)
+router.get('/public/wheel-selection/live/:round', async (req, res) => {
+  try {
+    const { round } = req.params;
+    const latestSelection = await WheelSelection.getLatestSelection(parseInt(round));
+    
+    res.json({
+      success: true,
+      latestSelection,
+      message: latestSelection ? 'Live selection found' : 'No active selection found'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching public live wheel selection:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch live wheel selection',
+      error: error.message
+    });
+  }
+});
+
 // Get latest wheel selection for a round
 router.get('/wheel-selection/:round', protectAdmin, async (req, res) => {
   try {
     const { round } = req.params;
     
-    console.log('🎯 Fetching wheel selection for round:', round);
-    
     const latestSelection = await WheelSelection.getLatestSelection(parseInt(round));
-    
-    console.log('📡 Latest selection found:', latestSelection ? latestSelection._id : 'None');
     
     res.json({
       success: true,
@@ -55,9 +72,6 @@ router.get('/wheel-state/:round', protectAdmin, async (req, res) => {
 // Record random selection event
 router.post('/wheel-selection/random', protectAdmin, async (req, res) => {
   try {
-    console.log('🎯 Received random selection request:', req.body);
-    console.log('👤 Admin user object:', req.user);
-    
     const {
       round,
       itemDetails,
@@ -65,20 +79,14 @@ router.post('/wheel-selection/random', protectAdmin, async (req, res) => {
       sessionId
     } = req.body;
 
-    console.log('📝 Processing for round:', round);
-    
     // Extract admin ID from the user object (check different possible field names)
     const adminId = req.user.id || req.user._id || req.user.adminId || req.user.userId || 'unknown';
-    console.log('� Admin ID extracted:', adminId);
-
     // Deactivate any previous selections for this round
     const updateResult = await WheelSelection.updateMany(
       { round, eventType: 'RANDOM_SELECTED', isLive: true },
       { isLive: false }
     );
     
-    console.log('🔄 Updated previous selections:', updateResult.modifiedCount);
-
     const wheelSelection = new WheelSelection({
       round,
       eventType: 'RANDOM_SELECTED',
@@ -90,8 +98,6 @@ router.post('/wheel-selection/random', protectAdmin, async (req, res) => {
     });
 
     const savedSelection = await wheelSelection.save();
-    console.log('💾 Saved selection:', savedSelection._id);
-
     // Emit real-time event
     req.app.get('io').emit('wheelRandomSelection', {
       round,
@@ -101,9 +107,6 @@ router.post('/wheel-selection/random', protectAdmin, async (req, res) => {
       timestamp: savedSelection.timestamp,
       sessionId
     });
-
-    console.log('📡 Emitted real-time event');
-
     res.status(201).json({
       success: true,
       wheelSelection: savedSelection,
