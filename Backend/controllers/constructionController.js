@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const parseRequirements = (requirements) => {
   const parsed = {};
   requirements.forEach(req => {
-    // Parse format like "Property (2)" to { "Property": 2 }
+    // Parse format like "Land & Workspace (2)" to { "Land & Workspace": 2 }
     const match = req.match(/^(.+)\s*\((\d+)\)$/);
     if (match) {
       const resourceName = match[1].trim();

@@ -336,7 +336,7 @@ const TradingMarket = () => {
               <Icon as={FaSearch} color="gray.400" />
             </InputLeftElement>
             <Input
-              placeholder="Search for items teams want to trade (e.g., 'Property')"
+              placeholder="Search for items teams want to trade (e.g., 'Land & Workspace')"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               bg="rgba(0, 0, 0, 0.2)"

@@ -50,23 +50,23 @@ const AvailableMaterialsTable = ({
       .filter(([name, quantity]) => quantity > 0)
       .map(([name, quantity]) => {
         let multipleyer = 1;
-        if (name === "Technology") {
+        if (name === "Technology Access") {
           multipleyer = 2500;
-        } else if (name === "Transportation") {
+        } else if (name === "Transportation & Logistics") {
           multipleyer = 1000;
-        } else if (name === "Property") {
+        } else if (name === "Land & Workspace") {
           multipleyer = 2000;
         } else if (name === "Skilled Labour") {
           multipleyer = 1000;
-        } else if (name === "Machinery & Tools") {
+        } else if (name === "Tools & Equipment") {
           multipleyer = 1800;
-        } else if (name === "Utilities") {
+        } else if (name === "Market Access & Partnerships") {
           multipleyer = 800;
-        } else if (name === "Electricity Supply") {
+        } else if (name === "Electricity & Energy") {
           multipleyer = 1500;
-        } else if (name === "Office Space") {
+        } else if (name === "Land & Workspace") {
           multipleyer = 1500;
-        } else if (name === "Construction Material") {
+        } else if (name === "Basic Infrastructure") {
           multipleyer = 1200;
         } else {
           multipleyer = 0;

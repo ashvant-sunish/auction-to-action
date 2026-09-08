@@ -7,7 +7,7 @@ const Notification = require('../models/Notification');
  * e.g.
  * Iron — 20
  * Coal — 10
- * Technology — 5
+ * Technology Access — 5
  */
 function formatResourcesList(resources) {
   if (!resources) return '';

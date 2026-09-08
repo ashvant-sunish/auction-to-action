@@ -36,15 +36,16 @@ const FormRound2 = () => {
     cashMultiplier: 1,
     calculatedCashReward: 0,
     resources: {
-      Technology: 0,
-      Transportation: 0,
-      Property: 0,
+      "Technology Access": 0,
+      "Transportation & Logistics": 0,
+      "Land & Workspace": 0,
       "Skilled Labour": 0,
-      "Machinery & Tools": 0,
-      Utilities: 0,
-      "Electricity Supply": 0,
-      "Office Space": 0,
-      "Construction Material": 0,
+      "Tools & Equipment": 0,
+      "Community Network": 0,
+      "Electricity & Energy": 0,
+      "Basic Infrastructure": 0,
+      "Training & Expertise": 0,
+      "Market Access & Partnerships": 0,
     },
   });
 
@@ -177,15 +178,16 @@ const FormRound2 = () => {
 
   const parseResourcesFromStructuredData = (resourcesData) => {
     const resourceMap = {
-      Technology: 0,
-      Transportation: 0,
-      Property: 0,
+      "Technology Access": 0,
+      "Transportation & Logistics": 0,
+      "Land & Workspace": 0,
       "Skilled Labour": 0,
-      "Machinery & Tools": 0,
-      Utilities: 0,
-      "Electricity Supply": 0,
-      "Office Space": 0,
-      "Construction Material": 0,
+      "Tools & Equipment": 0,
+      "Market Access & Partnerships": 0,
+      "Electricity & Energy": 0,
+      "Basic Infrastructure": 0,
+      "Community Network": 0,
+      "Training & Expertise": 0,
     };
 
     // Direct mapping from structured data
@@ -213,15 +215,16 @@ const FormRound2 = () => {
 
   const parseResourcesFromContent = (content) => {
     const resourceMap = {
-      Technology: 0,
-      Transportation: 0,
-      Property: 0,
+      "Technology Access": 0,
+      "Transportation & Logistics": 0,
+      "Land & Workspace": 0,
       "Skilled Labour": 0,
-      "Machinery & Tools": 0,
-      Utilities: 0,
-      "Electricity Supply": 0,
-      "Office Space": 0,
-      "Construction Material": 0,
+      "Tools & Equipment": 0,
+      "Market Access & Partnerships": 0,
+      "Electricity & Energy": 0,
+      "Basic Infrastructure": 0,
+      "Community Network": 0,
+      "Training & Expertise": 0,
     };
 
     // Remove the challenge instruction part and focus on the rewards
@@ -498,15 +501,16 @@ const FormRound2 = () => {
       cashMultiplier: 1,
       calculatedCashReward: 0,
       resources: {
-        Technology: 0,
-        Transportation: 0,
-        Property: 0,
+        "Technology Access": 0,
+        "Transportation & Logistics": 0,
+        "Land & Workspace": 0,
         "Skilled Labour": 0,
-        "Machinery & Tools": 0,
-        Utilities: 0,
-        "Electricity Supply": 0,
-        "Office Space": 0,
-        "Construction Material": 0,
+        "Tools & Equipment": 0,
+        "Market Access & Partnerships": 0,
+        "Electricity & Energy": 0,
+        "Basic Infrastructure": 0,
+        "Community Network": 0,
+        "Training & Expertise": 0,
       },
     });
     setLastRevealedBox(null);

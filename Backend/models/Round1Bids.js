@@ -1,22 +1,24 @@
 const mongoose = require('mongoose');
 
 const round1BidsSchema = new mongoose.Schema({
-  _id: String,
+  // Existing databases may use either ObjectId or the legacy "round1" string.
+  _id: mongoose.Schema.Types.Mixed,
   item_list: [{
     itemCode: String,
     name: String,
     bidNumber: Number,
     basePrice: Number,
     resources: {
-      Technology: Number,
-      Property: Number,
-      'Office Space': Number,
-      'Machinery & Tools': Number,
-      'Electricity Supply': Number,
+      'Technology Access': Number,
+      'Land & Workspace': Number,
+      'Tools & Equipment': Number,
+      'Electricity & Energy': Number,
       'Skilled Labour': Number,
-      'Construction Material': Number,
-      Transportation: Number,
-      Utilities: Number
+      'Basic Infrastructure': Number,
+      'Community Network': Number,
+      'Transportation & Logistics': Number,
+      'Training & Expertise': Number,
+      'Market Access & Partnerships': Number
     },
     image: String
   }],
@@ -26,15 +28,16 @@ const round1BidsSchema = new mongoose.Schema({
     bidNumber: Number,
     basePrice: Number,
     resources: {
-      Technology: Number,
-      Property: Number,
-      'Office Space': Number,
-      'Machinery & Tools': Number,
-      'Electricity Supply': Number,
+      'Land & Workspace': Number,
+      'Technology Access': Number,
+      'Tools & Equipment': Number,
+      'Electricity & Energy': Number,
       'Skilled Labour': Number,
-      'Construction Material': Number,
-      Transportation: Number,
-      Utilities: Number
+      'Basic Infrastructure': Number,
+      'Community Network': Number,
+      'Transportation & Logistics': Number,
+      'Training & Expertise': Number,
+      'Market Access & Partnerships': Number
     },
     image: String,
     teamCode: String,

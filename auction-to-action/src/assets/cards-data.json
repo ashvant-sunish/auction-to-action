@@ -4,10 +4,10 @@
     "title": "Eco-Furniture Workshop",
     "worth": "50000",
     "requirements": [
-      "Property (2)",
+      "Land & Workspace (2)",
       "Skilled Labour (2)",
-      "Construction Material (1)",
-      "Transportation (1)"
+      "Basic Infrastructure (1)",
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise1.png"
   },
@@ -16,11 +16,11 @@
     "title": "Solar Lighting Solutions Assembly Unit",
     "worth": "65000",
     "requirements": [
-      "Property (2)",
-      "Technology (2)",
-      "Electricity Supply (1)",
+      "Land & Workspace (2)",
+      "Technology Access (2)",
+      "Electricity & Energy (1)",
       "Skilled Labour (1)",
-      "Transportation (1)"
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise2.png"
   },
@@ -29,9 +29,9 @@
     "title": "Nutrient-Rich Food Products Unit",
     "worth": "55000",
     "requirements": [
-      "Property (2)",
-      "Machinery & Tools (2)",
-      "Utilities (1)"
+      "Land & Workspace (2)",
+      "Tools & Equipment (2)",
+      "Market Access & Partnerships (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise3.png"
   },
@@ -40,10 +40,10 @@
     "title": "Community Water Purification & Bottling Center",
     "worth": "55000",
     "requirements": [
-      "Property (2)",
-      "Machinery & Tools (2)",
-      "Electricity Supply (1)",
-      "Transportation (1)"
+      "Land & Workspace (2)",
+      "Tools & Equipment (2)",
+      "Electricity & Energy (1)",
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise4.png"
   },
@@ -52,9 +52,9 @@
     "title": "Recycled Glass Products Studio",
     "worth": "65000",
     "requirements": [
-      "Property (2)",
-      "Construction Material (2)",
-      "Electricity Supply (1)"
+      "Land & Workspace (2)",
+      "Basic Infrastructure (2)",
+      "Electricity & Energy (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise5.png"
   },
@@ -63,10 +63,10 @@
     "title": "Women-Led Stitching & Tailoring Unit",
     "worth": "45000",
     "requirements": [
-      "Property (2)",
+      "Land & Workspace (2)",
       "Skilled Labour (2)",
-      "Machinery & Tools (1)",
-      "Transportation (1)"
+      "Tools & Equipment (1)",
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise6.png"
   },
@@ -75,10 +75,10 @@
     "title": "Community Bicycle Repair & Rental Hub",
     "worth": "50000",
     "requirements": [
-      "Property (2)",
-      "Machinery & Tools (2)",
+      "Land & Workspace (2)",
+      "Tools & Equipment (2)",
       "Skilled Labour (1)",
-      "Transportation (1)"
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise7.png"
   },
@@ -87,9 +87,9 @@
     "title": "Rural Handicrafts & Artisan Collective",
     "worth": "35000",
     "requirements": [
-      "Property (2)",
+      "Land & Workspace (2)",
       "Skilled Labour (2)",
-      "Utilities (1)"
+      "Market Access & Partnerships (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise8.png"
   },
@@ -98,10 +98,10 @@
     "title": "Urban Recycling Booth",
     "worth": "35000",
     "requirements": [
-      "Property (2)",
-      "Machinery & Tools (1)",
+      "Land & Workspace (2)",
+      "Tools & Equipment (1)",
       "Skilled Labour (1)",
-      "Transportation (1)"
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise9.png"
   },
@@ -110,10 +110,10 @@
     "title": "Youth Career Guidance Center",
     "worth": "45000",
     "requirements": [
-      "Property (2)",
-      "Office Space (2)",
-      "Technology (1)",
-      "Transportation (1)"
+      "Land & Workspace (2)",
+      "Land & Workspace (2)",
+      "Technology Access (1)",
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise10.png"
   },
@@ -122,9 +122,9 @@
     "title": "Agro-Tech Support Center",
     "worth": "60000",
     "requirements": [
-      "Property (2)",
-      "Technology (2)",
-      "Utilities (1)"
+      "Land & Workspace (2)",
+      "Technology Access (2)",
+      "Market Access & Partnerships (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise11.png"
   },
@@ -133,9 +133,9 @@
     "title": "Rainwater Reserve Vault",
     "worth": "55000",
     "requirements": [
-      "Property (2)",
-      "Construction Material (2)",
-      "Utilities (1)"
+      "Land & Workspace (2)",
+      "Basic Infrastructure (2)",
+      "Market Access & Partnerships (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise12.png"
   },
@@ -144,11 +144,11 @@
     "title": "SunSpot Energy Center",
     "worth": "80000",
     "requirements": [
-      "Property (2)",
-      "Technology (2)",
-      "Electricity Supply (1)",
+      "Land & Workspace (2)",
+      "Technology Access (2)",
+      "Electricity & Energy (1)",
       "Skilled Labour (1)",
-      "Transportation (1)"
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise13.png"
   },
@@ -157,9 +157,9 @@
     "title": "UrbanRoots Garden Center",
     "worth": "65000",
     "requirements": [
-      "Property (2)",
+      "Land & Workspace (2)",
       "Skilled Labour (2)",
-      "Utilities (1)"
+      "Market Access & Partnerships (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise14.png"
   },
@@ -168,10 +168,10 @@
     "title": "WeCare Health Studio",
     "worth": "55000",
     "requirements": [
-      "Property (2)",
-      "Office Space (2)",
+      "Land & Workspace (2)",
+      "Land & Workspace (2)",
       "Skilled Labour (1)",
-      "Transportation (1)"
+      "Transportation & Logistics (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise15.png"
   }

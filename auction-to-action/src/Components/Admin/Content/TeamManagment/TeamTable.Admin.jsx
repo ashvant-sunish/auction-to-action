@@ -44,15 +44,16 @@ function TeamTableAdmin() {
 
     // Predefined resource types
     const availableResourceTypes = [
-        'Transportation',
-        'Property',
+        'Transportation & Logistics',
+        'Land & Workspace',
         'Skilled Labour',
-        'Machinery & Tools',
-        'Utilities',
-        'Electricity Supply',
-        'Office Space',
-        'Construction Material',
-        'Technology'
+        'Tools & Equipment',
+        'Market Access & Partnerships',
+        'Electricity & Energy',
+        'Basic Infrastructure',
+        'Technology Access',
+        'Community Network',
+        'Training & Expertise'
     ];
 
     const toggleCodeVisibility = () => setShowCode(!showCode);
@@ -411,7 +412,7 @@ function TeamTableAdmin() {
         }
 
         // Check if resource already exists
-        if (editingTeam.resources && editingTeam.resources.hasOwnProperty(selectedResourceType)) {
+        if (editingTeam.resources && editingTeam.resources.hasOwnLand & Workspace(selectedResourceType)) {
             toast({
                 title: "Resource already exists",
                 description: "This resource type is already added to the team",
@@ -448,7 +449,7 @@ function TeamTableAdmin() {
         if (!editingTeam?.resources) return availableResourceTypes;
 
         return availableResourceTypes.filter(resourceType =>
-            !editingTeam.resources.hasOwnProperty(resourceType)
+            !editingTeam.resources.hasOwnLand & Workspace(resourceType)
         );
     };
 
@@ -743,7 +744,7 @@ function TeamTableAdmin() {
                                             <Grid templateColumns="repeat(3, 1fr)" gap={4}>
                                                 {availableResourceTypes.map(resource => {
                                                     // Only show resources that exist in the team's resources
-                                                    if (!editingTeam.resources || !editingTeam.resources.hasOwnProperty(resource)) {
+                                                    if (!editingTeam.resources || !editingTeam.resources.hasOwnLand & Workspace(resource)) {
                                                         return null;
                                                     }
 

@@ -20,7 +20,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 1',
           bidNumber: 1,
           basePrice: 9500,
-          resources: { 'Technology': 6, 'Property': 5 },
+          resources: { 'Technology Access': 6, 'Land & Workspace': 5 },
           image: '/src/assets/images/Frame 1.png'
         },
         {
@@ -28,7 +28,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 2',
           bidNumber: 2,
           basePrice: 9000,
-          resources: { 'Technology': 7 },
+          resources: { 'Technology Access': 7 },
           image: '/src/assets/images/Frame 2.png'
         },
         {
@@ -36,7 +36,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 3',
           bidNumber: 3,
           basePrice: 8000,
-          resources: { 'Property': 3, 'Technology': 6 },
+          resources: { 'Land & Workspace': 3, 'Technology Access': 6 },
           image: '/src/assets/images/Frame 3.png'
         },
         {
@@ -44,7 +44,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 4',
           bidNumber: 4,
           basePrice: 8000,
-          resources: { 'Property': 5, 'Technology': 4 },
+          resources: { 'Land & Workspace': 5, 'Technology Access': 4 },
           image: '/src/assets/images/Frame 4.png'
         },
         {
@@ -52,7 +52,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 5',
           bidNumber: 5,
           basePrice: 8000,
-          resources: { 'Property': 5, 'Technology': 5 },
+          resources: { 'Land & Workspace': 5, 'Technology Access': 5 },
           image: '/src/assets/images/Frame 5.png'
         },
         {
@@ -60,7 +60,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 6',
           bidNumber: 6,
           basePrice: 8000,
-          resources: { 'Property': 5, 'Technology': 4, 'Electricity Supply': 4 },
+          resources: { 'Land & Workspace': 5, 'Technology Access': 4, 'Electricity & Energy': 4 },
           image: '/src/assets/images/Frame 6.png'
         },
         {
@@ -68,7 +68,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 7',
           bidNumber: 7,
           basePrice: 7500,
-          resources: { 'Technology': 4, 'Property': 5 },
+          resources: { 'Technology Access': 4, 'Land & Workspace': 5 },
           image: '/src/assets/images/Frame 7.png'
         },
         {
@@ -76,7 +76,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 8',
           bidNumber: 8,
           basePrice: 7500,
-          resources: { 'Technology': 6, 'Skilled Labour': 3 },
+          resources: { 'Technology Access': 6, 'Skilled Labour': 3 },
           image: '/src/assets/images/Frame 8.png'
         },
         {
@@ -84,7 +84,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 9',
           bidNumber: 9,
           basePrice: 7500,
-          resources: { 'Property': 5, 'Machinery & Tools': 6 },
+          resources: { 'Land & Workspace': 5, 'Tools & Equipment': 6 },
           image: '/src/assets/images/Frame 9 .png'
         },
         {
@@ -92,7 +92,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 10',
           bidNumber: 10,
           basePrice: 7500,
-          resources: { 'Property': 5, 'Machinery & Tools': 5, 'Electricity Supply': 4 },
+          resources: { 'Land & Workspace': 5, 'Tools & Equipment': 5, 'Electricity & Energy': 4 },
           image: '/src/assets/images/Frame 10.png'
         },
         {
@@ -100,7 +100,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 11',
           bidNumber: 11,
           basePrice: 7500,
-          resources: { 'Property': 4, 'Technology': 4, 'Machinery & Tools': 4 },
+          resources: { 'Land & Workspace': 4, 'Technology Access': 4, 'Tools & Equipment': 4 },
           image: '/src/assets/images/Frame 11.png'
         },
         {
@@ -108,7 +108,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 12',
           bidNumber: 12,
           basePrice: 7000,
-          resources: { 'Property': 4, 'Technology': 4 },
+          resources: { 'Land & Workspace': 4, 'Technology Access': 4 },
           image: '/src/assets/images/Frame 12.png'
         },
         {
@@ -116,7 +116,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 13',
           bidNumber: 13,
           basePrice: 7000,
-          resources: { 'Property': 4, 'Office Space': 4, 'Technology': 4 },
+          resources: { 'Land & Workspace': 4, 'Land & Workspace': 4, 'Technology Access': 4 },
           image: '/src/assets/images/Frame 13.png'
         },
         {
@@ -124,7 +124,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 14',
           bidNumber: 14,
           basePrice: 7000,
-          resources: { 'Property': 5, 'Construction Material': 4, 'Technology': 3 },
+          resources: { 'Land & Workspace': 5, 'Basic Infrastructure': 4, 'Technology Access': 3 },
           image: '/src/assets/images/Frame 14.png'
         },
         {
@@ -132,7 +132,7 @@ const seedRound1BidsData = async () => {
           name: 'BID 15',
           bidNumber: 15,
           basePrice: 7000,
-          resources: { 'Office Space': 4, 'Technology': 6 },
+          resources: { 'Land & Workspace': 4, 'Technology Access': 6 },
           image: '/src/assets/images/Frame 1.png'
         }
       ],

@@ -5,7 +5,7 @@
     "worth": "4000",
     "requiredEnterpriseId": 1,
     "requirements": [
-      "Construction Material (1)",
+      "Basic Infrastructure (1)",
       "Skilled Labour (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product1.png"
@@ -16,8 +16,8 @@
     "worth": "3000",
     "requiredEnterpriseId": 4,
     "requirements": [
-      "Machinery & Tools (1)",
-      "Electricity Supply (1)"
+      "Tools & Equipment (1)",
+      "Electricity & Energy (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product2.png"
   },
@@ -27,7 +27,7 @@
     "worth": "4000",
     "requiredEnterpriseId": 6,
     "requirements": [
-      "Machinery & Tools (1)",
+      "Tools & Equipment (1)",
       "Skilled Labour (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product3.png"
@@ -38,7 +38,7 @@
     "worth": "3500",
     "requiredEnterpriseId": 9,
     "requirements": [
-      "Machinery & Tools (1)",
+      "Tools & Equipment (1)",
       "Skilled Labour (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product4.png"
@@ -49,8 +49,8 @@
     "worth": "4500",
     "requiredEnterpriseId": 11,
     "requirements": [
-      "Technology (1)",
-      "Utilities (1)"
+      "Technology Access (1)",
+      "Market Access & Partnerships (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product5.png"
   }

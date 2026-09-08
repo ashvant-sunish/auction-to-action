@@ -32,7 +32,7 @@ const gameItemSchema = new mongoose.Schema({
     required: true 
   },
   
-  // A map of the resources this item contains, e.g., { "Technology": 5, "Property": 3 }
+  // A map of the resources this item contains, e.g., { "Technology Access": 5, "Land & Workspace": 3 }
   resources: { 
     type: Map, 
     of: Number 

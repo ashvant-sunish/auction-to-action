@@ -565,7 +565,7 @@ export default function Spin3DCards({
   const speedRef = useRef(initialSpeed);
   const prefersReducedMotion = useRef(
     typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
 
   // ── fetchGameItems (unchanged) ──────────────────────────────────────────────
@@ -613,8 +613,8 @@ export default function Spin3DCards({
         category: `Round ${round}`,
         basePrice: 7000 + Math.floor(Math.random() * 2500),
         resources: {
-          Technology: Math.floor(Math.random() * 7) + 1,
-          Property: Math.floor(Math.random() * 6) + 1,
+          "Technology Access": Math.floor(Math.random() * 7) + 1,
+          "Land & Workspace": Math.floor(Math.random() * 6) + 1,
         },
       }));
       setAvailableItems(fallbackItems);
@@ -658,7 +658,7 @@ export default function Spin3DCards({
             const bidNum =
               parseInt(
                 wheelState.selectedBid.bidNo ||
-                  wheelState.selectedBid.bidNumber,
+                wheelState.selectedBid.bidNumber,
                 10,
               ) || 0;
             selectedIndexRef.current = bidNum % 2 !== 0 ? 1 : 0;
@@ -678,7 +678,7 @@ export default function Spin3DCards({
             const bidNum =
               parseInt(
                 wheelState.selectedBid.bidNo ||
-                  wheelState.selectedBid.bidNumber,
+                wheelState.selectedBid.bidNumber,
                 10,
               ) || 0;
             selectedIndexRef.current = bidNum % 2 !== 0 ? 1 : 0;
@@ -1274,16 +1274,16 @@ export default function Spin3DCards({
   const deckItems =
     availableItems.length > 0
       ? Array.from(
-          { length: Math.min(VISUAL_DECK, availableItems.length) },
-          (_, i) => availableItems[i],
-        )
+        { length: Math.min(VISUAL_DECK, availableItems.length) },
+        (_, i) => availableItems[i],
+      )
       : Array.from({ length: VISUAL_DECK }, (_, i) => ({
-          id: `placeholder-${i}`,
-          bidNo: i + 1,
-          title: "–",
-          basePrice: 0,
-          resources: {},
-        }));
+        id: `placeholder-${i}`,
+        bidNo: i + 1,
+        title: "–",
+        basePrice: 0,
+        resources: {},
+      }));
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (

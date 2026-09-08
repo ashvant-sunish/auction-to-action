@@ -29,7 +29,7 @@ import serverUrl from './../../../../servercon';
 // Function to generate MongoDB-style ObjectId
 const generateObjectId = () => {
   const timestamp = Math.floor(Date.now() / 1000).toString(16);
-  const randomBytes = 'xxxxxxxxxxxx'.replace(/[x]/g, () => 
+  const randomBytes = 'xxxxxxxxxxxx'.replace(/[x]/g, () =>
     (Math.random() * 16 | 0).toString(16)
   );
   return timestamp + randomBytes;
@@ -51,21 +51,22 @@ function Round3() {
 
   // Common resource types for dropdown
   const resourceTypes = [
-    "Property",
-    "Skilled Labour", 
-    "Construction Material",
-    "Machinery & Tools",
-    "Technology",
-    "Electricity Supply",
-    "Utilities",
-    "Office Space",
-    "Transportation"
+    "Land & Workspace",
+    "Skilled Labour",
+    "Basic Infrastructure",
+    "Tools & Equipment",
+    "Technology Access",
+    "Electricity & Energy",
+    "Community Network",
+    "Market Access & Partnerships",
+    "Transportation & Logistics",
+    "Training & Expertise"
   ];
 
   // Auto-fetch team data when team code is entered
   const fetchTeamByCode = async (teamCode, teamType) => {
     if (!teamCode || teamCode.length < 3) return; // Only fetch for valid team codes
-    
+
     // Check if the same team code is already used by the other team
     const otherTeamType = teamType === 'teamOne' ? 'teamTwo' : 'teamOne';
     if (formData[otherTeamType].teamCode === teamCode.toUpperCase()) {
@@ -78,10 +79,10 @@ function Round3() {
       });
       return;
     }
-    
+
     try {
       setTeamCodeLoading(prev => ({ ...prev, [teamType]: true }));
-      
+
       // Get admin token
       const adminToken = localStorage.getItem('adminToken');
       if (!adminToken) {
@@ -108,7 +109,7 @@ function Round3() {
 
       if (response.data && response.data.length > 0) {
         const teamData = response.data[0]; // Get first matching team
-        
+
         setFormData(prev => {
           const newFormData = { ...prev };
           newFormData[teamType] = {
@@ -134,7 +135,7 @@ function Round3() {
           duration: 3000,
           isClosable: true,
         });
-        
+
         // Clear team name if team not found
         setFormData(prev => {
           const newFormData = { ...prev };
@@ -162,7 +163,7 @@ function Round3() {
   // Handle team code changes (no auto-fetch)
   const handleTeamCodeChange = (teamType, value) => {
     const upperValue = value.toUpperCase();
-    
+
     // Check for duplicate team codes
     const otherTeamType = teamType === 'teamOne' ? 'teamTwo' : 'teamOne';
     if (upperValue && formData[otherTeamType].teamCode === upperValue) {
@@ -174,7 +175,7 @@ function Round3() {
         isClosable: true,
       });
     }
-    
+
     // Update form data immediately
     setFormData(prev => {
       const newFormData = { ...prev };
@@ -230,10 +231,10 @@ function Round3() {
     const newItems = [...teamOneItems];
     newItems[index][field] = value;
     setTeamOneItems(newItems);
-    
+
     // Update form data - only include items with both name and quantity > 0
     const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
-    
+
     setFormData(prev => ({
       ...prev,
       teamOneGives: {
@@ -248,10 +249,10 @@ function Round3() {
     const newItems = [...teamTwoItems];
     newItems[index][field] = value;
     setTeamTwoItems(newItems);
-    
+
     // Update form data - only include items with both name and quantity > 0
     const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
-    
+
     setFormData(prev => ({
       ...prev,
       teamTwoGives: {
@@ -276,7 +277,7 @@ function Round3() {
     if (teamOneItems.length > 1) {
       const newItems = teamOneItems.filter((_, i) => i !== index);
       setTeamOneItems(newItems);
-      
+
       const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
       setFormData(prev => ({
         ...prev,
@@ -292,7 +293,7 @@ function Round3() {
     if (teamTwoItems.length > 1) {
       const newItems = teamTwoItems.filter((_, i) => i !== index);
       setTeamTwoItems(newItems);
-      
+
       const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
       setFormData(prev => ({
         ...prev,
@@ -318,7 +319,7 @@ function Round3() {
   // Update wishlists after trade
   const updateWishlists = async (tradeData, adminToken) => {
     try {
-      
+
       // Update Team 1's wishlist - remove items they gave
       if (tradeData.teamOneGives.items.length > 0) {
         await axios.put(
@@ -352,7 +353,7 @@ function Round3() {
           }
         );
       }
-      
+
     } catch (error) {
       console.error('❌ Error updating wishlists:', error);
       toast({
@@ -410,7 +411,7 @@ function Round3() {
       // Ensure form data is up to date with latest items before sending
       const finalTeamOneItems = teamOneItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
       const finalTeamTwoItems = teamTwoItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
-      
+
       // Update formData with final items
       const updatedFormData = {
         ...formData,
@@ -683,7 +684,7 @@ function Round3() {
                         flex={2}
                       >
                         {resourceTypes.map((resource) => (
-                          <option key={resource} value={resource} style={{color: 'black'}}>
+                          <option key={resource} value={resource} style={{ color: 'black' }}>
                             {resource}
                           </option>
                         ))}
@@ -757,7 +758,7 @@ function Round3() {
                         flex={2}
                       >
                         {resourceTypes.map((resource) => (
-                          <option key={resource} value={resource} style={{color: 'black'}}>
+                          <option key={resource} value={resource} style={{ color: 'black' }}>
                             {resource}
                           </option>
                         ))}
