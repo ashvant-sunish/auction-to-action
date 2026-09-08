@@ -108,13 +108,13 @@ const TradingMarket = () => {
         // Wait a bit for connection to establish
         setTimeout(() => {
           if (socketService.isSocketConnected()) {
-            // console.log("✅ Socket connection confirmed for TradingMarket");
+            // console.log("Socket connection confirmed for TradingMarket");
           } else {
-            // console.log("⚠️ Socket connection not established, but will still try to listen");
+            // console.log("Socket connection not established, but will still try to listen");
           }
         }, 1000);
       } catch (error) {
-        // console.error("❌ Error initializing socket:", error);
+        // console.error("Error initializing socket:", error);
       }
     };
 

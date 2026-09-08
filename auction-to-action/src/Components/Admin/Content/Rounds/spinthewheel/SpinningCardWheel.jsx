@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { FrameImages } from './../../../../../utils/spinthewheelimagepath';
-import axios from 'axios';
-import io from 'socket.io-client';
-import serverUrl from './../../../../../servercon';
+import React, { useEffect, useRef, useState } from "react";
+import { FrameImages } from "./../../../../../utils/spinthewheelimagepath";
+import axios from "axios";
+import io from "socket.io-client";
+import serverUrl from "./../../../../../servercon";
 
 // Bid management functions
 function pickRandomBid(availableItems) {
@@ -27,7 +27,6 @@ export default function Spin3DCards({
   initialSpeed = 0.008, // Good spinning velocity
   friction = 0.995, // Smoother deceleration
   onBidSelected = null, // Callback function to handle selected bid
-
 }) {
   // State management
   const [availableItems, setAvailableItems] = useState([]);
@@ -42,7 +41,9 @@ export default function Spin3DCards({
 
   // Generate session ID on component mount
   useEffect(() => {
-    setSessionId(`wheel_${round}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+    setSessionId(
+      `wheel_${round}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    );
   }, [round]);
 
   // Fetch game items from database
@@ -55,11 +56,12 @@ export default function Spin3DCards({
         `${serverUrl}/api/admin/game-items/round/${round}`,
         {
           headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
+
 
       if (response.data) {
 
@@ -67,8 +69,8 @@ export default function Spin3DCards({
         setSelectedItems(response.data.selectedItems);
       }
     } catch (error) {
-      console.error('Error fetching game items:', error);
-      alert('Failed to load game items from database');
+      console.error("Error fetching game items:", error);
+      alert("Failed to load game items from database");
     } finally {
       setLoading(false);
     }
@@ -82,6 +84,7 @@ export default function Spin3DCards({
   // Socket.IO listener for real-time updates
   useEffect(() => {
     const socket = io(serverUrl);
+
 
     // Listen for new wheel events
     socket.on('wheelRandomSelection', (data) => {
@@ -98,8 +101,12 @@ export default function Spin3DCards({
         // An item was confirmed and removed
         fetchGameItems();
 
+
         // Reset any current selection if the selected item was removed
-        if (currentSelectedBid && data.itemDetails?.itemCode === currentSelectedBid.itemCode) {
+        if (
+          currentSelectedBid &&
+          data.itemDetails?.itemCode === currentSelectedBid.itemCode
+        ) {
           setCurrentSelectedBid(null);
           setIsSelecting(false);
           setWheelStopped(false);
@@ -141,6 +148,7 @@ export default function Spin3DCards({
       }
     });
 
+
     return () => {
       socket.disconnect();
     };
@@ -150,7 +158,9 @@ export default function Spin3DCards({
     const remainingCards = availableItems.length;
     const totalCards = availableItems.length + selectedItems.length;
 
+
     if (totalCards === 0) return baseCardWidth;
+
 
     // As cards decrease, width increases
     const widthIncrease = (totalCards - remainingCards) / totalCards;
@@ -159,7 +169,9 @@ export default function Spin3DCards({
     return Math.min(dynamicWidth, maxCardWidth);
   };
 
+
   const currentCardWidth = getDynamicCardWidth();
+
 
   const stageRef = useRef(null);
   const angleRef = useRef(0);
@@ -196,7 +208,7 @@ export default function Spin3DCards({
       const wheelState = {
         availableItemsCount: availableItems.length,
         selectedItemsCount: selectedItems.length,
-        currentlySelectedItem: selectedBid
+        currentlySelectedItem: selectedBid,
       };
 
       await axios.post(
@@ -213,21 +225,20 @@ export default function Spin3DCards({
             image: selectedBid.image,
             teamName: selectedBid.teamName,
             teamCode: selectedBid.teamCode,
-            bidAmount: selectedBid.bidAmount
+            bidAmount: selectedBid.bidAmount,
           },
           wheelState,
-          sessionId
+          sessionId,
         },
         {
           headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
-
     } catch (error) {
-      console.error('❌ Error recording random selection:', error);
+      console.error("Error recording random selection:", error);
       // Continue with UI update even if database update fails
     }
 
@@ -237,8 +248,8 @@ export default function Spin3DCards({
 
     // Animate to target position
     await animateToPosition(targetAngle);
-
   };
+
 
   const handleSkipSelection = async () => {
     if (!currentSelectedBid) return;
@@ -250,7 +261,7 @@ export default function Spin3DCards({
       const wheelState = {
         availableItemsCount: availableItems.length,
         selectedItemsCount: selectedItems.length,
-        currentlySelectedItem: null // Will be cleared after skip
+        currentlySelectedItem: null, // Will be cleared after skip
       };
 
       await axios.post(
@@ -267,29 +278,30 @@ export default function Spin3DCards({
             image: currentSelectedBid.image,
             teamName: currentSelectedBid.teamName,
             teamCode: currentSelectedBid.teamCode,
-            bidAmount: currentSelectedBid.bidAmount
+            bidAmount: currentSelectedBid.bidAmount,
           },
           wheelState,
-          sessionId
+          sessionId,
         },
         {
           headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
-
     } catch (error) {
-      console.error('❌ Error recording skip:', error);
+      console.error("Error recording skip:", error);
       // Continue with UI update even if database update fails
     }
 
     // Just skip the selection without making any backend calls
     // The item stays in item_list and is not moved to item_list_2
 
+
     // Start transition
     setIsTransitioning(true);
+
 
     // Gradually fade out selection
     setTimeout(() => {
@@ -297,11 +309,13 @@ export default function Spin3DCards({
       setWheelStopped(false);
     }, 150);
 
+
     // Resume gentle spinning
     setTimeout(() => {
       speedRef.current = initialSpeed * 0.5;
       setSpinning(true);
     }, 200);
+
 
     // Complete transition
     setTimeout(() => {
@@ -325,16 +339,15 @@ export default function Spin3DCards({
         {
           itemCode: currentSelectedBid.itemCode,
           bidNumber: currentSelectedBid.bidNumber, // Use bidNumber field
-          itemName: currentSelectedBid.title
+          itemName: currentSelectedBid.title,
         },
         {
           headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
-
 
       if (response.status === 201) {
         // Record confirmation in database
@@ -342,7 +355,7 @@ export default function Spin3DCards({
           const wheelState = {
             availableItemsCount: availableItems.length - 1, // -1 because item was removed
             selectedItemsCount: selectedItems.length + 1, // +1 because item was added
-            currentlySelectedItem: null // Cleared after confirmation
+            currentlySelectedItem: null, // Cleared after confirmation
           };
 
           await axios.post(
@@ -352,26 +365,26 @@ export default function Spin3DCards({
               itemDetails: {
                 itemId: currentSelectedBid.id,
                 itemCode: currentSelectedBid.itemCode,
-                bidNumber: currentSelectedBid.bidNumber || currentSelectedBid.bidNo,
+                bidNumber:
+                  currentSelectedBid.bidNumber || currentSelectedBid.bidNo,
                 title: currentSelectedBid.title,
                 basePrice: currentSelectedBid.basePrice,
                 resources: currentSelectedBid.resources,
                 image: currentSelectedBid.image,
                 teamName: currentSelectedBid.teamName,
                 teamCode: currentSelectedBid.teamCode,
-                bidAmount: currentSelectedBid.bidAmount
+                bidAmount: currentSelectedBid.bidAmount,
               },
               wheelState,
-              sessionId
+              sessionId,
             },
             {
               headers: {
-                'Authorization': `Bearer ${adminToken}`,
-                'Content-Type': 'application/json'
-              }
-            }
+                Authorization: `Bearer ${adminToken}`,
+                "Content-Type": "application/json",
+              },
+            },
           );
-
         } catch (dbError) {
           console.error('❌ Error recording confirmation:', dbError);
           throw new Error('The item was moved, but confirmation could not be recorded.');
@@ -405,6 +418,7 @@ export default function Spin3DCards({
       angleRef.current = 0;
     }
 
+
     // Resume spinning if there are items left - add delay for DOM to settle
     const remainingItems = availableItems.length - 1; // -1 because we just removed one
     if (remainingItems > 0) {
@@ -427,6 +441,7 @@ export default function Spin3DCards({
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
+
         // Easing function for smooth stop
         const easeOut = 1 - Math.pow(1 - progress, 3);
 
@@ -440,14 +455,16 @@ export default function Spin3DCards({
         }
       };
 
+
       animate();
     });
   };
 
   // Inject component-scoped styles once
   useEffect(() => {
-    const id = 'spin3d-cards-styles';
+    const id = "spin3d-cards-styles";
     const existingStyle = document.getElementById(id);
+
 
     // Update styles with current card width
     const styleContent = `
@@ -463,10 +480,11 @@ export default function Spin3DCards({
       .speed-range{ width:220px; }
       `;
 
+
     if (existingStyle) {
       existingStyle.innerHTML = styleContent;
     } else {
-      const style = document.createElement('style');
+      const style = document.createElement("style");
       style.id = id;
       style.innerHTML = styleContent;
       document.head.appendChild(style);
@@ -476,10 +494,14 @@ export default function Spin3DCards({
   // Clean up state when availableItems changes (items removed)
   useEffect(() => {
     // If the currently selected bid is no longer in available items, reset selection
-    if (currentSelectedBid && !availableItems.find(item => item.id === currentSelectedBid.id)) {
+    if (
+      currentSelectedBid &&
+      !availableItems.find((item) => item.id === currentSelectedBid.id)
+    ) {
       setCurrentSelectedBid(null);
       setIsSelecting(false);
       setWheelStopped(false);
+
 
       // Restart spinning if items remain
       if (availableItems.length > 0) {
@@ -491,11 +513,13 @@ export default function Spin3DCards({
 
   // Position cards around circle
   useEffect(() => {
-    const wrapper = stageRef.current?.querySelector('.carousel');
+    const wrapper = stageRef.current?.querySelector(".carousel");
     if (!wrapper) return;
+
 
     const count = availableItems.length;
     const domChildren = Array.from(wrapper.children);
+
 
     // Only position if DOM children match available items
     if (domChildren.length === count) {
@@ -512,8 +536,9 @@ export default function Spin3DCards({
 
   // RAF loop
   useEffect(() => {
-    const wrapper = stageRef.current?.querySelector('.carousel');
+    const wrapper = stageRef.current?.querySelector(".carousel");
     if (!wrapper) return;
+
 
     const update = () => {
       if (!isSelecting || (!currentSelectedBid && !wheelStopped)) {
@@ -522,15 +547,18 @@ export default function Spin3DCards({
         if (!spinning) speedRef.current *= friction;
       }
 
+
       // re-position children - match DOM children to available items
       const count = availableItems.length;
       const domChildren = Array.from(wrapper.children);
+
 
       // Ensure DOM children count matches available items count
       if (domChildren.length !== count) {
         // DOM is out of sync, let React re-render handle it
         return;
       }
+
 
       for (let i = 0; i < count; i++) {
         const base = (i / count) * Math.PI * 2;
@@ -539,55 +567,76 @@ export default function Spin3DCards({
         const el = domChildren[i];
         const item = availableItems[i];
 
+
         if (el && item) {
           el.style.transform = `rotateY(${deg}deg) translateZ(${radius}px)`;
           // compute facing factor for size/shadow
           const norm = Math.cos(total); // 1 at front, -1 at back
           const scale = 0.75 + 0.5 * (norm > 0 ? norm : 0);
 
+
           // Handle opacity and visibility for selected card scenario
-          if (wheelStopped && currentSelectedBid && item.id === currentSelectedBid.id) {
+          if (
+            wheelStopped &&
+            currentSelectedBid &&
+            item.id === currentSelectedBid.id
+          ) {
             // Selected card: full opacity and highest z-index
-            el.style.opacity = '1';
-            el.style.zIndex = '1000';
+            el.style.opacity = "1";
+            el.style.zIndex = "1000";
           } else if (wheelStopped && currentSelectedBid) {
             // Other cards when selection is active: reduce opacity and lower z-index
-            el.style.opacity = norm > 0 ? '0.3' : '0.1';
-            el.style.zIndex = norm > 0 ? '10' : '1';
+            el.style.opacity = norm > 0 ? "0.3" : "0.1";
+            el.style.zIndex = norm > 0 ? "10" : "1";
           } else {
             // Normal spinning state or transitioning out of selection
             el.style.opacity = 0.5 + 0.5 * (norm > 0 ? norm : 0);
-            el.style.zIndex = norm > 0 ? '50' : '10';
+            el.style.zIndex = norm > 0 ? "50" : "10";
           }
+
 
           el.style.transform += ` scale(${scale})`;
 
+
           // mark front card with class and highlight if selected
           if (norm > 0.98) {
-            el.classList.add('front');
+            el.classList.add("front");
             // If this is the selected bid and wheel is stopped, enlarge it more
-            if (wheelStopped && currentSelectedBid && item.id === currentSelectedBid.id) {
+            if (
+              wheelStopped &&
+              currentSelectedBid &&
+              item.id === currentSelectedBid.id
+            ) {
               el.style.transform += ` scale(1.8)`;
-              el.style.zIndex = '1000';
-              el.style.width = '160px'; // Make selected card wider but smaller than before
-              el.style.marginLeft = '-80px'; // Re-center the wider card
+              el.style.zIndex = "1000";
+              el.style.width = "160px"; // Make selected card wider but smaller than before
+              el.style.marginLeft = "-80px"; // Re-center the wider card
             }
           } else {
-            el.classList.remove('front');
+            el.classList.remove("front");
           }
         }
       }
-      setTicking(t => t + 1);
+      setTicking((t) => t + 1);
       rafRef.current = requestAnimationFrame(update);
     };
     rafRef.current = requestAnimationFrame(update);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [availableItems, radius, friction, spinning, isSelecting, wheelStopped, currentSelectedBid]);
+  }, [
+    availableItems,
+    radius,
+    friction,
+    spinning,
+    isSelecting,
+    wheelStopped,
+    currentSelectedBid,
+  ]);
 
   // Pointer controls for drag-to-spin
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return; // Add null check
+
 
     const onDown = (e) => {
       dragging.current = true;
@@ -608,20 +657,20 @@ export default function Spin3DCards({
       // continue spinning with current speed
       setSpinning(true);
     };
-    el.addEventListener('mousedown', onDown);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
+    el.addEventListener("mousedown", onDown);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
     // touch
-    el.addEventListener('touchstart', onDown, { passive: true });
-    window.addEventListener('touchmove', onMove, { passive: true });
-    window.addEventListener('touchend', onUp);
+    el.addEventListener("touchstart", onDown, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchend", onUp);
     return () => {
-      el.removeEventListener('mousedown', onDown);
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-      el.removeEventListener('touchstart', onDown);
-      window.removeEventListener('touchmove', onMove);
-      window.removeEventListener('touchend', onUp);
+      el.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      el.removeEventListener("touchstart", onDown);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onUp);
     };
   }, []);
 
@@ -641,23 +690,31 @@ export default function Spin3DCards({
       ) : (
         <div>
           {/* Information Panel */}
-          <div style={{ marginBottom: 20, textAlign: 'center' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: 10 }}>
+          <div style={{ marginBottom: 20, textAlign: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-around",
+                marginBottom: 10,
+              }}
+            >
               <div>
                 <strong>Round: </strong>
-                <span style={{ color: 'blue' }}>{round}</span>
+                <span style={{ color: "blue" }}>{round}</span>
               </div>
               <div>
                 <strong>Available Bids: </strong>
-                <span style={{ color: 'green' }}>{availableItems.length}</span>
+                <span style={{ color: "green" }}>{availableItems.length}</span>
               </div>
               <div>
                 <strong>Selected Bids: </strong>
-                <span style={{ color: 'white' }}>{selectedItems.length}</span>
+                <span style={{ color: "white" }}>{selectedItems.length}</span>
               </div>
               <div>
                 <strong>Card Width: </strong>
-                <span style={{ color: 'orange' }}>{Math.round(currentCardWidth)}px</span>
+                <span style={{ color: "orange" }}>
+                  {Math.round(currentCardWidth)}px
+                </span>
               </div>
             </div>
           </div>

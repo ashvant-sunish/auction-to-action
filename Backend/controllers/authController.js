@@ -124,7 +124,7 @@ exports.loginTeam = async (req, res) => {
       res.status(401).json({ message: 'Invalid Team Code or Password.' });
     }
   } catch (error) {
-    console.error("❌ Error logging in team:", error);
+    console.error(" Error logging in team:", error);
     res.status(500).json({ message: 'Server error during login.' });
   }
 };
@@ -151,7 +151,7 @@ exports.logoutTeam = async (req, res) => {
       teamCode: team.teamCode 
     });
   } catch (error) {
-    console.error("❌ Error logging out team:", error);
+    console.error(" Error logging out team:", error);
     res.status(500).json({ message: 'Server error during logout.' });
   }
 };
@@ -169,7 +169,7 @@ exports.heartbeatTeam = async (req, res) => {
     await Team.findByIdAndUpdate(req.user.teamId, { sessionExpiry });
     res.status(200).json({ ok: true });
   } catch (error) {
-    console.error('❌ Error during heartbeat:', error);
+    console.error(' Error during heartbeat:', error);
     res.status(500).json({ message: 'Server error during heartbeat.' });
   }
 };

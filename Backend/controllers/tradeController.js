@@ -139,8 +139,8 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
     });
 
   } catch (error) {
-    console.error('❌ CRITICAL ERROR updating trade wishlists:', error);
-    console.error('❌ Stack trace:', error.stack);
+    console.error(' CRITICAL ERROR updating trade wishlists:', error);
+    console.error(' Stack trace:', error.stack);
     // Don't throw error - trade should still succeed even if wishlist update fails
   }
 };
@@ -679,12 +679,12 @@ const submitTrade = async (req, res) => {
         rewardText += ` [Cash Reward: ₹${Number(cashReward).toLocaleString('en-IN')}]`;
       }
 
-      const notifMessage = `🎉 You won Mystery Box${rewardText} for ₹${Number(bidAmount).toLocaleString('en-IN')}.${resourceSection}\n\n(If balance is not updated, kindly refresh the page)`;
+      const notifMessage = `You won Mystery Box${rewardText} for ₹${Number(bidAmount).toLocaleString('en-IN')}.${resourceSection}\n\n(If balance is not updated, kindly refresh the page)`;
 
       await sendTargetedNotification(io, {
         teamCode: team.teamCode,
         teamName: team.teamName,
-        title: 'Mystery Box Won 🎁',
+        title: 'Mystery Box Won',
         message: notifMessage,
         round: Number(round) || 2,
         type: 'MYSTERY_BOX',

@@ -147,7 +147,7 @@ const seedRound1BidsData = async () => {
     console.log(`📦 Created empty selected items list (item_list_2)`);
 
   } catch (error) {
-    console.error('❌ Error seeding Round 1 Bids:', error);
+    console.error(' Error seeding Round 1 Bids:', error);
   } finally {
     await mongoose.connection.close();
     console.log('🔌 MongoDB connection closed.');

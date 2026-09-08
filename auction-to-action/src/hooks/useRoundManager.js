@@ -25,7 +25,7 @@ export const useRoundManager = () => {
         setCurrentRound(response.data.roundData);
       }
     } catch (err) {
-      console.error('❌ Error fetching current round:', err);
+      console.error('Error fetching current round:', err);
       setError('Failed to fetch current round state');
     }
   }, []);
@@ -64,7 +64,7 @@ export const useRoundManager = () => {
       fetchCurrentRound();
 
     } catch (err) {
-      console.error('❌ Error setting up round manager:', err);
+      console.error('Error setting up round manager:', err);
       setError('Failed to connect to real-time updates');
     }
 

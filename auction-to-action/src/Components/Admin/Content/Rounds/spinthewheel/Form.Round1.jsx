@@ -92,7 +92,7 @@ function FormRound1() {
         }
 
         toast({
-          title: "🎯 Item Selected from Wheel",
+          title: "Item Selected from Wheel",
           description: `${data.itemDetails.title} selected`,
           status: "info",
           duration: 3000,
@@ -111,7 +111,7 @@ function FormRound1() {
         });
 
         toast({
-          title: "✅ Item Confirmed",
+          title: "Item Confirmed",
           description: `${data.itemDetails.title} confirmed`,
           status: "success",
           duration: 3000,
@@ -141,7 +141,7 @@ function FormRound1() {
         });
 
         toast({
-          title: "⏭️ Item Skipped",
+          title: "⏭ Item Skipped",
           description: `${data.itemDetails.title} skipped`,
           status: "warning",
           duration: 3000,
@@ -427,7 +427,7 @@ function FormRound1() {
 
       if (response.status === 201) {
         toast({
-          title: "✅ Trade Completed Successfully",
+          title: "Trade Completed Successfully",
           description: `${formData.itemName} added to ${formData.teamName}'s inventory`,
           status: "success",
           duration: 4000,
@@ -529,10 +529,10 @@ function FormRound1() {
                   }
                 >
                   {wheelSelection.status === "CONFIRMED"
-                    ? "✅ Wheel: Item Confirmed"
+                    ? "Wheel: Item Confirmed"
                     : wheelSelection.status === "SKIPPED"
-                      ? "⏭️ Wheel: Item Skipped"
-                      : "🎯 Wheel: Item Selected"}
+                      ? "Wheel: Item Skipped"
+                      : "Wheel: Item Selected"}
                 </Heading>
               </HStack>
               <Badge
@@ -577,7 +577,7 @@ function FormRound1() {
                     fontWeight="semibold"
                     mb={1}
                   >
-                    📦 Resources:
+                    Resources:
                   </Text>
                   <HStack spacing={2} flexWrap="wrap">
                     {Object.entries(wheelSelection.itemDetails.resources).map(
@@ -683,7 +683,7 @@ function FormRound1() {
                   fontWeight="semibold"
                   mb={3}
                 >
-                  📦 Current Resources:
+                  Current Resources:
                 </Text>
                 <SimpleGrid columns={{ base: 2, md: 4 }} spacing={3}>
                   {Object.entries(formData.resources).map(

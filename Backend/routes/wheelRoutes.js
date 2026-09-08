@@ -15,7 +15,7 @@ router.get('/public/wheel-selection/live/:round', async (req, res) => {
       message: latestSelection ? 'Live selection found' : 'No active selection found'
     });
   } catch (error) {
-    console.error('❌ Error fetching public live wheel selection:', error);
+    console.error(' Error fetching public live wheel selection:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch live wheel selection',
@@ -37,7 +37,7 @@ router.get('/wheel-selection/:round', protectAdmin, async (req, res) => {
       message: latestSelection ? 'Latest selection found' : 'No active selection found'
     });
   } catch (error) {
-    console.error('❌ Error fetching wheel selection:', error);
+    console.error(' Error fetching wheel selection:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch wheel selection',
@@ -113,7 +113,7 @@ router.post('/wheel-selection/random', protectAdmin, async (req, res) => {
       message: 'Random selection recorded successfully'
     });
   } catch (error) {
-    console.error('❌ Error recording random selection:', error);
+    console.error(' Error recording random selection:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to record random selection',

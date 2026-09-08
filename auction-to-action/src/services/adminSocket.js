@@ -22,7 +22,7 @@ export const updateRoundRealtime = async (roundNumber, roundStatus = 'ongoing') 
 
     return response.data;
   } catch (error) {
-    console.error('❌ Error updating round:', error);
+    console.error('Error updating round:', error);
     throw error;
   }
 };
@@ -58,7 +58,7 @@ export const updateTeamRealtime = async (teamNumber, {
 
     return response.data;
   } catch (error) {
-    console.error('❌ Error updating team:', error);
+    console.error('Error updating team:', error);
     throw error;
   }
 };
@@ -90,7 +90,7 @@ export const executeTradeRealtime = async (teamA, teamB, {
 
     return response.data;
   } catch (error) {
-    console.error('❌ Error executing trade:', error);
+    console.error('Error executing trade:', error);
     throw error;
   }
 };
@@ -131,7 +131,7 @@ export const pauseRoundRealtime = async (action) => {
 
     return response.data;
   } catch (error) {
-    console.error(`❌ Error ${action}ing round:`, error);
+    console.error(`Error ${action}ing round:`, error);
     throw error;
   }
 };

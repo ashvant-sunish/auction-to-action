@@ -191,12 +191,12 @@ exports.awardBid = async (req, res) => {
     const resourceSection = formattedResources
       ? `\n\nResources acquired:\n${formattedResources}`
       : '';
-    const notificationMessage = `🎉 You won ${item.name} for ₹${Number(bidAmount).toLocaleString('en-IN')}.${resourceSection}\n\n(If bid is not updated, kindly refresh the page)`;
+    const notificationMessage = `You won ${item.name} for ₹${Number(bidAmount).toLocaleString('en-IN')}.${resourceSection}\n\n(If bid is not updated, kindly refresh the page)`;
 
     await sendTargetedNotification(io, {
       teamCode: team.teamCode,
       teamName: team.teamName,
-      title: 'Bid Won 🎉',
+      title: 'Bid Won ',
       message: notificationMessage,
       round: Number(item.round) || 1,
       type: 'BID_WON',
@@ -328,7 +328,7 @@ exports.getBidHistory = async (req, res) => {
 
     res.status(200).json(history);
   } catch (error) {
-    console.error('❌ Error in getBidHistory:', error);
+    console.error('Error in getBidHistory:', error);
     res.status(500).json({ message: 'Error fetching bid history' });
   }
 };
@@ -352,7 +352,7 @@ exports.updateBidHistory = async (req, res) => {
 
     res.status(200).json({ message: 'Bid history updated successfully.', bid: updatedBid });
   } catch (error) {
-    console.error('❌ Error updating bid history:', error);
+    console.error(' Error updating bid history:', error);
     res.status(500).json({ message: 'Error updating bid history', error: error.message });
   }
 };
@@ -369,7 +369,7 @@ exports.deleteBidHistory = async (req, res) => {
 
     res.status(200).json({ message: 'Bid history deleted successfully.' });
   } catch (error) {
-    console.error('❌ Error deleting bid history:', error);
+    console.error(' Error deleting bid history:', error);
     res.status(500).json({ message: 'Error deleting bid history', error: error.message });
   }
 };
@@ -828,7 +828,7 @@ exports.setTeamActiveStatus = async (req, res) => {
       team
     });
   } catch (error) {
-    console.error("❌ Error updating team active status:", error);
+    console.error(" Error updating team active status:", error);
     res.status(500).json({ message: 'Server error updating team status.' });
   }
 };
@@ -918,8 +918,8 @@ exports.updateTeamWishlist = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error updating wishlist:", error);
-    console.error("❌ Stack trace:", error.stack);
+    console.error("Error updating wishlist:", error);
+    console.error("Stack trace:", error.stack);
     res.status(500).json({
       success: false,
       message: 'Server error while updating wishlist.',

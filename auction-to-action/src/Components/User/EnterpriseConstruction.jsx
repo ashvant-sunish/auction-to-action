@@ -1,15 +1,44 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import SlidingAnimation from "./Construction/SlidingAnimation";
 import SlidingAnimationProduct from "./Construction/SlidingAnimationProduct";
 import SubmitButton from "./Construction/SubmitButton";
 import serverUrl from "./../../servercon";
+import { AvailableMaterialsTable } from "./DashboardContent";
+import { Box } from "@chakra-ui/react";
 
 const EnterpriseConstruction = ({ gameState }) => {
   const [notification, setNotification] = useState("");
   const [activeTab, setActiveTab] = useState("enterprises");
+  const [resources, setResources] = useState({});
   const slidingAnimationRef = useRef();
   const slidingAnimationProductRef = useRef();
+
+  const fetchTeamInventory = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch(
+        `${serverUrl}/api/construction/inventory`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const inventoryData = await response.json();
+        setResources(inventoryData.resources || {});
+      }
+    } catch (error) {
+      console.error("Error fetching team inventory:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTeamInventory();
+  }, []);
 
   const handleConstruct = async () => {
     const activeRef =
@@ -70,6 +99,7 @@ const EnterpriseConstruction = ({ gameState }) => {
         if (activeRef.current?.refreshComponent) {
           activeRef.current.refreshComponent();
         }
+        fetchTeamInventory();
       }
     } catch (error) {
       console.error("Construction error:", error);
@@ -213,6 +243,14 @@ const EnterpriseConstruction = ({ gameState }) => {
               : "Purchase Product"
           }
         />
+        
+        <Box mt={8}>
+          <AvailableMaterialsTable 
+            resources={resources} 
+            isFullScreen={false} 
+            toggleFullScreen={() => {}} 
+          />
+        </Box>
       </div>
     </div>
   );

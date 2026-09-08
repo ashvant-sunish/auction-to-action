@@ -31,7 +31,7 @@ import { io } from "socket.io-client";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { PiConfettiBold } from "react-icons/pi";
 
-const AvailableMaterialsTable = ({
+export const AvailableMaterialsTable = ({
   resources,
   isFullScreen,
   toggleFullScreen,

@@ -47,9 +47,9 @@ const seedDatabase = async () => {
     await Team.insertMany(teamsToCreate);
     console.log(`🌱 Seeded ${teamsToCreate.length} teams.`);
 
-    console.log('✅ Seeding complete!');
+    console.log('Seeding complete!');
   } catch (error) {
-    console.error('❌ Error during seeding:', error);
+    console.error('Error during seeding:', error);
   } finally {
     await mongoose.connection.close();
     console.log('🔌 MongoDB connection closed.');

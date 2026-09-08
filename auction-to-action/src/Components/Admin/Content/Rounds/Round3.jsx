@@ -24,7 +24,7 @@ import {
   AlertDescription,
 } from "@chakra-ui/react";
 import axios from "axios";
-import serverUrl from './../../../../servercon';
+import serverUrl from "./../../../../servercon";
 
 // Function to generate MongoDB-style ObjectId
 const generateObjectId = () => {
@@ -41,12 +41,15 @@ function Round3() {
     teamOne: { teamCode: "", teamName: "", teamNumber: "" },
     teamTwo: { teamCode: "", teamName: "", teamNumber: "" },
     teamOneGives: { items: [], money: 0 },
-    teamTwoGives: { items: [], money: 0 }
+    teamTwoGives: { items: [], money: 0 },
   });
   const [loading, setLoading] = useState(false);
   const [teamOneItems, setTeamOneItems] = useState([{ name: "", quantity: 1 }]);
   const [teamTwoItems, setTeamTwoItems] = useState([{ name: "", quantity: 1 }]);
-  const [teamCodeLoading, setTeamCodeLoading] = useState({ teamOne: false, teamTwo: false });
+  const [teamCodeLoading, setTeamCodeLoading] = useState({
+    teamOne: false,
+    teamTwo: false,
+  });
   const toast = useToast();
 
   // Common resource types for dropdown
@@ -67,12 +70,14 @@ function Round3() {
   const fetchTeamByCode = async (teamCode, teamType) => {
     if (!teamCode || teamCode.length < 3) return; // Only fetch for valid team codes
 
+
     // Check if the same team code is already used by the other team
-    const otherTeamType = teamType === 'teamOne' ? 'teamTwo' : 'teamOne';
+    const otherTeamType = teamType === "teamOne" ? "teamTwo" : "teamOne";
     if (formData[otherTeamType].teamCode === teamCode.toUpperCase()) {
       toast({
         title: "Duplicate Team Code",
-        description: "This team code is already used by the other team. Please enter a different code.",
+        description:
+          "This team code is already used by the other team. Please enter a different code.",
         status: "error",
         duration: 4000,
         isClosable: true,
@@ -80,11 +85,12 @@ function Round3() {
       return;
     }
 
+
     try {
       setTeamCodeLoading(prev => ({ ...prev, [teamType]: true }));
 
       // Get admin token
-      const adminToken = localStorage.getItem('adminToken');
+      const adminToken = localStorage.getItem("adminToken");
       if (!adminToken) {
         toast({
           title: "Authorization Error",
@@ -101,10 +107,10 @@ function Round3() {
         `${serverUrl}/api/admin/teams?teamCode=${teamCode}`,
         {
           headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
 
       if (response.data && response.data.length > 0) {
@@ -115,14 +121,14 @@ function Round3() {
           newFormData[teamType] = {
             teamCode: teamData.teamCode,
             teamName: teamData.teamName,
-            teamNumber: teamData.teamNumber || teamData._id
+            teamNumber: teamData.teamNumber || teamData._id,
           };
           return newFormData;
         });
 
         toast({
           title: "Team Found",
-          description: `${teamData.teamName} loaded for ${teamType === 'teamOne' ? 'Team 1' : 'Team 2'}`,
+          description: `${teamData.teamName} loaded for ${teamType === "teamOne" ? "Team 1" : "Team 2"}`,
           status: "success",
           duration: 2000,
           isClosable: true,
@@ -136,13 +142,14 @@ function Round3() {
           isClosable: true,
         });
 
+
         // Clear team name if team not found
-        setFormData(prev => {
+        setFormData((prev) => {
           const newFormData = { ...prev };
           newFormData[teamType] = {
             ...newFormData[teamType],
             teamName: "",
-            teamNumber: ""
+            teamNumber: "",
           };
           return newFormData;
         });
@@ -157,15 +164,16 @@ function Round3() {
         isClosable: true,
       });
     } finally {
-      setTeamCodeLoading(prev => ({ ...prev, [teamType]: false }));
+      setTeamCodeLoading((prev) => ({ ...prev, [teamType]: false }));
     }
   };
   // Handle team code changes (no auto-fetch)
   const handleTeamCodeChange = (teamType, value) => {
     const upperValue = value.toUpperCase();
 
+
     // Check for duplicate team codes
-    const otherTeamType = teamType === 'teamOne' ? 'teamTwo' : 'teamOne';
+    const otherTeamType = teamType === "teamOne" ? "teamTwo" : "teamOne";
     if (upperValue && formData[otherTeamType].teamCode === upperValue) {
       toast({
         title: "Duplicate Team Code",
@@ -176,15 +184,16 @@ function Round3() {
       });
     }
 
+
     // Update form data immediately
-    setFormData(prev => {
+    setFormData((prev) => {
       const newFormData = { ...prev };
       newFormData[teamType] = {
         ...newFormData[teamType],
         teamCode: upperValue,
         // Clear team name and number when code changes
         teamName: "",
-        teamNumber: ""
+        teamNumber: "",
       };
       return newFormData;
     });
@@ -199,7 +208,7 @@ function Round3() {
 
   // Handle Enter key press on team code input
   const handleTeamCodeKeyPress = (e, teamType, value) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (value.trim().length >= 3) {
         fetchTeamByCode(value.trim().toUpperCase(), teamType);
@@ -209,19 +218,19 @@ function Round3() {
 
   // Handle input changes for basic form fields
   const handleInputChange = (field, value) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setFormData(prev => ({
+    if (field.includes(".")) {
+      const [parent, child] = field.split(".");
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent],
-          [child]: value
-        }
+          [child]: value,
+        },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: value
+        [field]: value,
       }));
     }
   };
@@ -232,6 +241,7 @@ function Round3() {
     newItems[index][field] = value;
     setTeamOneItems(newItems);
 
+
     // Update form data - only include items with both name and quantity > 0
     const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
 
@@ -239,8 +249,8 @@ function Round3() {
       ...prev,
       teamOneGives: {
         ...prev.teamOneGives,
-        items: validItems
-      }
+        items: validItems,
+      },
     }));
   };
 
@@ -250,6 +260,7 @@ function Round3() {
     newItems[index][field] = value;
     setTeamTwoItems(newItems);
 
+
     // Update form data - only include items with both name and quantity > 0
     const validItems = newItems.filter(item => item.name && item.name.trim() !== '' && item.quantity > 0);
 
@@ -257,8 +268,8 @@ function Round3() {
       ...prev,
       teamTwoGives: {
         ...prev.teamTwoGives,
-        items: validItems
-      }
+        items: validItems,
+      },
     }));
   };
 
@@ -283,8 +294,8 @@ function Round3() {
         ...prev,
         teamOneGives: {
           ...prev.teamOneGives,
-          items: validItems
-        }
+          items: validItems,
+        },
       }));
     }
   };
@@ -299,20 +310,20 @@ function Round3() {
         ...prev,
         teamTwoGives: {
           ...prev.teamTwoGives,
-          items: validItems
-        }
+          items: validItems,
+        },
       }));
     }
   };
 
   // Handle money input changes
   const handleMoneyChange = (team, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [`${team}Gives`]: {
         ...prev[`${team}Gives`],
-        money: parseInt(value) || 0
-      }
+        money: parseInt(value) || 0,
+      },
     }));
   };
 
@@ -326,14 +337,14 @@ function Round3() {
           `${serverUrl}/api/admin/update-team-wishlist`,
           {
             teamCode: tradeData.teamOne.teamCode,
-            itemsToRemove: tradeData.teamOneGives.items
+            itemsToRemove: tradeData.teamOneGives.items,
           },
           {
             headers: {
-              'Authorization': `Bearer ${adminToken}`,
-              'Content-Type': 'application/json'
-            }
-          }
+              Authorization: `Bearer ${adminToken}`,
+              "Content-Type": "application/json",
+            },
+          },
         );
       }
 
@@ -343,22 +354,23 @@ function Round3() {
           `${serverUrl}/api/admin/update-team-wishlist`,
           {
             teamCode: tradeData.teamTwo.teamCode,
-            itemsToRemove: tradeData.teamTwoGives.items
+            itemsToRemove: tradeData.teamTwoGives.items,
           },
           {
             headers: {
-              'Authorization': `Bearer ${adminToken}`,
-              'Content-Type': 'application/json'
-            }
-          }
+              Authorization: `Bearer ${adminToken}`,
+              "Content-Type": "application/json",
+            },
+          },
         );
       }
 
     } catch (error) {
-      console.error('❌ Error updating wishlists:', error);
+      console.error("Error updating wishlists:", error);
       toast({
         title: "Wishlist Update Warning",
-        description: "Trade completed but wishlist update failed. Please refresh manually.",
+        description:
+          "Trade completed but wishlist update failed. Please refresh manually.",
         status: "warning",
         duration: 4000,
         isClosable: true,
@@ -387,7 +399,8 @@ function Round3() {
       if (!formData.teamOne.teamName || !formData.teamTwo.teamName) {
         toast({
           title: "Validation Error",
-          description: "Please ensure both team codes are valid and team names are loaded",
+          description:
+            "Please ensure both team codes are valid and team names are loaded",
           status: "error",
           duration: 4000,
           isClosable: true,
@@ -396,7 +409,7 @@ function Round3() {
       }
 
       // Get admin token
-      const adminToken = localStorage.getItem('adminToken');
+      const adminToken = localStorage.getItem("adminToken");
       if (!adminToken) {
         toast({
           title: "Authorization Error",
@@ -417,12 +430,12 @@ function Round3() {
         ...formData,
         teamOneGives: {
           ...formData.teamOneGives,
-          items: finalTeamOneItems
+          items: finalTeamOneItems,
         },
         teamTwoGives: {
           ...formData.teamTwoGives,
-          items: finalTeamTwoItems
-        }
+          items: finalTeamTwoItems,
+        },
       };
 
       // Prepare trade data in the expected format
@@ -431,21 +444,22 @@ function Round3() {
         round: 3, // Add round number for Round 3 trades
         teamOne: {
           teamCode: updatedFormData.teamOne.teamCode,
-          teamName: updatedFormData.teamOne.teamName
+          teamName: updatedFormData.teamOne.teamName,
         },
         teamTwo: {
           teamCode: updatedFormData.teamTwo.teamCode,
-          teamName: updatedFormData.teamTwo.teamName
+          teamName: updatedFormData.teamTwo.teamName,
         },
         teamOneGives: {
           items: updatedFormData.teamOneGives.items || [],
-          money: updatedFormData.teamOneGives.money || 0
+          money: updatedFormData.teamOneGives.money || 0,
         },
         teamTwoGives: {
           items: updatedFormData.teamTwoGives.items || [],
-          money: updatedFormData.teamTwoGives.money || 0
+          money: updatedFormData.teamTwoGives.money || 0,
         },
-        executedBy: JSON.parse(localStorage.getItem('adminUser'))?.username || 'Admin'
+        executedBy:
+          JSON.parse(localStorage.getItem("adminUser"))?.username || "Admin",
       };
 
       // Execute trade via API
@@ -454,10 +468,10 @@ function Round3() {
         tradeData,
         {
           headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
 
       if (response.data.success) {
@@ -478,17 +492,18 @@ function Round3() {
           teamOne: { teamCode: "", teamName: "", teamNumber: "" },
           teamTwo: { teamCode: "", teamName: "", teamNumber: "" },
           teamOneGives: { items: [], money: 0 },
-          teamTwoGives: { items: [], money: 0 }
+          teamTwoGives: { items: [], money: 0 },
         });
         setTeamOneItems([{ name: "", quantity: 1 }]);
         setTeamTwoItems([{ name: "", quantity: 1 }]);
       }
-
     } catch (error) {
       console.error("Error executing trade:", error);
       toast({
         title: "Trade Execution Failed",
-        description: error.response?.data?.message || "An error occurred while executing the trade",
+        description:
+          error.response?.data?.message ||
+          "An error occurred while executing the trade",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -535,7 +550,9 @@ function Round3() {
           {/* Top Level Fields */}
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
             <FormControl id="trading-id">
-              <FormLabel color={textColor}>Trading ID (Auto-generated)</FormLabel>
+              <FormLabel color={textColor}>
+                Trading ID (Auto-generated)
+              </FormLabel>
               <Flex gap={2}>
                 <Input
                   placeholder="Auto-generated Trade ID"
@@ -552,7 +569,12 @@ function Round3() {
                 <Button
                   size="sm"
                   colorScheme="green"
-                  onClick={() => setFormData(prev => ({ ...prev, tradeId: generateObjectId() }))}
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      tradeId: generateObjectId(),
+                    }))
+                  }
                   minW="70px"
                   title="Generate new Trade ID"
                 >
@@ -569,9 +591,13 @@ function Round3() {
                   borderColor={borderColor}
                   color={textColor}
                   value={formData.teamOne.teamCode}
-                  onChange={(e) => handleTeamCodeChange('teamOne', e.target.value)}
-                  onBlur={(e) => handleTeamCodeBlur('teamOne', e.target.value)}
-                  onKeyPress={(e) => handleTeamCodeKeyPress(e, 'teamOne', e.target.value)}
+                  onChange={(e) =>
+                    handleTeamCodeChange("teamOne", e.target.value)
+                  }
+                  onBlur={(e) => handleTeamCodeBlur("teamOne", e.target.value)}
+                  onKeyPress={(e) =>
+                    handleTeamCodeKeyPress(e, "teamOne", e.target.value)
+                  }
                   _placeholder={{ color: "gray.400" }}
                   isDisabled={teamCodeLoading.teamOne}
                   flex={1}
@@ -579,9 +605,14 @@ function Round3() {
                 <Button
                   size="sm"
                   colorScheme="blue"
-                  onClick={() => fetchTeamByCode(formData.teamOne.teamCode, 'teamOne')}
+                  onClick={() =>
+                    fetchTeamByCode(formData.teamOne.teamCode, "teamOne")
+                  }
                   isLoading={teamCodeLoading.teamOne}
-                  isDisabled={!formData.teamOne.teamCode || formData.teamOne.teamCode.length < 3}
+                  isDisabled={
+                    !formData.teamOne.teamCode ||
+                    formData.teamOne.teamCode.length < 3
+                  }
                   minW="60px"
                 >
                   Get
@@ -602,9 +633,13 @@ function Round3() {
                   borderColor={borderColor}
                   color={textColor}
                   value={formData.teamTwo.teamCode}
-                  onChange={(e) => handleTeamCodeChange('teamTwo', e.target.value)}
-                  onBlur={(e) => handleTeamCodeBlur('teamTwo', e.target.value)}
-                  onKeyPress={(e) => handleTeamCodeKeyPress(e, 'teamTwo', e.target.value)}
+                  onChange={(e) =>
+                    handleTeamCodeChange("teamTwo", e.target.value)
+                  }
+                  onBlur={(e) => handleTeamCodeBlur("teamTwo", e.target.value)}
+                  onKeyPress={(e) =>
+                    handleTeamCodeKeyPress(e, "teamTwo", e.target.value)
+                  }
                   _placeholder={{ color: "gray.400" }}
                   isDisabled={teamCodeLoading.teamTwo}
                   flex={1}
@@ -612,9 +647,14 @@ function Round3() {
                 <Button
                   size="sm"
                   colorScheme="blue"
-                  onClick={() => fetchTeamByCode(formData.teamTwo.teamCode, 'teamTwo')}
+                  onClick={() =>
+                    fetchTeamByCode(formData.teamTwo.teamCode, "teamTwo")
+                  }
                   isLoading={teamCodeLoading.teamTwo}
-                  isDisabled={!formData.teamTwo.teamCode || formData.teamTwo.teamCode.length < 3}
+                  isDisabled={
+                    !formData.teamTwo.teamCode ||
+                    formData.teamTwo.teamCode.length < 3
+                  }
                   minW="60px"
                 >
                   Get
@@ -680,7 +720,9 @@ function Round3() {
                         borderColor={borderColor}
                         color={textColor}
                         value={item.name}
-                        onChange={(e) => handleTeamOneItemChange(index, 'name', e.target.value)}
+                        onChange={(e) =>
+                          handleTeamOneItemChange(index, "name", e.target.value)
+                        }
                         flex={2}
                       >
                         {resourceTypes.map((resource) => (
@@ -691,7 +733,13 @@ function Round3() {
                       </Select>
                       <NumberInput
                         value={item.quantity}
-                        onChange={(value) => handleTeamOneItemChange(index, 'quantity', parseInt(value) || 1)}
+                        onChange={(value) =>
+                          handleTeamOneItemChange(
+                            index,
+                            "quantity",
+                            parseInt(value) || 1,
+                          )
+                        }
                         min={1}
                         flex={1}
                         bg={inputBgColor}
@@ -725,7 +773,7 @@ function Round3() {
                     <FormLabel color={textColor}>Money Amount:</FormLabel>
                     <NumberInput
                       value={formData.teamOneGives.money}
-                      onChange={(value) => handleMoneyChange('teamOne', value)}
+                      onChange={(value) => handleMoneyChange("teamOne", value)}
                       min={0}
                       bg={inputBgColor}
                       borderColor={borderColor}
@@ -754,7 +802,9 @@ function Round3() {
                         borderColor={borderColor}
                         color={textColor}
                         value={item.name}
-                        onChange={(e) => handleTeamTwoItemChange(index, 'name', e.target.value)}
+                        onChange={(e) =>
+                          handleTeamTwoItemChange(index, "name", e.target.value)
+                        }
                         flex={2}
                       >
                         {resourceTypes.map((resource) => (
@@ -765,7 +815,13 @@ function Round3() {
                       </Select>
                       <NumberInput
                         value={item.quantity}
-                        onChange={(value) => handleTeamTwoItemChange(index, 'quantity', parseInt(value) || 1)}
+                        onChange={(value) =>
+                          handleTeamTwoItemChange(
+                            index,
+                            "quantity",
+                            parseInt(value) || 1,
+                          )
+                        }
                         min={1}
                         flex={1}
                         bg={inputBgColor}
@@ -799,7 +855,7 @@ function Round3() {
                     <FormLabel color={textColor}>Money Amount:</FormLabel>
                     <NumberInput
                       value={formData.teamTwoGives.money}
-                      onChange={(value) => handleMoneyChange('teamTwo', value)}
+                      onChange={(value) => handleMoneyChange("teamTwo", value)}
                       min={0}
                       bg={inputBgColor}
                       borderColor={borderColor}

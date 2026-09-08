@@ -1,5 +1,6 @@
 const Team = require('../models/Team');
 const jwt = require('jsonwebtoken');
+const { sendTargetedNotification } = require('../utils/notificationHelper');
 
 // Helper function to parse requirements from string format
 const parseRequirements = (requirements) => {
@@ -90,6 +91,16 @@ const constructEnterprise = async (req, res) => {
         teamName: team.teamName,
         enterprise: { id: enterpriseId, title, worth }
       });
+
+      // Target notification to the specific team
+      await sendTargetedNotification(io, {
+        teamCode: team.teamCode,
+        teamName: team.teamName,
+        title: 'Enterprise Constructed!',
+        message: `Successfully constructed "${title}" worth ₹${parseInt(worth).toLocaleString()}.`,
+        type: 'enterprise_constructed',
+        data: { enterpriseId, title, worth }
+      });
     }
 
     res.json({
@@ -169,6 +180,16 @@ const purchaseProduct = async (req, res) => {
         teamCode: team.teamCode,
         teamName: team.teamName,
         product: { id: productId, title, worth }
+      });
+
+      // Target notification to the specific team
+      await sendTargetedNotification(io, {
+        teamCode: team.teamCode,
+        teamName: team.teamName,
+        title: 'Product Formed!',
+        message: `Successfully formed "${title}" worth ₹${parseInt(worth).toLocaleString()}.`,
+        type: 'product_purchased',
+        data: { productId, title, worth }
       });
     }
 
