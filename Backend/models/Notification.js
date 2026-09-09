@@ -28,7 +28,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['BID_WON', 'MYSTERY_BOX', 'TRADE_COMPLETED', 'RESOURCE_UPDATE', 'ADMIN_ACTION'],
+    enum: ['BID_WON', 'MYSTERY_BOX', 'TRADE_COMPLETED', 'RESOURCE_UPDATE', 'ADMIN_ACTION', 'ENTERPRISE_CONSTRUCTED', 'PRODUCT_FORMED'],
     default: 'ADMIN_ACTION'
   },
   data: {
