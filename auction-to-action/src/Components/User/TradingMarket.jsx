@@ -173,6 +173,11 @@ const TradingMarket = () => {
       }, 2000);
     }
 
+    // Poll for updates every 5 minutes (300000 ms)
+    let pollingInterval = setInterval(() => {
+      fetchTeamsData(true);
+    }, 5 * 60 * 1000);
+
     return () => {
       const socket = socketService.getSocket();
       if (socket) {
@@ -182,6 +187,11 @@ const TradingMarket = () => {
         socket.off("teamDataUpdated", handleTeamDataUpdated);
         socket.off("forceWishlistReload", handleForceWishlistReload);
         socket.off("tradeExecuted", handleTradeExecuted);
+      }
+
+      // Clear polling interval on unmount
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
       }
     };
   }, []);
@@ -366,7 +376,7 @@ const TradingMarket = () => {
             lg: "repeat(3, 1fr)",
           }}
           gap={6}
-          rowGap={14}
+          rowGap={12}
           alignItems="start"
           gridAutoFlow="dense"
           gridAutoRows="max-content"
@@ -387,6 +397,7 @@ const TradingMarket = () => {
                 alignSelf="start"
                 gridRow={visibleDetails.has(team._id) ? "span 2" : "span 1"}
                 overflow={visibleDetails.has(team._id) ? "auto" : "visible"}
+                minH={visibleDetails.has(team._id) ? "250px" : "100px"}
                 maxH={visibleDetails.has(team._id) ? "250px" : "200px"}
                 css={{
                   scrollbarWidth: "thin",
