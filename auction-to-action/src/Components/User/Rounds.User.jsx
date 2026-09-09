@@ -17,6 +17,8 @@ const colors = {
 };
 
 function RoundsUser({ gameState }) {
+  const isRoundOne = gameState === 1;
+
   const renderRoundContent = () => {
     switch (gameState) {
       case 1: // Round 1 ongoing
@@ -65,8 +67,19 @@ function RoundsUser({ gameState }) {
   };
 
   return (
-    <Box bg="transparent" minH="100vh" p={4}>
-      <Box p={4} mt={2} borderRadius="xl" width="100%">
+    <Box
+      bg="transparent"
+      h={isRoundOne ? "100%" : undefined}
+      minH={isRoundOne ? 0 : "100vh"}
+      p={isRoundOne ? 0 : 4}
+    >
+      <Box
+        h={isRoundOne ? "100%" : undefined}
+        p={isRoundOne ? 0 : 4}
+        mt={isRoundOne ? 0 : 2}
+        borderRadius="xl"
+        width="100%"
+      >
         {renderRoundContent()}
       </Box>
     </Box>

@@ -51,7 +51,7 @@ function injectStyles() {
     .csh2-stage {
       width: 100%;
       height: 100%;
-      min-height: calc(100vh - 120px);
+      min-height: 600px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -565,7 +565,7 @@ export default function Spin3DCards({
   const speedRef = useRef(initialSpeed);
   const prefersReducedMotion = useRef(
     typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
 
   // ── fetchGameItems (unchanged) ──────────────────────────────────────────────
@@ -658,7 +658,7 @@ export default function Spin3DCards({
             const bidNum =
               parseInt(
                 wheelState.selectedBid.bidNo ||
-                wheelState.selectedBid.bidNumber,
+                  wheelState.selectedBid.bidNumber,
                 10,
               ) || 0;
             selectedIndexRef.current = bidNum % 2 !== 0 ? 1 : 0;
@@ -678,7 +678,7 @@ export default function Spin3DCards({
             const bidNum =
               parseInt(
                 wheelState.selectedBid.bidNo ||
-                wheelState.selectedBid.bidNumber,
+                  wheelState.selectedBid.bidNumber,
                 10,
               ) || 0;
             selectedIndexRef.current = bidNum % 2 !== 0 ? 1 : 0;
@@ -1274,16 +1274,16 @@ export default function Spin3DCards({
   const deckItems =
     availableItems.length > 0
       ? Array.from(
-        { length: Math.min(VISUAL_DECK, availableItems.length) },
-        (_, i) => availableItems[i],
-      )
+          { length: Math.min(VISUAL_DECK, availableItems.length) },
+          (_, i) => availableItems[i],
+        )
       : Array.from({ length: VISUAL_DECK }, (_, i) => ({
-        id: `placeholder-${i}`,
-        bidNo: i + 1,
-        title: "–",
-        basePrice: 0,
-        resources: {},
-      }));
+          id: `placeholder-${i}`,
+          bidNo: i + 1,
+          title: "–",
+          basePrice: 0,
+          resources: {},
+        }));
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -1349,7 +1349,7 @@ export default function Spin3DCards({
           <div
             className="csh2-deck-root"
             ref={deckRootRef}
-            style={{ transform: "translateY(30px) rotateX(-8deg) scale(1.25)" }}
+            style={{ transform: "translateY(30px) rotateX(-8deg) scale(0.85)" }}
           >
             {deckItems.map((item, i) => {
               const isSelectedCard = i === selectedIndexRef.current;
