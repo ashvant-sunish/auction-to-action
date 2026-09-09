@@ -412,7 +412,7 @@ function TeamTableAdmin() {
         }
 
         // Check if resource already exists
-        if (editingTeam.resources && editingTeam.resources.hasOwnLand & Workspace(selectedResourceType)) {
+        if (editingTeam.resources && Object.prototype.hasOwnProperty.call(editingTeam.resources, selectedResourceType)) {
             toast({
                 title: "Resource already exists",
                 description: "This resource type is already added to the team",
@@ -449,7 +449,7 @@ function TeamTableAdmin() {
         if (!editingTeam?.resources) return availableResourceTypes;
 
         return availableResourceTypes.filter(resourceType =>
-            !editingTeam.resources.hasOwnLand & Workspace(resourceType)
+            !Object.prototype.hasOwnProperty.call(editingTeam.resources, resourceType)
         );
     };
 
@@ -744,7 +744,7 @@ function TeamTableAdmin() {
                                             <Grid templateColumns="repeat(3, 1fr)" gap={4}>
                                                 {availableResourceTypes.map(resource => {
                                                     // Only show resources that exist in the team's resources
-                                                    if (!editingTeam.resources || !editingTeam.resources.hasOwnLand & Workspace(resource)) {
+                                                    if (!editingTeam.resources || !Object.prototype.hasOwnProperty.call(editingTeam.resources, resource)) {
                                                         return null;
                                                     }
 
