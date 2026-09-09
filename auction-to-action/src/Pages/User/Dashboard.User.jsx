@@ -157,6 +157,18 @@ function UserDashboard() {
       });
     });
 
+    // Globally listen to wheel updates to clear cached card states
+    // so if user is on another page during a spin/skip, they get fresh data when returning
+    const handleClearWheelState = (data) => {
+      if (data && data.round) {
+        localStorage.removeItem(`wheel_state_round_${data.round}`);
+      }
+    };
+
+    socketService.onWheelUpdate(handleClearWheelState);
+    socketService.onWheelConfirmation(handleClearWheelState);
+    socketService.onWheelSkip(handleClearWheelState);
+
     socketService.onDatabaseUpdate((data) => {
       toast({
         title: "System update",

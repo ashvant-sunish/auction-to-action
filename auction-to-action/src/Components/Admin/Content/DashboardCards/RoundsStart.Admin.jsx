@@ -109,15 +109,8 @@ function RoundsStartAdmin({ ongoingRound }) {
   const handleEndRound = (currentState) => {
     const nextState = currentState + 1;
     // State will update automatically via useRoundManager hook when database changes
+    // State will update automatically via useRoundManager hook when database changes
     roundNumber(nextState);
-
-    // Auto-reset to state 0 after Round 3 ends (state 6)
-    if (nextState === 6) {
-      setTimeout(() => {
-        // State will update automatically via useRoundManager hook when database changes
-        roundNumber(0);
-      }, 0); // Reset immediately
-    }
   };
 
   const handlePauseResume = async (action) => {
@@ -190,7 +183,7 @@ function RoundsStartAdmin({ ongoingRound }) {
               Round One
             </Box>
             <Box>
-              {ongoingRound === 0 ? (
+              {(ongoingRound === 0 || ongoingRound === 6) ? (
                 <Button
                   onClick={() => handleStartRound(1)}
                   colorScheme="green"
