@@ -98,7 +98,8 @@ const constructEnterprise = async (req, res) => {
         teamName: team.teamName,
         title: 'Enterprise Constructed!',
         message: `Successfully constructed "${title}" worth ₹${parseInt(worth).toLocaleString()}.`,
-        type: 'enterprise_constructed',
+        round: 3,
+        type: 'ENTERPRISE_CONSTRUCTED',
         data: { enterpriseId, title, worth }
       });
     }
@@ -188,7 +189,8 @@ const purchaseProduct = async (req, res) => {
         teamName: team.teamName,
         title: 'Product Formed!',
         message: `Successfully formed "${title}" worth ₹${parseInt(worth).toLocaleString()}.`,
-        type: 'product_purchased',
+        round: 3,
+        type: 'PRODUCT_FORMED',
         data: { productId, title, worth }
       });
     }

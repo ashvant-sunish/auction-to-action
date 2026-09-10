@@ -72,6 +72,27 @@ class SocketService {
     }
   }
 
+  // Listen for wheel updates
+  onWheelUpdate(callback) {
+    if (this.socket) {
+      this.socket.on('wheelUpdate', callback);
+    }
+  }
+
+  // Listen for wheel confirmation
+  onWheelConfirmation(callback) {
+    if (this.socket) {
+      this.socket.on('wheelConfirmation', callback);
+    }
+  }
+
+  // Listen for wheel skip
+  onWheelSkip(callback) {
+    if (this.socket) {
+      this.socket.on('wheelSkip', callback);
+    }
+  }
+
   // Listen for database updates
   onDatabaseUpdate(callback) {
     if (this.socket) {

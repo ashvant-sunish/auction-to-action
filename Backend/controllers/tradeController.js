@@ -341,14 +341,14 @@ const executeTrade = async (req, res) => {
       const gaveTeam1 = formatTradeTransfer(teamOneGives);
       const receivedTeam1 = formatTradeTransfer(teamTwoGives);
 
-      const notifTeam1 = `Trade Completed 🤝\nYour trade with ${team2.teamName} was successful.\nYou gave: ${gaveTeam1}\nYou received: ${receivedTeam1}\nYour inventory and balance have been updated.`;
-      const notifTeam2 = `Trade Completed 🤝\nYour trade with ${team1.teamName} was successful.\nYou gave: ${receivedTeam1}\nYou received: ${gaveTeam1}\nYour inventory and balance have been updated.`;
+      const notifTeam1 = `Trade Completed\nYour trade with ${team2.teamName} was successful.\nYou gave: ${gaveTeam1}\nYou received: ${receivedTeam1}\nYour inventory and balance have been updated.`;
+      const notifTeam2 = `Trade Completed\nYour trade with ${team1.teamName} was successful.\nYou gave: ${receivedTeam1}\nYou received: ${gaveTeam1}\nYour inventory and balance have been updated.`;
 
       // Target Team 1 strictly
       await sendTargetedNotification(io, {
         teamCode: team1.teamCode,
         teamName: team1.teamName,
-        title: 'Trade Completed 🤝',
+        title: 'Trade Completed',
         message: notifTeam1,
         round: 3,
         type: 'TRADE_COMPLETED',
@@ -365,7 +365,7 @@ const executeTrade = async (req, res) => {
       await sendTargetedNotification(io, {
         teamCode: team2.teamCode,
         teamName: team2.teamName,
-        title: 'Trade Completed 🤝',
+        title: 'Trade Completed',
         message: notifTeam2,
         round: 3,
         type: 'TRADE_COMPLETED',

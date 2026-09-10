@@ -369,13 +369,13 @@ const TradingWishlistTable = () => {
       <VStack spacing={6} align="stretch">
         {/* Header Card */}
         <Box
-          bg="rgba(15, 59, 61, 0.5)"
+          bg="theme.surface"
           backdropFilter="blur(10px)"
           p={6}
           borderRadius="xl"
           shadow="lg"
           border="1px solid"
-          borderColor="rgba(255, 255, 255, 0.2)"
+          borderColor="theme.outline"
           color="white"
         >
           <HStack justify="space-between" align="center">
@@ -414,13 +414,13 @@ const TradingWishlistTable = () => {
         {/* Current Wishlist Display */}
         {currentWishlist.length > 0 && (
           <Box
-            bg="rgba(15, 59, 61, 0.5)"
+            bg="theme.surface"
             backdropFilter="blur(10px)"
             p={6}
             borderRadius="xl"
             shadow="lg"
             border="1px solid"
-            borderColor="rgba(255, 255, 255, 0.2)"
+            borderColor="theme.outline"
             color="white"
           >
             <HStack justify="space-between" mb={4}>
@@ -473,13 +473,13 @@ const TradingWishlistTable = () => {
 
         {/* Inventory Overview */}
         <Box
-          bg="rgba(15, 59, 61, 0.5)"
+          bg="theme.surface"
           backdropFilter="blur(10px)"
           p={6}
           borderRadius="xl"
           shadow="lg"
           border="1px solid"
-          borderColor="rgba(255, 255, 255, 0.2)"
+          borderColor="theme.outline"
           color="white"
           display="flex"
           flexDirection="column"
@@ -648,7 +648,7 @@ const TradingWishlistTable = () => {
                   <Thead
                     position="sticky"
                     top={0}
-                    bg="rgba(15, 59, 61, 0.9)"
+                    bg="theme.surfaceContainer"
                     zIndex={1}
                   >
                     <Tr>
@@ -870,10 +870,10 @@ const TradingWishlistTable = () => {
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay bg="blackAlpha.800" backdropFilter="blur(10px)" />
         <ModalContent
-          bg="rgba(15, 59, 61, 0.95)"
+          bg="theme.surface"
           backdropFilter="blur(20px)"
           border="1px solid"
-          borderColor="rgba(255, 255, 255, 0.3)"
+          borderColor="theme.outline"
           color="white"
         >
           <ModalHeader color="white">Items Added to Wishlist!</ModalHeader>

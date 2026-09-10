@@ -283,8 +283,8 @@ exports.executeTrade = async (req, res) => {
     await sendTargetedNotification(io, {
       teamCode: teamA.teamCode,
       teamName: teamA.teamName,
-      title: 'Trade Completed 🤝',
-      message: `Trade Completed 🤝\nYour trade with ${teamB.teamName} was successful.\nYou gave: ${gaveTeamA}\nYou received: ${receivedTeamA}\nYour inventory and balance have been updated.`,
+      title: 'Trade Completed',
+      message: `Trade Completed\nYour trade with ${teamB.teamName} was successful.\nYou gave: ${gaveTeamA}\nYou received: ${receivedTeamA}\nYour inventory and balance have been updated.`,
       round: 3,
       type: 'TRADE_COMPLETED',
       data: { tradeDetails }
@@ -293,8 +293,8 @@ exports.executeTrade = async (req, res) => {
     await sendTargetedNotification(io, {
       teamCode: teamB.teamCode,
       teamName: teamB.teamName,
-      title: 'Trade Completed 🤝',
-      message: `Trade Completed 🤝\nYour trade with ${teamA.teamName} was successful.\nYou gave: ${receivedTeamA}\nYou received: ${gaveTeamA}\nYour inventory and balance have been updated.`,
+      title: 'Trade Completed',
+      message: `Trade Completed\nYour trade with ${teamA.teamName} was successful.\nYou gave: ${receivedTeamA}\nYou received: ${gaveTeamA}\nYour inventory and balance have been updated.`,
       round: 3,
       type: 'TRADE_COMPLETED',
       data: { tradeDetails }

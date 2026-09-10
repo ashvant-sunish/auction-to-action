@@ -29,7 +29,7 @@ function RoundsUser({ gameState }) {
         );
       case 3: // Round 2 ongoing
         return (
-          <Box borderRadius="full" bg="primary.200">
+          <Box borderRadius="xl" bg="transparent">
             <Round2User />
           </Box>
         );
