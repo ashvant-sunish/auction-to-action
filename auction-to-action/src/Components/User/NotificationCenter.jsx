@@ -52,20 +52,20 @@ const NotificationCenter = ({
               <Tooltip
                 label="Notifications"
                 placement="bottom"
-                bg="gray.800"
-                color="white"
+                bg="theme.surfaceHigh"
+                color="theme.textPrimary"
               >
                 <IconButton
                   icon={<IoNotificationsOutline />}
                   bg="transparent"
-                  color="white"
+                  color="theme.textSecondary"
                   _hover={{
-                    bg: "rgba(255, 255, 255, 0.1)",
-                    color: "#F62440",
+                    bg: "theme.surfaceContainer",
+                    color: "theme.textPrimary",
                     shadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    border: "1px solid var(--outline)",
                   }}
-                  _active={{ bg: "rgba(255, 255, 255, 0.05)" }}
+                  _active={{ bg: "theme.surfaceContainer" }}
                   size="lg"
                   aria-label="Notifications"
                   variant="ghost"
@@ -77,13 +77,13 @@ const NotificationCenter = ({
                   position="absolute"
                   top="-1px"
                   right="-1px"
-                  colorScheme="red"
+                  bg="theme.primary"
+                  color="theme.onPrimary"
                   variant="solid"
                   borderRadius="full"
                   fontSize="0.7rem"
                   px={1.5}
                   py={0.5}
-                  boxShadow="0 0 8px rgba(246, 36, 64, 0.8)"
                 >
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </Badge>
@@ -93,32 +93,34 @@ const NotificationCenter = ({
 
           <Portal>
             <PopoverContent
-              bg="rgba(15, 59, 61, 0.96)"
+              bg="theme.surface"
               backdropFilter="blur(20px)"
-              border="1px solid rgba(255, 255, 255, 0.25)"
+              border="1px solid"
+              borderColor="theme.outline"
               borderRadius="xl"
               boxShadow="0 12px 36px rgba(0, 0, 0, 0.5)"
-              color="white"
+              color="theme.textPrimary"
               w={{ base: "320px", sm: "380px" }}
               maxW="95vw"
               zIndex={99999}
               _focus={{ outline: "none" }}
             >
-              <PopoverArrow bg="rgba(15, 59, 61, 0.96)" />
-              <PopoverCloseButton color="gray.300" size="sm" mt={1} />
+              <PopoverArrow bg="theme.surface" />
+              <PopoverCloseButton color="theme.textSecondary" size="sm" mt={1} />
 
               <PopoverHeader
-                borderBottom="1px solid rgba(255, 255, 255, 0.15)"
+                borderBottom="1px solid"
+                borderColor="theme.outline"
                 py={3}
                 px={4}
               >
                 <Flex justify="space-between" align="center" pr={6}>
                   <HStack spacing={2}>
-                    <Text fontWeight="bold" fontSize="md">
+                    <Text fontWeight="bold" fontSize="md" color="theme.textPrimary">
                       Notifications
                     </Text>
                     {unreadCount > 0 && (
-                      <Badge colorScheme="red" borderRadius="full" px={2}>
+                      <Badge bg="theme.primaryContainer" color="theme.onPrimaryContainer" borderRadius="full" px={2}>
                         {unreadCount} new
                       </Badge>
                     )}
@@ -128,8 +130,8 @@ const NotificationCenter = ({
                     <Button
                       size="xs"
                       variant="ghost"
-                      color="teal.200"
-                      _hover={{ color: "white", bg: "rgba(255, 255, 255, 0.1)" }}
+                      color="theme.primary"
+                      _hover={{ color: "theme.onPrimaryContainer", bg: "theme.primaryContainer" }}
                       onClick={onMarkAllAsRead}
                     >
                       Mark all read
@@ -146,13 +148,13 @@ const NotificationCenter = ({
                   "&::-webkit-scrollbar": { width: "6px" },
                   "&::-webkit-scrollbar-track": { background: "rgba(0, 0, 0, 0.2)" },
                   "&::-webkit-scrollbar-thumb": {
-                    background: "rgba(255, 255, 255, 0.2)",
+                    background: "var(--outline)",
                     borderRadius: "4px",
                   },
                 }}
               >
                 {notifications.length === 0 ? (
-                  <Box py={8} textAlign="center" color="gray.400">
+                  <Box py={8} textAlign="center" color="theme.textMuted">
                     <Text fontSize="sm">No notifications yet</Text>
                   </Box>
                 ) : (
@@ -164,14 +166,14 @@ const NotificationCenter = ({
                           key={notif._id || notif.createdAt}
                           p={3}
                           borderRadius="lg"
-                          bg={isUnread ? "rgba(255, 255, 255, 0.08)" : "rgba(255, 255, 255, 0.02)"}
+                          bg={isUnread ? "theme.surfaceContainer" : "theme.surface"}
                           borderLeft="3px solid"
-                          borderLeftColor={isUnread ? "#E8FF00" : "rgba(255, 255, 255, 0.2)"}
+                          borderLeftColor={isUnread ? "theme.primary" : "theme.outline"}
                           border="1px solid"
-                          borderColor={isUnread ? "rgba(232, 255, 0, 0.2)" : "rgba(255, 255, 255, 0.08)"}
+                          borderColor="theme.outline"
                           transition="all 0.2s"
                           _hover={{
-                            bg: "rgba(255, 255, 255, 0.12)",
+                            bg: "theme.surfaceHigh",
                             cursor: isUnread ? "pointer" : "default",
                           }}
                           onClick={() => {
@@ -184,18 +186,18 @@ const NotificationCenter = ({
                             <Text
                               fontSize="sm"
                               fontWeight="bold"
-                              color={isUnread ? "white" : "gray.300"}
+                              color={isUnread ? "theme.textPrimary" : "theme.textSecondary"}
                             >
                               {notif.title || "Notification"}
                             </Text>
-                            <Text fontSize="xs" color="gray.400">
+                            <Text fontSize="xs" color="theme.textMuted">
                               {formatTimeAgo(notif.createdAt)}
                             </Text>
                           </Flex>
 
                           <Text
                             fontSize="xs"
-                            color={isUnread ? "gray.200" : "gray.400"}
+                            color={isUnread ? "theme.textSecondary" : "theme.textMuted"}
                             whiteSpace="pre-line"
                             lineHeight="tall"
                           >
@@ -204,7 +206,7 @@ const NotificationCenter = ({
 
                           {isUnread && (
                             <Flex justify="flex-end" mt={1}>
-                              <Text fontSize="10px" color="#E8FF00" fontStyle="italic">
+                              <Text fontSize="10px" color="theme.primary" fontStyle="italic">
                                 Click to mark read
                               </Text>
                             </Flex>

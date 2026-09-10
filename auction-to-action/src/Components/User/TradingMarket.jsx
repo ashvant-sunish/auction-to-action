@@ -325,12 +325,12 @@ const TradingMarket = () => {
               icon={<FaSync />}
               aria-label="Refresh trading offers"
               size="md"
-              bg="#F6244080"
+              bg="theme.primary"
               color="white"
               border="1px solid"
-              borderColor="#DE1A58"
+              borderColor="theme.primary"
               _hover={{
-                bg: "#F62440CC",
+                bg: "#D46B84",
               }}
               onClick={() => fetchTeamsData(true)}
               isLoading={refreshing}
@@ -343,26 +343,26 @@ const TradingMarket = () => {
         <Box mb={8}>
           <InputGroup size="lg">
             <InputLeftElement pointerEvents="none" h="full">
-              <Icon as={FaSearch} color="gray.400" />
+              <Icon as={FaSearch} color="theme.textMuted" />
             </InputLeftElement>
             <Input
               placeholder="Search for items teams want to trade (e.g., 'Land & Workspace')"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              bg="rgba(0, 0, 0, 0.2)"
+              bg="theme.background"
               border="1px solid"
-              borderColor="rgba(255, 255, 255, 0.2)"
+              borderColor="theme.outline"
               borderRadius="lg"
-              color="white"
+              color="theme.textPrimary"
               fontFamily="Inter, sans-serif"
-              _placeholder={{ color: "gray.400" }}
+              _placeholder={{ color: "theme.textMuted" }}
               _focus={{
-                bg: "rgba(0, 0, 0, 0.3)",
-                borderColor: "#F62440",
-                boxShadow: "0 0 0 1px #F62440",
+                bg: "theme.background",
+                borderColor: "theme.primary",
+                boxShadow: "0 0 0 1px var(--primary)",
               }}
               _hover={{
-                borderColor: "#F62440",
+                borderColor: "theme.primary",
               }}
             />
           </InputGroup>
@@ -385,14 +385,14 @@ const TradingMarket = () => {
             filteredTeams.map((team) => (
               <Box
                 key={team._id}
-                bg="rgba(15, 59, 61, 0.5)"
+                bg="theme.surface"
                 backdropFilter="blur(10px)"
                 p={6}
                 borderRadius="xl"
                 shadow="lg"
                 border="1px solid"
-                borderColor="rgba(255, 255, 255, 0.2)"
-                color="white"
+                borderColor="theme.outline"
+                color="theme.textPrimary"
                 transition="all 0.5s"
                 alignSelf="start"
                 gridRow={visibleDetails.has(team._id) ? "span 2" : "span 1"}
@@ -401,7 +401,7 @@ const TradingMarket = () => {
                 maxH={visibleDetails.has(team._id) ? "250px" : "200px"}
                 css={{
                   scrollbarWidth: "thin",
-                  scrollbarColor: "rgba(255, 255, 255, 0.35) transparent",
+                  scrollbarColor: "var(--outline) transparent",
                   "&::-webkit-scrollbar": {
                     width: "8px",
                   },
@@ -409,17 +409,17 @@ const TradingMarket = () => {
                     background: "transparent",
                   },
                   "&::-webkit-scrollbar-thumb": {
-                    background: "rgba(255, 255, 255, 0.28)",
+                    background: "var(--outline)",
                     borderRadius: "999px",
                   },
                   "&::-webkit-scrollbar-thumb:hover": {
-                    background: "rgba(255, 255, 255, 0.4)",
+                    background: "rgba(57, 67, 77, 0.8)",
                   },
                 }}
                 _hover={{
                   transform: "translateY(-2px)",
-                  shadow: "0 12px 24px rgba(0, 0, 0, 0.3)",
-                  borderColor: "rgba(255, 255, 255, 0.3)",
+                  shadow: "0 12px 24px rgba(0, 0, 0, 0.4)",
+                  borderColor: "theme.primary",
                 }}
               >
                 <Flex
@@ -429,7 +429,7 @@ const TradingMarket = () => {
                 >
                   <Heading
                     size="md"
-                    color="white"
+                    color="theme.textPrimary"
                     fontFamily="Inter, sans-serif"
                   >
                     {team.teamCode}
@@ -437,18 +437,18 @@ const TradingMarket = () => {
                   <Button
                     onClick={() => toggleDetails(team._id)}
                     size="sm"
-                    bg="#F6244080"
+                    bg="theme.primary"
                     color="white"
                     border="1px solid"
-                    borderColor="#DE1A58"
+                    borderColor="theme.primary"
                     borderRadius="full"
                     minW="40px"
                     h="40px"
                     _hover={{
-                      bg: "#F62440CC",
+                      bg: "#D46B84",
                     }}
                     _active={{
-                      bg: "#F62440CC",
+                      bg: "#B54761",
                     }}
                   >
                     {visibleDetails.has(team._id) ? (
@@ -463,11 +463,11 @@ const TradingMarket = () => {
                   <Box
                     pt={4}
                     borderTop="1px solid"
-                    borderColor="rgba(255, 255, 255, 0.1)"
+                    borderColor="theme.outline"
                   >
                     <Text
                       fontWeight="600"
-                      color="blue.300"
+                      color="theme.textSecondary"
                       mb={3}
                       fontFamily="Inter, sans-serif"
                     >
@@ -480,7 +480,7 @@ const TradingMarket = () => {
                             <Box
                               w={2}
                               h={2}
-                              bg="blue.400"
+                              bg="theme.primary"
                               borderRadius="full"
                             />
                             <Text
