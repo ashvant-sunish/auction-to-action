@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import serverUrl from "../../../servercon";
 import csedLogo from "../../../assets/images/csed.png";
+import vitlogo from "../../../assets/images/vit_logo.png"
 
 function LoginComponentAdmin() {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -143,6 +144,18 @@ function LoginComponentAdmin() {
         maxH="60px"
         objectFit="contain"
         zIndex={10}
+        
+      />
+      <Image
+        src={vitlogo}
+        alt="vitlogo"
+        position="absolute"
+        top="20px"
+        left="320px"
+        maxH="60px"
+        objectFit="contain"
+        zIndex={10}
+        
       />
       <Box
         bg="rgba(255,255,255,0.15)"
