@@ -126,13 +126,13 @@ const EnterpriseConstruction = ({ gameState }) => {
       position: fixed;
       top: 1.25rem;
       right: 1.25rem;
-      background: rgba(15, 59, 61, 0.9);
+      background: var(--surface);
       backdropFilter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
+      border: 1px solid var(--outline);
+      color: var(--text-primary);
       padding: 0.75rem 1.25rem;
       border-radius: 0.75rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       z-index: 50;
       animation: fadeInOut 5s ease-in-out forwards;
     }
@@ -154,10 +154,10 @@ const EnterpriseConstruction = ({ gameState }) => {
     .tab-button {
       flex: 1;
       padding: 12px 24px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(15, 59, 61, 0.3);
+      border: 1px solid var(--outline);
+      background: var(--surface-container);
       backdropFilter: blur(10px);
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
@@ -167,19 +167,19 @@ const EnterpriseConstruction = ({ gameState }) => {
     }
     
     .tab-button:hover {
-      background: rgba(15, 59, 61, 0.5);
-      color: rgba(255, 255, 255, 0.9);
-      border-color: rgba(255, 255, 255, 0.3);
+      background: var(--surface-high);
+      color: var(--text-primary);
+      border-color: var(--outline);
       transform: translateY(-1px);
     }
     
     .tab-button.active {
-      background: rgba(15, 59, 61, 0.8);
+      background: var(--primary-container);
       backdropFilter: blur(15px);
-      color: white;
-      border-color: rgba(255, 255, 255, 0.4);
+      color: var(--on-primary-container);
+      border-color: var(--primary);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(15, 59, 61, 0.4);
+      box-shadow: 0 6px 20px rgba(81, 36, 49, 0.5);
     }
     
     .tab-button.active::after {
@@ -189,7 +189,7 @@ const EnterpriseConstruction = ({ gameState }) => {
       left: 0;
       right: 0;
       height: 3px;
-      background: #F62440;
+      background: var(--primary);
       border-radius: 0 0 8px 8px;
     }
     

@@ -148,24 +148,25 @@ const Round2User = () => {
               fontSize="lg"
               p={3}
               borderRadius="full"
-              bg="rgba(15, 59, 61, 0.8)"
-              backdropFilter="blur(15px)"
-              border="1px solid rgba(255, 255, 255, 0.3)"
+              bg="theme.primaryContainer"
+              border="1px solid"
+              borderColor="theme.primary"
               color="white"
             >
               Box {revealedBox.boxId} - {revealedBox.itemName}
             </Badge>
             {countdown > 0 && (
               <Text
-                color="white"
+                color="theme.textPrimary"
                 fontSize="sm"
                 fontWeight="bold"
-                bg="rgba(15, 59, 61, 0.7)"
+                bg="theme.surfaceContainer"
                 backdropFilter="blur(10px)"
                 px={3}
                 py={1}
                 borderRadius="full"
-                border="1px solid rgba(255, 255, 255, 0.2)"
+                border="1px solid"
+                borderColor="theme.outline"
               >
                 Auto-reset in {countdown}s
               </Text>
@@ -339,18 +340,19 @@ const Round2User = () => {
         {/* Waiting Status - Only when box is not revealed */}
         {!isRevealed && (
           <Box
-            bg="rgba(15, 59, 61, 0.7)"
+            bg="theme.surface"
             backdropFilter="blur(15px)"
             borderRadius="12"
             p={4}
-            border="1px solid rgba(255, 255, 255, 0.3)"
+            border="1px solid"
+            borderColor="theme.outline"
             textAlign="center"
-            boxShadow="0 8px 32px rgba(0, 0, 0, 0.3)"
+            boxShadow="0 8px 32px rgba(0, 0, 0, 0.4)"
           >
             <Text color="white" fontSize="lg" fontWeight="bold" mb={2}>
               🎁 Round 2: Mystery Box Reveal
             </Text>
-            <Text color="white" fontSize="sm" fontWeight="medium">
+            <Text color="theme.textSecondary" fontSize="sm" fontWeight="medium">
               Waiting for Admin to reveal mystery boxes
             </Text>
           </Box>

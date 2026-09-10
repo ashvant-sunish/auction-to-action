@@ -201,19 +201,20 @@ function UserDashboard() {
         isClosable: true,
         render: ({ onClose }) => (
           <Box
-            color="white"
+            color="theme.textPrimary"
             p={4}
-            bg="rgba(15, 59, 61, 0.98)"
+            bg="theme.surface"
             backdropFilter="blur(20px)"
             borderRadius="xl"
-            border="1px solid rgba(232, 255, 0, 0.4)"
+            border="1px solid"
+            borderColor="theme.outline"
             boxShadow="0 8px 32px rgba(0, 0, 0, 0.6)"
             cursor="pointer"
             onClick={onClose}
             maxW="400px"
           >
             <Flex justify="space-between" align="center" mb={2}>
-              <Text fontWeight="bold" fontSize="md" color="#E8FF00">
+              <Text fontWeight="bold" fontSize="md" color="theme.primary">
                 {notif.title || "Targeted Notification"}
               </Text>
               <Badge colorScheme="yellow" fontSize="xs">
@@ -224,7 +225,7 @@ function UserDashboard() {
               fontSize="xs"
               whiteSpace="pre-line"
               lineHeight="tall"
-              color="gray.100"
+              color="theme.textSecondary"
             >
               {notif.message}
             </Text>
@@ -426,7 +427,7 @@ function UserDashboard() {
       h="100vh"
       overflow="hidden"
       className="user-app-root"
-      bg="#080b0f"
+      bg="theme.background"
     >
       {showRules && (
         <RulesUser onClose={handleCloseRules} isFirstTime={isFirstTimeLogin} />
@@ -461,8 +462,8 @@ function UserDashboard() {
         {imageLoading ? (
           <Flex h="calc(100vh - 72px)" align="center" justify="center">
             <VStack>
-              <Spinner size="xl" color="white" thickness="4px" />
-              <Text color="white" mt={4} fontSize="lg">
+              <Spinner size="xl" color="theme.primary" thickness="4px" />
+              <Text color="theme.textSecondary" mt={4} fontSize="lg">
                 Loading Dashboard...
               </Text>
             </VStack>
@@ -483,7 +484,7 @@ function UserDashboard() {
                 borderRadius: "8px",
               },
               "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(232, 255, 0, 0.3)",
+                background: "var(--primary)",
               },
             }}
           >
