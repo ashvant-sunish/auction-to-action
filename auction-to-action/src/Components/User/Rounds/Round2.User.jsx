@@ -170,8 +170,8 @@ const Round2User = () => {
                 ["cash", "money_multiplier"].includes(revealedBox.itemType)
                   ? "green"
                   : ["resources", "resource_grant"].includes(
-                        revealedBox.itemType,
-                      )
+                    revealedBox.itemType,
+                  )
                     ? "blue"
                     : "gray"
               }
@@ -336,8 +336,8 @@ const Round2User = () => {
                       )
                         ? "green"
                         : ["resources", "resource_grant"].includes(
-                              revealedBox.itemType,
-                            )
+                          revealedBox.itemType,
+                        )
                           ? "blue"
                           : "gray"
                     }
