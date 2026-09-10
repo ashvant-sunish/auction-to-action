@@ -55,6 +55,16 @@ const FormRound2 = () => {
   const [lastRevealedBox, setLastRevealedBox] = useState(null);
   const toast = useToast();
 
+  const normalizeRewardType = (itemType) => {
+    const rewardTypeMap = {
+      resources: "resource_grant",
+      cash: "money_multiplier",
+      challenge: "resource_grant",
+    };
+
+    return rewardTypeMap[itemType] || itemType || "mystery";
+  };
+
   // Initialize socket connection
   useEffect(() => {
     const newSocket = io(serverUrl);
@@ -75,24 +85,31 @@ const FormRound2 = () => {
         }
       }
 
-      // For challenge types, check reward details
+      // Check structured multiplier details when available.
       if (
-        boxData.itemType === "challenge" &&
-        boxData.reward?.details?.multiplier
+        ["challenge", "money_multiplier"].includes(boxData.itemType) &&
+        (boxData.details?.multiplier ?? boxData.reward?.details?.multiplier)
       ) {
-        multiplier = parseFloat(boxData.reward.details.multiplier);
+        multiplier = parseFloat(
+          boxData.details?.multiplier ?? boxData.reward.details.multiplier,
+        );
       }
 
       // For direct cash rewards
-      if (boxData.itemType === "cash" && boxData.reward?.details?.multiplier) {
-        multiplier = parseFloat(boxData.reward.details.multiplier);
+      if (
+        ["cash", "money_multiplier"].includes(boxData.itemType) &&
+        (boxData.details?.multiplier ?? boxData.reward?.details?.multiplier)
+      ) {
+        multiplier = parseFloat(
+          boxData.details?.multiplier ?? boxData.reward.details.multiplier,
+        );
       }
 
       // Auto-fill form based on revealed box
       setFormData((prev) => ({
         ...prev,
         mysteryBoxReward: boxData.content || boxData.description || "",
-        rewardType: boxData.itemType || "mystery",
+        rewardType: normalizeRewardType(boxData.itemType),
         cashMultiplier: multiplier,
         calculatedCashReward: prev.bidAmount
           ? parseFloat(prev.bidAmount) * multiplier
@@ -102,11 +119,14 @@ const FormRound2 = () => {
       // Parse resources from content or reward details
       if (
         boxData.itemType === "resources" ||
+        boxData.itemType === "resource_grant" ||
         boxData.itemType === "challenge"
       ) {
-        if (boxData.reward?.details?.resources) {
+        if (boxData.details?.resources || boxData.reward?.details?.resources) {
           // Use structured resource data if available
-          parseResourcesFromStructuredData(boxData.reward.details.resources);
+          parseResourcesFromStructuredData(
+            boxData.details?.resources || boxData.reward.details.resources,
+          );
         } else if (boxData.content) {
           // Fallback to content parsing
           parseResourcesFromContent(boxData.content);
@@ -303,14 +323,11 @@ const FormRound2 = () => {
 
       // Recalculate cash reward when bid amount changes
       if (field === "bidAmount") {
-        if (prev.rewardType === "cash") {
-          newData.calculatedCashReward =
-            parseFloat(value || 0) * prev.cashMultiplier;
-        } else if (prev.rewardType === "challenge" && prev.cashMultiplier > 1) {
+        if (prev.rewardType === "money_multiplier") {
           newData.calculatedCashReward =
             parseFloat(value || 0) * prev.cashMultiplier;
         } else {
-          newData.calculatedCashReward = 0; // No cash reward for resource-only challenges
+          newData.calculatedCashReward = 0;
         }
       }
 
@@ -383,14 +400,8 @@ const FormRound2 = () => {
       let finalCashReward = 0;
       let deductionAmount = bidAmount; // Always deduct the bid amount
 
-      // Only award cash if it's a direct cash reward OR a challenge with multiplier > 1
-      if (formData.rewardType === "cash") {
-        finalCashReward = bidAmount * formData.cashMultiplier;
-      } else if (
-        formData.rewardType === "challenge" &&
-        formData.cashMultiplier > 1
-      ) {
-        // Challenge with cash reward (multiplier > 1)
+      // Only award cash for money multiplier rewards.
+      if (formData.rewardType === "money_multiplier") {
         finalCashReward = bidAmount * formData.cashMultiplier;
       }
 
@@ -518,12 +529,10 @@ const FormRound2 = () => {
 
   const getRewardTypeColor = (type) => {
     switch (type) {
-      case "cash":
+      case "money_multiplier":
         return "green";
-      case "resources":
+      case "resource_grant":
         return "blue";
-      case "challenge":
-        return "orange";
       case "nothing":
         return "gray";
       default:
@@ -624,9 +633,8 @@ const FormRound2 = () => {
                         }
                       >
                         <option value="">Select type</option>
-                        <option value="cash">Cash</option>
-                        <option value="resources">Resources</option>
-                        <option value="challenge">Challenge</option>
+                        <option value="money_multiplier">Money Multiplier</option>
+                        <option value="resource_grant">Resource Grant</option>
                         <option value="nothing">Nothing</option>
                       </Select>
                     </FormControl>
@@ -654,23 +662,23 @@ const FormRound2 = () => {
                       </Badge>
                     )}
 
-                    {/* Challenge Information Display */}
-                    {formData.rewardType === "challenge" &&
+                    {/* Resource grant information display */}
+                    {formData.rewardType === "resource_grant" &&
                       formData.mysteryBoxReward && (
                         <Box
                           bg="orange.50"
                           p={4}
                           rounded="md"
                           borderWidth={1}
-                          borderColor="orange.200"
+                          borderColor="blue.200"
                         >
                           <VStack spacing={2}>
-                            <Text fontWeight="bold" color="orange.700">
-                              Challenge Reward:
+                            <Text fontWeight="bold" color="blue.700">
+                              Resource Grant:
                             </Text>
                             <Text
                               fontSize="sm"
-                              color="orange.600"
+                              color="blue.600"
                               textAlign="center"
                             >
                               {formData.mysteryBoxReward}
@@ -687,9 +695,7 @@ const FormRound2 = () => {
                       )}
 
                     {/* Cash Calculation Display */}
-                    {(formData.rewardType === "cash" ||
-                      (formData.rewardType === "challenge" &&
-                        formData.cashMultiplier > 1)) &&
+                    {formData.rewardType === "money_multiplier" &&
                       formData.bidAmount && (
                         <Box
                           bg="green.50"
@@ -700,9 +706,7 @@ const FormRound2 = () => {
                         >
                           <VStack spacing={2}>
                             <Text fontWeight="bold" color="green.700">
-                              {formData.rewardType === "challenge"
-                                ? "Challenge Cash Reward:"
-                                : "Cash Calculation:"}
+                              Cash Calculation:
                             </Text>
                             <HStack
                               spacing={4}

@@ -10,6 +10,7 @@ const mockMysteryBoxes = round2MysteryBoxData.map((box) => ({
   content: box.description,
   itemType: box.type,
   itemName: box.type === 'resource_grant' ? 'Resource Grant' : box.type,
+  details: box.details,
 }));
 
 // Get all mystery boxes
@@ -104,6 +105,7 @@ router.post('/reveal/:boxId', protectAdmin, async (req, res) => {
         content: box.content || 'Mystery Content',
         itemType: box.itemType || 'mystery',
         description: box.content || 'Mystery Description',
+        details: box.details || {},
         revealedBy: req.user.role,
         revealedAt: new Date()
       });

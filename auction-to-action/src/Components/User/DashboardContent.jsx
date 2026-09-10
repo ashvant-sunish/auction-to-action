@@ -42,39 +42,29 @@ export const AvailableMaterialsTable = ({
     if (!resources || typeof resources !== "object") {
       return [];
     }
+    const resourceValues = {
+      "Skilled Labour": 1200,
+      "Land & Workspace": 900,
+      "Basic Infrastructure": 800,
+      "Community Network": 600,
+      "Tools & Equipment": 1500,
+      "Technology Access": 2000,
+      "Electricity & Energy": 1100,
+      "Transportation & Logistics": 1000,
+      "Training & Expertise": 1300,
+      "Market Access & Partnerships": 1500,
+    };
     const entries =
       resources instanceof Map
         ? Array.from(resources.entries())
         : Object.entries(resources);
     return entries
-      .filter(([name, quantity]) => quantity > 0)
+      .filter(([, quantity]) => quantity > 0)
       .map(([name, quantity]) => {
-        let multipleyer = 1;
-        if (name === "Technology Access") {
-          multipleyer = 2500;
-        } else if (name === "Transportation & Logistics") {
-          multipleyer = 1000;
-        } else if (name === "Land & Workspace") {
-          multipleyer = 2000;
-        } else if (name === "Skilled Labour") {
-          multipleyer = 1000;
-        } else if (name === "Tools & Equipment") {
-          multipleyer = 1800;
-        } else if (name === "Market Access & Partnerships") {
-          multipleyer = 800;
-        } else if (name === "Electricity & Energy") {
-          multipleyer = 1500;
-        } else if (name === "Land & Workspace") {
-          multipleyer = 1500;
-        } else if (name === "Basic Infrastructure") {
-          multipleyer = 1200;
-        } else {
-          multipleyer = 0;
-        }
         return {
           name,
           count: quantity,
-          totalAmount: quantity * multipleyer,
+          totalAmount: quantity * (resourceValues[name] || 0),
         };
       })
       .sort((a, b) => a.name.localeCompare(b.name));

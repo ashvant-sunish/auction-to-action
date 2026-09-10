@@ -110,15 +110,45 @@ const Round2User = () => {
   const getRewardTypeColor = (type) => {
     switch (type) {
       case "cash":
+      case "money_multiplier":
         return colors.primary[50];
       case "resources":
+      case "resource_grant":
         return "#4A90E2";
-      case "challenge":
-        return "#FF8C42";
       case "nothing":
         return "#8A8A8A";
       default:
         return colors.primary[100];
+    }
+  };
+
+  const getRewardTypeLabel = (type) => {
+    switch (type) {
+      case "cash":
+      case "money_multiplier":
+        return "Money Multiplier";
+      case "resources":
+      case "resource_grant":
+        return "Resource Grant";
+      case "nothing":
+        return "Nothing";
+      default:
+        return "Mystery Reward";
+    }
+  };
+
+  const getRewardMessage = (type) => {
+    switch (type) {
+      case "cash":
+      case "money_multiplier":
+        return "You won a money multiplier reward!";
+      case "resources":
+      case "resource_grant":
+        return "You won a resource grant!";
+      case "nothing":
+        return "Better luck next time!";
+      default:
+        return "Your mystery reward has been revealed!";
     }
   };
 
@@ -137,13 +167,13 @@ const Round2User = () => {
           <Flex direction="column" align="center" gap={2}>
             <Badge
               colorScheme={
-                revealedBox.itemType === "cash"
+                ["cash", "money_multiplier"].includes(revealedBox.itemType)
                   ? "green"
-                  : revealedBox.itemType === "resources"
+                  : ["resources", "resource_grant"].includes(
+                        revealedBox.itemType,
+                      )
                     ? "blue"
-                    : revealedBox.itemType === "challenge"
-                      ? "orange"
-                      : "gray"
+                    : "gray"
               }
               fontSize="lg"
               p={3}
@@ -283,6 +313,15 @@ const Round2User = () => {
                   textShadow={`2px 2px 4px ${colors.dark}`}
                   letterSpacing="wider"
                 >
+                  {getRewardMessage(revealedBox?.itemType)}
+                </Text>
+
+                <Text
+                  fontSize="sm"
+                  color={colors.white}
+                  textAlign="center"
+                  opacity={0.9}
+                >
                   {revealedBox?.content ||
                     revealedBox?.description ||
                     "Mystery Reward"}
@@ -292,19 +331,21 @@ const Round2User = () => {
                 {revealedBox?.itemType && (
                   <Badge
                     colorScheme={
-                      revealedBox.itemType === "cash"
+                      ["cash", "money_multiplier"].includes(
+                        revealedBox.itemType,
+                      )
                         ? "green"
-                        : revealedBox.itemType === "resources"
+                        : ["resources", "resource_grant"].includes(
+                              revealedBox.itemType,
+                            )
                           ? "blue"
-                          : revealedBox.itemType === "challenge"
-                            ? "orange"
-                            : "gray"
+                          : "gray"
                     }
                     fontSize="md"
                     p={2}
                     borderRadius="full"
                   >
-                    {revealedBox.itemType.toUpperCase()} REWARD
+                    {getRewardTypeLabel(revealedBox.itemType)}
                   </Badge>
                 )}
 
@@ -350,7 +391,7 @@ const Round2User = () => {
             boxShadow="0 8px 32px rgba(0, 0, 0, 0.4)"
           >
             <Text color="white" fontSize="lg" fontWeight="bold" mb={2}>
-              🎁 Round 2: Mystery Box Reveal
+              Round 2: Mystery Box Reveal
             </Text>
             <Text color="theme.textSecondary" fontSize="sm" fontWeight="medium">
               Waiting for Admin to reveal mystery boxes
