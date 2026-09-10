@@ -1,6 +1,6 @@
 import React from "react";
 
-const SubmitButton = ({ gameState, onClick, buttonText = "Construct" }) => {
+const SubmitButton = ({ gameState, onClick, buttonText = "Construct", show }) => {
   const styles = `
     .construct-row { 
       width: 100%; 
@@ -35,9 +35,12 @@ const SubmitButton = ({ gameState, onClick, buttonText = "Construct" }) => {
     }
   `;
 
-  // Only show construct buttons in Round 3 (gameState === 5)
-  if (gameState !== 5) {
-    return null;
+  // If an explicit `show` prop is provided, respect it (used by parent components).
+  if (typeof show !== 'undefined') {
+    if (!show) return null;
+  } else {
+    // Default behavior: only show in Round 3 (gameState === 5)
+    if (gameState !== 5) return null;
   }
 
   return (

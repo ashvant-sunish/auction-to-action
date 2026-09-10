@@ -486,6 +486,15 @@ function Round3() {
         // Update wishlists - remove traded items from giving teams
         await updateWishlists(updatedFormData, adminToken);
 
+        // Notify other parts of the client app (e.g., DashboardContent) to refresh inventories
+        try {
+          if (typeof window !== 'undefined' && window.dispatchEvent) {
+            window.dispatchEvent(new Event('inventoryUpdated'));
+          }
+        } catch (err) {
+          // ignore
+        }
+
         // Reset form with new auto-generated trade ID
         setFormData({
           tradeId: generateObjectId(), // Generate new trade ID for next trade

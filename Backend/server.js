@@ -108,7 +108,7 @@ io.on('connection', (socket) => {
     console.log(`🔌 Client disconnected: ${socket.id}${teamCode ? ` (team: ${teamCode})` : ''}`);
 
     // If this socket was associated with a team, wait a short moment to see if they reconnect (e.g. page refresh).
-    // If they don't reconnect within 30 seconds, assume the tab was permanently closed and log them out immediately.
+    // If they don't reconnect within 60 seconds, assume the tab was permanently closed and log them out immediately.
     if (teamCode) {
       setTimeout(async () => {
         // Check if there are any active sockets remaining for this team
@@ -124,7 +124,7 @@ io.on('connection', (socket) => {
             console.error(`Failed to clear session for team ${teamCode}:`, err.message);
           }
         }
-      }, 30000);
+      }, 60000);
     }
   });
 });
