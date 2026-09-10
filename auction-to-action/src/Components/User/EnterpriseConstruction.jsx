@@ -39,6 +39,7 @@ const EnterpriseConstruction = ({ gameState }) => {
   useEffect(() => {
     fetchTeamInventory();
   }, []);
+  
 
   const handleConstruct = async () => {
     const activeRef =
@@ -234,6 +235,11 @@ const EnterpriseConstruction = ({ gameState }) => {
           )}
         </div>
 
+        {/* Show product purchases during Round 3 (gameState === 5)
+            Show enterprise construction only after Round 3 ends (gameState === 6) */}
+        {/* Use roundCounter value to control availability: 
+            products available when counter === 2 (round 3 started),
+            enterprises available when counter >= 3 (round 3 ended) */}
         <SubmitButton
           gameState={gameState}
           onClick={handleConstruct}
@@ -241,6 +247,9 @@ const EnterpriseConstruction = ({ gameState }) => {
             activeTab === "enterprises"
               ? "Construct Enterprise"
               : "Purchase Product"
+          }
+          show={
+            activeTab === "enterprises" ? gameState === 6 : gameState === 5
           }
         />
         

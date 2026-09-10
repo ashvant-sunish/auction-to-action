@@ -321,9 +321,18 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
     );
     socket.on("productPurchased", () => gameState === 5 && fetchLiveData());
 
+    // Listen for local inventory updates dispatched from other components
+    const handleInventoryUpdated = () => fetchLiveData();
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('inventoryUpdated', handleInventoryUpdated);
+    }
+
     return () => {
       clearInterval(interval);
       socket.disconnect();
+      if (typeof window !== 'undefined' && window.removeEventListener) {
+        window.removeEventListener('inventoryUpdated', handleInventoryUpdated);
+      }
     };
   }, [gameState]);
 

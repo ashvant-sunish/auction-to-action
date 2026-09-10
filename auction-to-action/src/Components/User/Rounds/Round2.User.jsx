@@ -252,8 +252,8 @@ const Round2User = () => {
         {/* Revealed Card */}
         {isRevealed && (
           <Box
-            width="400px"
-            height="250px"
+            width={{ base: "360px", md: "600px" }}
+            height={{ base: "260px", md: "350px" }}
             bg={`linear-gradient(135deg, ${colors.primary[200]} 0%, ${colors.bg} 100%)`}
             borderRadius="20px"
             border={`3px solid ${colors.primary[100]}`}
@@ -261,6 +261,11 @@ const Round2User = () => {
             position="relative"
             overflow="hidden"
             boxShadow={`0 20px 40px rgba(0,0,0,0.5), 0 0 30px ${colors.primary[100]}44`}
+            _hover={{
+              transform: "scale(1.02)",
+              transition: "transform 0.3s ease",
+              boxShadow: `0 25px 50px rgba(0,0,0,0.6), 0 0 40px ${colors.primary[100]}66`,
+            }}
           >
             {/* Card background pattern */}
             <Box
@@ -275,7 +280,7 @@ const Round2User = () => {
             <Center height="100%" p={6}>
               <VStack spacing={4}>
                 <Text
-                  fontSize="2xl"
+                  fontSize={{ base: "xl", md: "3xl" }}
                   fontWeight="bold"
                   color={colors.white}
                   textAlign="center"
@@ -299,7 +304,7 @@ const Round2User = () => {
                             ? "orange"
                             : "gray"
                     }
-                    fontSize="md"
+                    fontSize={{ base: "sm", md: "md" }}
                     p={2}
                     borderRadius="full"
                   >
