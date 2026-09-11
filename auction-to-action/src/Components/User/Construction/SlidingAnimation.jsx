@@ -11,6 +11,8 @@ import serverUrl from "../../../servercon";
 import cardData from "../../../assets/cards-data.json";
 
 import enterprise1 from "../../../assets/images/Construction/Enterprise1.png";
+import enterprise2 from "../../../assets/images/Construction/Enterprise2.png";
+import enterprise3 from "../../../assets/images/Construction/Enterprise3.png";
 import enterprise4 from "../../../assets/images/Construction/Enterprise4.png";
 import enterprise5 from "../../../assets/images/Construction/Enterprise5.png";
 import enterprise6 from "../../../assets/images/Construction/Enterprise6.png";
@@ -27,9 +29,12 @@ import enterprise16 from "../../../assets/images/Construction/Enterprise16.png";
 import enterprise17 from "../../../assets/images/Construction/Enterprise17.png";
 import enterprise18 from "../../../assets/images/Construction/Enterprise18.png";
 import enterprise19 from "../../../assets/images/Construction/Enterprise19.png";
+import enterprise20 from "../../../assets/images/Construction/Enterprise20.png";
 
 const imageMap = {
   "Enterprise1.png": enterprise1,
+  "Enterprise2.png": enterprise2,
+  "Enterprise3.png": enterprise3,
   "Enterprise4.png": enterprise4,
   "Enterprise5.png": enterprise5,
   "Enterprise6.png": enterprise6,
@@ -46,6 +51,7 @@ const imageMap = {
   "Enterprise17.png": enterprise17,
   "Enterprise18.png": enterprise18,
   "Enterprise19.png": enterprise19,
+  "Enterprise20.png": enterprise20,
 };
 
 const SlidingAnimation = forwardRef((props, ref) => {
