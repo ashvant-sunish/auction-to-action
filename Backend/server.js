@@ -29,8 +29,12 @@ const server = http.createServer(app);
 const io = new Server(server, {
   perMessageDeflate: false,
   cors: {
-    origin: '*', // In production, restrict this to your frontend URL
-    methods: ['GET', 'POST']
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ],
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
@@ -39,7 +43,31 @@ app.set('io', io);
 app.set('socketio', io);
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests without an Origin header
+    // (Postman, server-to-server, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+app.options('*', cors());
 app.use(express.json());
 
 // Add request logging middleware
