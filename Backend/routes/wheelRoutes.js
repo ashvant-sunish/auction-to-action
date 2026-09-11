@@ -123,6 +123,31 @@ router.post('/wheel-selection/random', protectAdmin, async (req, res) => {
   }
 });
 
+// Trigger a visual reset of the animation on the user side without altering database state
+router.post('/wheel-selection/reset-animation', protectAdmin, async (req, res) => {
+  try {
+    const { round, sessionId } = req.body;
+    
+    // We only emit the socket event to reset the user-side animation
+    req.app.get('io').emit('wheelResetAnimation', {
+      round,
+      sessionId
+    });
+
+    res.json({
+      success: true,
+      message: 'Animation reset signal sent to user side'
+    });
+  } catch (error) {
+    console.error('Error resetting animation:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reset animation',
+      error: error.message
+    });
+  }
+});
+
 // Record confirmation/removal event
 router.post('/wheel-selection/confirm', protectAdmin, async (req, res) => {
   try {

@@ -67,7 +67,9 @@ export default function Spin3DCards({
 
         setAvailableItems(response.data.availableItems);
         setSelectedItems(response.data.selectedItems);
+        return response.data.availableItems;
       }
+      return null;
     } catch (error) {
       console.error("Error fetching game items:", error);
       alert("Failed to load game items from database");
@@ -76,9 +78,75 @@ export default function Spin3DCards({
     }
   };
 
+  // Fetch active wheel selection
+  const fetchActiveSelection = async (items) => {
+    try {
+      const adminToken = localStorage.getItem("adminToken");
+      const response = await axios.get(
+        `${serverUrl}/api/wheel/wheel-selection/${round}`,
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      console.log("FETCH ACTIVE SELECTION RESPONSE:", response.data);
+      if (response.data && response.data.latestSelection) {
+        const selection = response.data.latestSelection;
+        console.log("FOUND LIVE SELECTION:", selection);
+        if (selection.isLive && selection.eventType === "RANDOM_SELECTED") {
+          console.log("FORMATTING AND SETTING SELECTION...");
+          // Format itemDetails to match currentSelectedBid structure
+          const restoredBid = {
+            id: selection.itemDetails.itemId,
+            itemCode: selection.itemDetails.itemCode,
+            bidNo: selection.itemDetails.bidNumber,
+            bidNumber: selection.itemDetails.bidNumber,
+            title: selection.itemDetails.title,
+            basePrice: selection.itemDetails.basePrice,
+            resources: selection.itemDetails.resources,
+            image: selection.itemDetails.image,
+            teamName: selection.itemDetails.teamName,
+            teamCode: selection.itemDetails.teamCode,
+            bidAmount: selection.itemDetails.bidAmount,
+          };
+          
+          setCurrentSelectedBid(restoredBid);
+          setIsSelecting(false); // Selection is already complete
+          setSpinning(false);
+          setWheelStopped(true);
+
+          if (items && items.length > 0) {
+            const targetCardIndex = items.findIndex(
+              item => 
+                item.itemCode === selection.itemDetails.itemCode || 
+                item.bidNumber === selection.itemDetails.bidNumber || 
+                item.bidNo === selection.itemDetails.bidNumber
+            );
+            console.log("TARGET CARD INDEX:", targetCardIndex);
+            if (targetCardIndex !== -1) {
+              const targetAngle = -(targetCardIndex / items.length) * Math.PI * 2;
+              angleRef.current = targetAngle;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching active selection:", error);
+    }
+  };
+
   // Load game items when component mounts
   useEffect(() => {
-    fetchGameItems();
+    const loadInitialState = async () => {
+      const items = await fetchGameItems();
+      if (items) {
+        fetchActiveSelection(items);
+      }
+    };
+    loadInitialState();
   }, [round]);
 
   // Socket.IO listener for real-time updates
@@ -323,6 +391,36 @@ export default function Spin3DCards({
       setIsTransitioning(false);
       speedRef.current = initialSpeed;
     }, 400);
+  };
+
+  const handleResetAnimation = async () => {
+    if (!currentSelectedBid) return;
+
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      
+      await axios.post(
+        `${serverUrl}/api/wheel/wheel-selection/reset-animation`,
+        {
+          round,
+          sessionId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      
+      // We do NOT clear currentSelectedBid or wheelStopped here.
+      // The superadmin retains control of the bid.
+      // We can use a simple alert or toast if available, or just console log.
+      console.log("Animation reset signal sent to user side.");
+      
+    } catch (error) {
+      console.error("Error resetting animation:", error);
+    }
   };
 
   const handleCloseSelection = async () => {
@@ -912,10 +1010,29 @@ export default function Spin3DCards({
                     fontWeight: 'bold',
                     fontSize: '18px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    marginRight: '15px'
                   }}
                 >
                   Skip This Bid
+                </button>
+
+                <button
+                  onClick={handleResetAnimation}
+                  style={{
+                    background: '#3B82F6',
+                    color: 'white',
+                    border: 'none',
+                    padding: '15px 30px',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Reset Animation
                 </button>
               </>
             )}

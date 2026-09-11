@@ -874,6 +874,15 @@ export default function Spin3DCards({
         triggerAdminSpin(data.itemDetails);
       }
     });
+    socket.on("wheelResetAnimation", (data) => {
+      console.log("📡 User received wheel reset animation:", data);
+      if (data.round == round) {
+        clearSavedState();
+        setCurrentSelectedBid(null);
+        setWheelStopped(false);
+        setSpinning(true);
+      }
+    });
     socket.on("wheelConfirmation", (data) => {
       console.log("📡 User received wheel confirmation:", data);
       if (data.round == round) {

@@ -79,7 +79,7 @@ function MyBids() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (inventoryResponse.ok) {
@@ -152,13 +152,9 @@ function MyBids() {
       <Tbody>
         {data.map((bid) => (
           <Tr key={bid._id} _hover={{ bg: "theme.surfaceHigh" }}>
-            <Td borderColor="theme.outline">
-              {formatBidItems(bid)}
-            </Td>
+            <Td borderColor="theme.outline">{formatBidItems(bid)}</Td>
             <Td isNumeric borderColor="theme.outline" color="green.300">
-              <Text fontWeight="bold">
-                ₹{bid.bidAmount.toLocaleString()}
-              </Text>
+              <Text fontWeight="bold">₹{bid.bidAmount.toLocaleString()}</Text>
             </Td>
             <Td borderColor="theme.outline">
               {bid.resourcesGained ? (
@@ -168,7 +164,7 @@ function MyBids() {
                       <Text key={resource} fontSize="sm">
                         {resource}: {quantity}
                       </Text>
-                    )
+                    ),
                   )}
                 </VStack>
               ) : (
@@ -302,11 +298,7 @@ function MyBids() {
             >
               ENT-{enterprise.id}
             </Td>
-            <Td
-              py={4}
-              fontWeight="medium"
-              borderColor="theme.outline"
-            >
+            <Td py={4} fontWeight="medium" borderColor="theme.outline">
               {enterprise.title}
             </Td>
             <Td
@@ -364,11 +356,7 @@ function MyBids() {
             >
               PROD-{product.id}
             </Td>
-            <Td
-              py={4}
-              fontWeight="medium"
-              borderColor="theme.outline"
-            >
+            <Td py={4} fontWeight="medium" borderColor="theme.outline">
               {product.title}
             </Td>
             <Td
@@ -404,7 +392,6 @@ function MyBids() {
 
   return (
     <>
-    
       <VStack spacing={6} align="stretch">
         {!loading && (
           <Flex
@@ -628,7 +615,7 @@ function MyBids() {
 
       <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
         <ModalContent
-          bg="theme.surface"
+          bg="rgb(15, 59, 61)"
           color="white"
           border="1px solid"
           borderColor="theme.outline"
