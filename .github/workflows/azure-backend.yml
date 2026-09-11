@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'backend/**'
+      - 'Backend/**'
       - '.github/workflows/azure-backend.yml'
 
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
           node-version: '24.x'
 
       - name: Install backend dependencies
-        working-directory: backend
+        working-directory: Backend
         run: npm ci --omit=dev
 
       - name: Azure Login
@@ -42,4 +42,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: a2a-backend
-          package: backend
+          package: Backend
