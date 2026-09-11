@@ -65,7 +65,7 @@ const teamSchema = new mongoose.Schema({
     id: { type: Number, required: true },
     title: { type: String, required: true },
     worth: { type: String, required: true },
-    requiredEnterpriseId: { type: Number, required: true },
+    requiredEnterpriseId: { type: Number, required: false },
     purchasedAt: { type: Date, default: Date.now }
   }]
 

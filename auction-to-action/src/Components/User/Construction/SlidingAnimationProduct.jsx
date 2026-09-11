@@ -15,6 +15,11 @@ import product2 from "../../../assets/images/Products/Product2.png";
 import product3 from "../../../assets/images/Products/Product3.png";
 import product4 from "../../../assets/images/Products/Product4.png";
 import product5 from "../../../assets/images/Products/Product5.png";
+import product6 from "../../../assets/images/Products/Product6.png";
+import product7 from "../../../assets/images/Products/Product7.png";
+import product8 from "../../../assets/images/Products/Product8.png";
+import product9 from "../../../assets/images/Products/Product9.png";
+import product10 from "../../../assets/images/Products/Product10.png";
 import serverUrl from "./../../../servercon";
 
 const imageMap = {
@@ -23,6 +28,11 @@ const imageMap = {
   "Product3.png": product3,
   "Product4.png": product4,
   "Product5.png": product5,
+  "Product6.png": product6,
+  "Product7.png": product7,
+  "Product8.png": product8,
+  "Product9.png": product9,
+  "Product10.png": product10,
 };
 
 // Build a lookup map for enterprise names by id
@@ -89,7 +99,8 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
       (product, i) => {
         const imageName = (product.imageUrl || "").split("/").pop();
         const requiredId = parseInt(product.requiredEnterpriseId);
-        const isAvailable = ownedEnterprises.includes(requiredId);
+        const isAvailable =
+          Array.isArray(ownedEnterprises) && ownedEnterprises.length > 0;
 
         return {
           ...product,
@@ -397,7 +408,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
     .card-container-wrapper { position: relative; width: 100%; }
     .card-container {
       width: 100%;
-      height: 420px;
+      height: 500px;
       display: flex;
       gap: 8px;
       padding: 0.6rem;
@@ -581,7 +592,7 @@ const SlidingAnimationProduct = forwardRef((props, ref) => {
                       <>
                         <div className="lock-overlay">🔒</div>
                         <div className="unavailable-notice">
-                          Requires Enterprise: {enterpriseName}
+                          Requires at least one Enterprise
                         </div>
                       </>
                     )}

@@ -139,13 +139,11 @@ const purchaseProduct = async (req, res) => {
       return res.status(404).json({ error: 'Team not found' });
     }
 
-    // Check if required enterprise is owned
-    const ownsRequiredEnterprise = team.enterprises.find(ent => 
-      parseInt(ent.id) === parseInt(requiredEnterpriseId)
-    );
-    if (!ownsRequiredEnterprise) {
+    // Check if team owns ANY enterprise
+    const hasAnyEnterprise = team.enterprises && team.enterprises.length > 0;
+    if (!hasAnyEnterprise) {
       return res.status(400).json({ 
-        error: `You need to own the required enterprise (ID: ${requiredEnterpriseId}) to purchase this product`,
+        error: `You need to construct at least one enterprise to form products`,
         type: 'missing_enterprise'
       });
     }
@@ -187,8 +185,8 @@ const purchaseProduct = async (req, res) => {
       await sendTargetedNotification(io, {
         teamCode: team.teamCode,
         teamName: team.teamName,
-        title: 'Product Formed!',
-        message: `Successfully formed "${title}" worth ₹${parseInt(worth).toLocaleString()}.`,
+        title: 'Product Created!',
+        message: `Successfully created "${title}" worth ₹${parseInt(worth).toLocaleString()}.`,
         round: 3,
         type: 'PRODUCT_FORMED',
         data: { productId, title, worth }
@@ -197,7 +195,7 @@ const purchaseProduct = async (req, res) => {
 
     res.json({
       success: true,
-      message: `Successfully purchased "${title}"! Product worth ₹${parseInt(worth).toLocaleString()} added to your inventory.`,
+      message: `Successfully created "${title}"! Product worth ₹${parseInt(worth).toLocaleString()} added to your inventory.`,
       product: {
         id: productId,
         title,
@@ -207,8 +205,8 @@ const purchaseProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Purchase error:', error);
-    res.status(500).json({ error: 'Failed to purchase product' });
+    console.error('Create product error:', error);
+    res.status(500).json({ error: 'Failed to create product' });
   }
 };
 

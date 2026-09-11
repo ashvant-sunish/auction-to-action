@@ -19,14 +19,11 @@ const EnterpriseConstruction = ({ gameState }) => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await fetch(
-        `${serverUrl}/api/construction/inventory`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${serverUrl}/api/construction/inventory`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const inventoryData = await response.json();
         setResources(inventoryData.resources || {});
@@ -39,7 +36,6 @@ const EnterpriseConstruction = ({ gameState }) => {
   useEffect(() => {
     fetchTeamInventory();
   }, []);
-  
 
   const handleConstruct = async () => {
     const activeRef =
@@ -52,7 +48,7 @@ const EnterpriseConstruction = ({ gameState }) => {
       setNotification(
         `Please select a ${
           activeTab === "enterprises" ? "enterprise" : "product"
-        } first.`
+        } first.`,
       );
       setTimeout(() => setNotification(""), 5000);
       return;
@@ -108,7 +104,7 @@ const EnterpriseConstruction = ({ gameState }) => {
       if (error.response?.data?.error) {
         setNotification(error.response.data.error);
       } else {
-        setNotification("Failed to construct/purchase item. Please try again.");
+        setNotification("Failed to construct/create item. Please try again.");
       }
     }
 
@@ -246,18 +242,20 @@ const EnterpriseConstruction = ({ gameState }) => {
           buttonText={
             activeTab === "enterprises"
               ? "Construct Enterprise"
-              : "Purchase Product"
+              : "Create Product"
           }
           show={
-            activeTab === "enterprises" ? gameState === 6 : gameState === 5
+            activeTab === "enterprises"
+              ? gameState === 6
+              : gameState === 5 || gameState === 6
           }
         />
-        
+
         <Box mt={8}>
-          <AvailableMaterialsTable 
-            resources={resources} 
-            isFullScreen={false} 
-            toggleFullScreen={() => {}} 
+          <AvailableMaterialsTable
+            resources={resources}
+            isFullScreen={false}
+            toggleFullScreen={() => {}}
           />
         </Box>
       </div>

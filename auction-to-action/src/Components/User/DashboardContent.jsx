@@ -295,7 +295,7 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
         }
       }
 
-      if (gameState === 5) {
+      if (gameState >= 5) {
         const response = await fetch(
           `${serverUrl}/api/construction/portfolio-worth`,
           {

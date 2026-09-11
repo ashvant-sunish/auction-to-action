@@ -11,8 +11,6 @@ import serverUrl from "../../../servercon";
 import cardData from "../../../assets/cards-data.json";
 
 import enterprise1 from "../../../assets/images/Construction/Enterprise1.png";
-import enterprise2 from "../../../assets/images/Construction/Enterprise2.png";
-import enterprise3 from "../../../assets/images/Construction/Enterprise3.png";
 import enterprise4 from "../../../assets/images/Construction/Enterprise4.png";
 import enterprise5 from "../../../assets/images/Construction/Enterprise5.png";
 import enterprise6 from "../../../assets/images/Construction/Enterprise6.png";
@@ -25,11 +23,13 @@ import enterprise12 from "../../../assets/images/Construction/Enterprise12.png";
 import enterprise13 from "../../../assets/images/Construction/Enterprise13.png";
 import enterprise14 from "../../../assets/images/Construction/Enterprise14.png";
 import enterprise15 from "../../../assets/images/Construction/Enterprise15.png";
+import enterprise16 from "../../../assets/images/Construction/Enterprise16.png";
+import enterprise17 from "../../../assets/images/Construction/Enterprise17.png";
+import enterprise18 from "../../../assets/images/Construction/Enterprise18.png";
+import enterprise19 from "../../../assets/images/Construction/Enterprise19.png";
 
 const imageMap = {
   "Enterprise1.png": enterprise1,
-  "Enterprise2.png": enterprise2,
-  "Enterprise3.png": enterprise3,
   "Enterprise4.png": enterprise4,
   "Enterprise5.png": enterprise5,
   "Enterprise6.png": enterprise6,
@@ -42,6 +42,10 @@ const imageMap = {
   "Enterprise13.png": enterprise13,
   "Enterprise14.png": enterprise14,
   "Enterprise15.png": enterprise15,
+  "Enterprise16.png": enterprise16,
+  "Enterprise17.png": enterprise17,
+  "Enterprise18.png": enterprise18,
+  "Enterprise19.png": enterprise19,
 };
 
 const SlidingAnimation = forwardRef((props, ref) => {
@@ -68,7 +72,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
         `${serverUrl}/api/construction/inventory`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (response.data.enterprises) {
@@ -97,7 +101,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
             ? card.requirements
             : card.requirementList || [],
         };
-      }
+      },
     );
     setCards(normalized);
     fetchTeamInventory(); // Fetch inventory when component loads
@@ -199,7 +203,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
     // jump-start for snappier feel
     scrollRef.current.currentSpeed = Math.max(
       scrollRef.current.currentSpeed,
-      (scrollRef.current.targetSpeed || BASE_SPEED) * 0.4
+      (scrollRef.current.targetSpeed || BASE_SPEED) * 0.4,
     );
     if (!scrollRef.current.animationFrameId) {
       scrollRef.current.animationFrameId = requestAnimationFrame(scrollLoop);
@@ -231,7 +235,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
       } else if (index === cards.length - 1) {
         const maxLeft = Math.max(
           0,
-          container.scrollWidth - container.clientWidth
+          container.scrollWidth - container.clientWidth,
         );
         container.scrollTo({ left: maxLeft, behavior: "smooth" });
       } else {
@@ -247,7 +251,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
       hoveredCardRef.current = null;
       setFocusedIndex(index);
     },
-    [cards]
+    [cards],
   );
 
   // click: use cardId for state, index for scrolling
@@ -280,7 +284,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
         scrollToCard(idx);
       }
     },
-    [scrollToCard]
+    [scrollToCard],
   );
 
   // ref assignment
@@ -370,7 +374,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
     .card-container-wrapper { position: relative; width: 100%; }
     .card-container {
       width: 100%;
-      height: 420px;
+      height: 500px;
       display: flex;
       gap: 8px;
       padding: 0.6rem;
@@ -429,8 +433,8 @@ const SlidingAnimation = forwardRef((props, ref) => {
     activeCard != null
       ? cards.findIndex((c) => c.id === activeCard)
       : hoveredCard != null
-      ? cards.findIndex((c) => c.id === hoveredCard)
-      : null;
+        ? cards.findIndex((c) => c.id === hoveredCard)
+        : null;
 
   return (
     <div>
@@ -475,7 +479,7 @@ const SlidingAnimation = forwardRef((props, ref) => {
                     Worth: ₹{Number(card.worth || 0).toLocaleString()}
                   </p>
                   <ul className="card-requirements">
-                    {(card.requirements || []).slice(0, 5).map((r, i) => (
+                    {(card.requirements || []).map((r, i) => (
                       <li key={i}>{r}</li>
                     ))}
                   </ul>
