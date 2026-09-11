@@ -7,8 +7,8 @@
             "bidNumber": 1,
             "basePrice": 9500,
             "resources": {
-                    "Technology": 6,
-                    "Property": 5
+                    "Technology Access": 6,
+                    "Land & Workspace": 5
                 },
                 "image": "Frame1"
             },
@@ -18,7 +18,7 @@
                 "bidNumber": 2,
                 "basePrice": 9000,
                 "resources": {
-                    "Technology": 7
+                    "Technology Access": 7
                 },
                 "image": "Frame2"
             },
@@ -28,8 +28,8 @@
                 "bidNumber": 3,
                 "basePrice": 8000,
                 "resources": {
-                    "Property": 3,
-                    "Technology": 6
+                    "Land & Workspace": 3,
+                    "Technology Access": 6
                 },
                 "image": "Frame3"
             },
@@ -39,8 +39,8 @@
                 "bidNumber": 4,
                 "basePrice": 8000,
                 "resources": {
-                    "Property": 5,
-                    "Technology": 4
+                    "Land & Workspace": 5,
+                    "Technology Access": 4
                 },
                 "image": "Frame4"
             },
@@ -50,8 +50,8 @@
                 "bidNumber": 5,
                 "basePrice": 8000,
                 "resources": {
-                    "Property": 5,
-                    "Technology": 5
+                    "Land & Workspace": 5,
+                    "Technology Access": 5
                 },
                 "image": "Frame5"
             },
@@ -61,9 +61,9 @@
                 "bidNumber": 6,
                 "basePrice": 8000,
                 "resources": {
-                    "Property": 5,
-                    "Technology": 4,
-                    "Electricity Supply": 4
+                    "Land & Workspace": 5,
+                    "Technology Access": 4,
+                    "Electricity & Energy": 4
                 },
                 "image": "Frame6"
             },
@@ -73,8 +73,8 @@
                 "bidNumber": 7,
                 "basePrice": 7500,
                 "resources": {
-                    "Technology": 4,
-                    "Property": 5
+                    "Technology Access": 4,
+                    "Land & Workspace": 5
                 },
                 "image": "Frame7"
             },
@@ -84,7 +84,7 @@
                 "bidNumber": 8,
                 "basePrice": 7500,
                 "resources": {
-                    "Technology": 6,
+                    "Technology Access": 6,
                     "Skilled Labour": 3
                 },
                 "image": "Frame8"
@@ -95,8 +95,8 @@
                 "bidNumber": 9,
                 "basePrice": 7500,
                 "resources": {
-                    "Property": 5,
-                    "Machinery & Tools": 6
+                    "Land & Workspace": 5,
+                    "Tools & Equipment": 6
                 },
                 "image": "Frame9"
             },
@@ -106,9 +106,9 @@
                 "bidNumber": 10,
                 "basePrice": 7500,
                 "resources": {
-                    "Property": 5,
-                    "Machinery & Tools": 5,
-                    "Electricity Supply": 4
+                    "Land & Workspace": 5,
+                    "Tools & Equipment": 5,
+                    "Electricity & Energy": 4
                 },
                 "image": "Frame10"
             },
@@ -118,9 +118,9 @@
                 "bidNumber": 11,
                 "basePrice": 7500,
                 "resources": {
-                    "Property": 4,
-                    "Technology": 4,
-                    "Machinery & Tools": 4
+                    "Land & Workspace": 4,
+                    "Technology Access": 4,
+                    "Tools & Equipment": 4
                 },
                 "image": "Frame11"
             },
@@ -130,8 +130,8 @@
                 "bidNumber": 12,
                 "basePrice": 7000,
                 "resources": {
-                    "Property": 4,
-                    "Technology": 4
+                    "Land & Workspace": 4,
+                    "Technology Access": 4
                 },
                 "image": "Frame12"
             },
@@ -141,9 +141,9 @@
                 "bidNumber": 13,
                 "basePrice": 7000,
                 "resources": {
-                    "Property": 4,
-                    "Office Space": 4,
-                    "Technology": 4
+                    "Land & Workspace": 4,
+                    "Land & Workspace": 4,
+                    "Technology Access": 4
                 },
                 "image": "Frame13"
             },
@@ -153,9 +153,9 @@
                 "bidNumber": 14,
                 "basePrice": 7000,
                 "resources": {
-                    "Property": 5,
-                    "Construction Material": 4,
-                    "Technology": 3
+                    "Land & Workspace": 5,
+                    "Basic Infrastructure": 4,
+                    "Technology Access": 3
                 },
                 "image": "Frame14"
             },
@@ -165,8 +165,8 @@
                 "bidNumber": 15,
                 "basePrice": 7000,
                 "resources": {
-                    "Office Space": 4,
-                    "Technology": 6
+                    "Land & Workspace": 4,
+                    "Technology Access": 6
                 },
                 "image": "Frame1"
             },
@@ -176,9 +176,9 @@
                 "bidNumber": 16,
                 "basePrice": 7000,
                 "resources": {
-                    "Property": 5,
-                    "Office Space": 4,
-                    "Technology": 3
+                    "Land & Workspace": 5,
+                    "Land & Workspace": 4,
+                    "Technology Access": 3
                 },
                 "image": "Frame2"
             },
@@ -188,9 +188,9 @@
                 "bidNumber": 17,
                 "basePrice": 7000,
                 "resources": {
-                    "Property": 5,
-                    "Transportation": 4,
-                    "Technology": 3
+                    "Land & Workspace": 5,
+                    "Transportation & Logistics": 4,
+                    "Technology Access": 3
                 },
                 "image": "Frame3"
             },
@@ -200,9 +200,9 @@
                 "bidNumber": 18,
                 "basePrice": 7000,
                 "resources": {
-                    "Property": 3,
-                    "Technology": 5,
-                    "Utilities": 4
+                    "Land & Workspace": 3,
+                    "Technology Access": 5,
+                    "Market Access & Partnerships": 4
                 },
                 "image": "Frame4"
             },
@@ -212,8 +212,8 @@
                 "bidNumber": 19,
                 "basePrice": 7000,
                 "resources": {
-                    "Electricity Supply": 6,
-                    "Technology": 4
+                    "Electricity & Energy": 6,
+                    "Technology Access": 4
                 },
                 "image": "Frame5"
             },
@@ -223,8 +223,8 @@
                 "bidNumber": 20,
                 "basePrice": 7000,
                 "resources": {
-                    "Machinery & Tools": 4,
-                    "Technology": 5,
+                    "Tools & Equipment": 4,
+                    "Technology Access": 5,
                     "Skilled Labour": 3
                 },
                 "image": "Frame6"
@@ -235,7 +235,7 @@
                 "bidNumber": 21,
                 "basePrice": 7000,
                 "resources": {
-                    "Technology": 6
+                    "Technology Access": 6
                 },
                 "image": "Frame7"
             },
@@ -245,9 +245,9 @@
                 "bidNumber": 22,
                 "basePrice": 7500,
                 "resources": {
-                    "Property": 5,
+                    "Land & Workspace": 5,
                     "Skilled Labour": 4,
-                    "Technology": 4
+                    "Technology Access": 4
                 },
                 "image": "Frame8"
             },
@@ -257,8 +257,8 @@
                 "bidNumber": 23,
                 "basePrice": 6500,
                 "resources": {
-                    "Technology": 3,
-                    "Property": 5
+                    "Technology Access": 3,
+                    "Land & Workspace": 5
                 },
                 "image": "Frame9"
             },
@@ -268,8 +268,8 @@
                 "bidNumber": 24,
                 "basePrice": 6500,
                 "resources": {
-                    "Property": 5,
-                    "Office Space": 4
+                    "Land & Workspace": 5,
+                    "Land & Workspace": 4
                 },
                 "image": "Frame10"
             },
@@ -279,9 +279,9 @@
                 "bidNumber": 25,
                 "basePrice": 6500,
                 "resources": {
-                    "Property": 3,
-                    "Office Space": 4,
-                    "Technology": 4
+                    "Land & Workspace": 3,
+                    "Land & Workspace": 4,
+                    "Technology Access": 4
                 },
                 "image": "Frame11"
             },
@@ -291,8 +291,8 @@
                 "bidNumber": 26,
                 "basePrice": 6500,
                 "resources": {
-                    "Technology": 4,
-                    "Office Space": 4
+                    "Technology Access": 4,
+                    "Land & Workspace": 4
                 },
                 "image": "Frame12"
             },
@@ -302,9 +302,9 @@
                 "bidNumber": 27,
                 "basePrice": 6500,
                 "resources": {
-                    "Property": 5,
-                    "Technology": 3,
-                    "Utilities": 4
+                    "Land & Workspace": 5,
+                    "Technology Access": 3,
+                    "Market Access & Partnerships": 4
                 },
                 "image": "Frame13"
             },
@@ -314,8 +314,8 @@
                 "bidNumber": 28,
                 "basePrice": 6500,
                 "resources": {
-                    "Electricity Supply": 6,
-                    "Technology": 3
+                    "Electricity & Energy": 6,
+                    "Technology Access": 3
                 },
                 "image": "Frame14"
             },
@@ -325,8 +325,8 @@
                 "bidNumber": 29,
                 "basePrice": 6500,
                 "resources": {
-                    "Office Space": 4,
-                    "Machinery & Tools": 6
+                    "Land & Workspace": 4,
+                    "Tools & Equipment": 6
                 },
                 "image": "Frame1"
             },
@@ -336,9 +336,9 @@
                 "bidNumber": 30,
                 "basePrice": 6500,
                 "resources": {
-                    "Property": 3,
-                    "Technology": 4,
-                    "Electricity Supply": 5
+                    "Land & Workspace": 3,
+                    "Technology Access": 4,
+                    "Electricity & Energy": 5
                 },
                 "image": "Frame2"
             },
@@ -348,9 +348,9 @@
                 "bidNumber": 31,
                 "basePrice": 6500,
                 "resources": {
-                    "Property": 5,
-                    "Office Space": 4,
-                    "Electricity Supply": 4
+                    "Land & Workspace": 5,
+                    "Land & Workspace": 4,
+                    "Electricity & Energy": 4
                 },
                 "image": "Frame3"
             },
@@ -360,7 +360,7 @@
                 "bidNumber": 32,
                 "basePrice": 6500,
                 "resources": {
-                    "Property": 6,
+                    "Land & Workspace": 6,
                     "Skilled Labour": 5
                 },
                 "image": "Frame4"
@@ -371,8 +371,8 @@
                 "bidNumber": 33,
                 "basePrice": 6000,
                 "resources": {
-                    "Property": 4,
-                    "Technology": 4
+                    "Land & Workspace": 4,
+                    "Technology Access": 4
                 },
                 "image": "Frame5"
             },
@@ -382,8 +382,8 @@
                 "bidNumber": 34,
                 "basePrice": 6000,
                 "resources": {
-                    "Property": 4,
-                    "Office Space": 5
+                    "Land & Workspace": 4,
+                    "Land & Workspace": 5
                 },
                 "image": "Frame6"
             },
@@ -393,8 +393,8 @@
                 "bidNumber": 35,
                 "basePrice": 6000,
                 "resources": {
-                    "Property": 5,
-                    "Electricity Supply": 4
+                    "Land & Workspace": 5,
+                    "Electricity & Energy": 4
                 },
                 "image": "Frame7"
             },
@@ -404,8 +404,8 @@
                 "bidNumber": 36,
                 "basePrice": 6000,
                 "resources": {
-                    "Machinery & Tools": 4,
-                    "Technology": 4
+                    "Tools & Equipment": 4,
+                    "Technology Access": 4
                 },
                 "image": "Frame8"
             },
@@ -415,8 +415,8 @@
                 "bidNumber": 37,
                 "basePrice": 6000,
                 "resources": {
-                    "Machinery & Tools": 6,
-                    "Technology": 3
+                    "Tools & Equipment": 6,
+                    "Technology Access": 3
                 },
                 "image": "Frame9"
             },
@@ -426,7 +426,7 @@
                 "bidNumber": 38,
                 "basePrice": 6000,
                 "resources": {
-                    "Property": 5,
+                    "Land & Workspace": 5,
                     "Skilled Labour": 6
                 },
                 "image": "Frame10"
@@ -437,9 +437,9 @@
                 "bidNumber": 39,
                 "basePrice": 6000,
                 "resources": {
-                    "Technology": 4,
-                    "Machinery & Tools": 4,
-                    "Electricity Supply": 3
+                    "Technology Access": 4,
+                    "Tools & Equipment": 4,
+                    "Electricity & Energy": 3
                 },
                 "image": "Frame11"
             },
@@ -449,8 +449,8 @@
                 "bidNumber": 40,
                 "basePrice": 6000,
                 "resources": {
-                    "Property": 5,
-                    "Construction Material": 5,
+                    "Land & Workspace": 5,
+                    "Basic Infrastructure": 5,
                     "Skilled Labour": 3
                 },
                 "image": "Frame12"
@@ -461,7 +461,7 @@
                 "bidNumber": 41,
                 "basePrice": 6000,
                 "resources": {
-                    "Property": 6
+                    "Land & Workspace": 6
                 },
                 "image": "Frame13"
             },
@@ -471,9 +471,9 @@
                 "bidNumber": 42,
                 "basePrice": 6000,
                 "resources": {
-                    "Property": 5,
+                    "Land & Workspace": 5,
                     "Skilled Labour": 6,
-                    "Utilities": 4
+                    "Market Access & Partnerships": 4
                 },
                 "image": "Frame14"
             },
@@ -483,9 +483,9 @@
                 "bidNumber": 43,
                 "basePrice": 6000,
                 "resources": {
-                    "Property": 4,
-                    "Construction Material": 5,
-                    "Machinery & Tools": 4
+                    "Land & Workspace": 4,
+                    "Basic Infrastructure": 5,
+                    "Tools & Equipment": 4
                 },
                 "image": "Frame1"
             },
@@ -495,8 +495,8 @@
                 "bidNumber": 44,
                 "basePrice": 6000,
                 "resources": {
-                    "Technology": 4,
-                    "Transportation": 5
+                    "Technology Access": 4,
+                    "Transportation & Logistics": 5
                 },
                 "image": "Frame2"
             },
@@ -506,7 +506,7 @@
                 "bidNumber": 45,
                 "basePrice": 5500,
                 "resources": {
-                    "Technology": 5
+                    "Technology Access": 5
                 },
                 "image": "Frame3"
             },
@@ -516,7 +516,7 @@
                 "bidNumber": 46,
                 "basePrice": 5500,
                 "resources": {
-                    "Machinery & Tools": 5,
+                    "Tools & Equipment": 5,
                     "Skilled Labour": 4
                 },
                 "image": "Frame4"
@@ -527,7 +527,7 @@
                 "bidNumber": 47,
                 "basePrice": 5500,
                 "resources": {
-                    "Technology": 4,
+                    "Technology Access": 4,
                     "Skilled Labour": 5
                 },
                 "image": "Frame5"
@@ -538,8 +538,8 @@
                 "bidNumber": 48,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 5,
-                    "Transportation": 3
+                    "Land & Workspace": 5,
+                    "Transportation & Logistics": 3
                 },
                 "image": "Frame6"
             },
@@ -549,8 +549,8 @@
                 "bidNumber": 49,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 5,
-                    "Construction Material": 4
+                    "Land & Workspace": 5,
+                    "Basic Infrastructure": 4
                 },
                 "image": "Frame7"
             },
@@ -560,9 +560,9 @@
                 "bidNumber": 50,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 4,
+                    "Land & Workspace": 4,
                     "Skilled Labour": 6,
-                    "Utilities": 4
+                    "Market Access & Partnerships": 4
                 },
                 "image": "Frame8"
             },
@@ -572,9 +572,9 @@
                 "bidNumber": 51,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 4,
-                    "Machinery & Tools": 4,
-                    "Electricity Supply": 4
+                    "Land & Workspace": 4,
+                    "Tools & Equipment": 4,
+                    "Electricity & Energy": 4
                 },
                 "image": "Frame9"
             },
@@ -584,8 +584,8 @@
                 "bidNumber": 52,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 5,
-                    "Utilities": 5
+                    "Land & Workspace": 5,
+                    "Market Access & Partnerships": 5
                 },
                 "image": "Frame10"
             },
@@ -595,7 +595,7 @@
                 "bidNumber": 53,
                 "basePrice": 5500,
                 "resources": {
-                    "Machinery & Tools": 6,
+                    "Tools & Equipment": 6,
                     "Skilled Labour": 4
                 },
                 "image": "Frame11"
@@ -606,8 +606,8 @@
                 "bidNumber": 54,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 4,
-                    "Electricity Supply": 6
+                    "Land & Workspace": 4,
+                    "Electricity & Energy": 6
                 },
                 "image": "Frame12"
             },
@@ -617,8 +617,8 @@
                 "bidNumber": 55,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 5,
-                    "Transportation": 4
+                    "Land & Workspace": 5,
+                    "Transportation & Logistics": 4
                 },
                 "image": "Frame13"
             },
@@ -628,9 +628,9 @@
                 "bidNumber": 56,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 4,
+                    "Land & Workspace": 4,
                     "Skilled Labour": 4,
-                    "Machinery & Tools": 4
+                    "Tools & Equipment": 4
                 },
                 "image": "Frame14"
             },
@@ -640,9 +640,9 @@
                 "bidNumber": 57,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 4,
-                    "Transportation": 4,
-                    "Machinery & Tools": 4
+                    "Land & Workspace": 4,
+                    "Transportation & Logistics": 4,
+                    "Tools & Equipment": 4
                 },
                 "image": "Frame1"
             },
@@ -652,8 +652,8 @@
                 "bidNumber": 58,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 4,
-                    "Electricity Supply": 5,
+                    "Land & Workspace": 4,
+                    "Electricity & Energy": 5,
                     "Skilled Labour": 4
                 },
                 "image": "Frame2"
@@ -664,8 +664,8 @@
                 "bidNumber": 59,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 4,
-                    "Office Space": 4,
+                    "Land & Workspace": 4,
+                    "Land & Workspace": 4,
                     "Skilled Labour": 5
                 },
                 "image": "Frame3"
@@ -676,9 +676,9 @@
                 "bidNumber": 60,
                 "basePrice": 5500,
                 "resources": {
-                    "Property": 4,
-                    "Electricity Supply": 4,
-                    "Machinery & Tools": 4
+                    "Land & Workspace": 4,
+                    "Electricity & Energy": 4,
+                    "Tools & Equipment": 4
                 },
                 "image": "Frame4"
             },
@@ -688,7 +688,7 @@
                 "bidNumber": 61,
                 "basePrice": 5000,
                 "resources": {
-                    "Property": 4,
+                    "Land & Workspace": 4,
                     "Skilled Labour": 5
                 },
                 "image": "Frame5"
@@ -699,8 +699,8 @@
                 "bidNumber": 62,
                 "basePrice": 5000,
                 "resources": {
-                    "Property": 4,
-                    "Construction Material": 4,
+                    "Land & Workspace": 4,
+                    "Basic Infrastructure": 4,
                     "Skilled Labour": 3
                 },
                 "image": "Frame6"
@@ -711,9 +711,9 @@
                 "bidNumber": 63,
                 "basePrice": 5000,
                 "resources": {
-                    "Property": 3,
-                    "Machinery & Tools": 5,
-                    "Utilities": 4
+                    "Land & Workspace": 3,
+                    "Tools & Equipment": 5,
+                    "Market Access & Partnerships": 4
                 },
                 "image": "Frame7"
             },
@@ -723,8 +723,8 @@
                 "bidNumber": 64,
                 "basePrice": 5000,
                 "resources": {
-                    "Machinery & Tools": 5,
-                    "Construction Material": 5
+                    "Tools & Equipment": 5,
+                    "Basic Infrastructure": 5
                 },
                 "image": "Frame8"
             },
@@ -734,8 +734,8 @@
                 "bidNumber": 65,
                 "basePrice": 5000,
                 "resources": {
-                    "Property": 4,
-                    "Transportation": 5
+                    "Land & Workspace": 4,
+                    "Transportation & Logistics": 5
                 },
                 "image": "Frame9"
             },
@@ -745,7 +745,7 @@
                 "bidNumber": 66,
                 "basePrice": 5000,
                 "resources": {
-                    "Electricity Supply": 6,
+                    "Electricity & Energy": 6,
                     "Skilled Labour": 4
                 },
                 "image": "Frame10"
@@ -757,7 +757,7 @@
                 "basePrice": 5000,
                 "resources": {
                     "Skilled Labour": 7,
-                    "Office Space": 4
+                    "Land & Workspace": 4
                 },
                 "image": "Frame11"
             },
@@ -767,7 +767,7 @@
                 "bidNumber": 68,
                 "basePrice": 5000,
                 "resources": {
-                    "Office Space": 6,
+                    "Land & Workspace": 6,
                     "Skilled Labour": 4
                 },
                 "image": "Frame12"
@@ -778,8 +778,8 @@
                 "bidNumber": 69,
                 "basePrice": 5000,
                 "resources": {
-                    "Machinery & Tools": 6,
-                    "Construction Material": 4
+                    "Tools & Equipment": 6,
+                    "Basic Infrastructure": 4
                 },
                 "image": "Frame13"
             },
@@ -789,8 +789,8 @@
                 "bidNumber": 70,
                 "basePrice": 5000,
                 "resources": {
-                    "Property": 4,
-                    "Technology": 4
+                    "Land & Workspace": 4,
+                    "Technology Access": 4
                 },
                 "image": "Frame14"
             },
@@ -800,7 +800,7 @@
                 "bidNumber": 71,
                 "basePrice": 5000,
                 "resources": {
-                    "Property": 5,
+                    "Land & Workspace": 5,
                     "Skilled Labour": 5
                 },
                 "image": "Frame1"
@@ -811,8 +811,8 @@
                 "bidNumber": 72,
                 "basePrice": 5000,
                 "resources": {
-                    "Electricity Supply": 5,
-                    "Office Space": 4
+                    "Electricity & Energy": 5,
+                    "Land & Workspace": 4
                 },
                 "image": "Frame2"
             },
@@ -822,8 +822,8 @@
                 "bidNumber": 73,
                 "basePrice": 5000,
                 "resources": {
-                    "Construction Material": 5,
-                    "Property": 4
+                    "Basic Infrastructure": 5,
+                    "Land & Workspace": 4
                 },
                 "image": "Frame3"
             },
@@ -833,8 +833,8 @@
                 "bidNumber": 74,
                 "basePrice": 5000,
                 "resources": {
-                    "Technology": 4,
-                    "Machinery & Tools": 4
+                    "Technology Access": 4,
+                    "Tools & Equipment": 4
                 },
                 "image": "Frame4"
             },
@@ -844,8 +844,8 @@
                 "bidNumber": 75,
                 "basePrice": 5000,
                 "resources": {
-                    "Property": 4,
-                    "Technology": 4,
+                    "Land & Workspace": 4,
+                    "Technology Access": 4,
                     "Skilled Labour": 4
                 },
                 "image": "Frame5"

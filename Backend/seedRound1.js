@@ -49,8 +49,8 @@ const bids = [
       {
         item_no: 3,
         items: [
-          { item_name: "Property", quantity: 3 },
-          { item_name: "Technology", quantity: 6 }
+          { item_name: "Land & Workspace", quantity: 3 },
+          { item_name: "Technology Access", quantity: 6 }
         ],
         base_price: 8000,
         image_path: "/images/property_technology.png"
@@ -71,8 +71,8 @@ const bids = [
       {
         item_no: 4,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 8000,
         image_path: "/images/property_technology.png"
@@ -93,8 +93,8 @@ const bids = [
       {
         item_no: 5,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Technology", quantity: 5 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Technology Access", quantity: 5 }
         ],
         base_price: 8000,
         image_path: "/images/property_technology.png"
@@ -115,9 +115,9 @@ const bids = [
       {
         item_no: 6,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Technology", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Technology Access", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 4 }
         ],
         base_price: 8000,
         image_path: "/images/property_tech_electricity.png"
@@ -138,8 +138,8 @@ const bids = [
       {
         item_no: 7,
         items: [
-          { item_name: "Technology", quantity: 4 },
-          { item_name: "Property", quantity: 5 }
+          { item_name: "Technology Access", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 5 }
         ],
         base_price: 7500,
         image_path: "/images/property_technology.png"
@@ -160,7 +160,7 @@ const bids = [
       {
         item_no: 8,
         items: [
-          { item_name: "Technology", quantity: 6 },
+          { item_name: "Technology Access", quantity: 6 },
           { item_name: "Skilled Labour", quantity: 3 }
         ],
         base_price: 7500,
@@ -182,8 +182,8 @@ const bids = [
       {
         item_no: 9,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Machinery & Tools", quantity: 6 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Tools & Equipment", quantity: 6 }
         ],
         base_price: 7500,
         image_path: "/images/property_machinery.png"
@@ -204,9 +204,9 @@ const bids = [
       {
         item_no: 10,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Machinery & Tools", quantity: 5 },
-          { item_name: "Electricity Supply", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Tools & Equipment", quantity: 5 },
+          { item_name: "Electricity & Energy", quantity: 4 }
         ],
         base_price: 7500,
         image_path: "/images/property_machinery_electricity.png"
@@ -227,9 +227,9 @@ const bids = [
       {
         item_no: 11,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Technology", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Technology Access", quantity: 4 },
+          { item_name: "Tools & Equipment", quantity: 4 }
         ],
         base_price: 7500,
         image_path: "/images/property_tech_machinery.png"
@@ -250,8 +250,8 @@ const bids = [
       {
         item_no: 12,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 7000,
         image_path: "/images/property_technology.png"
@@ -272,9 +272,9 @@ const bids = [
       {
         item_no: 13,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Office Space", quantity: 4 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 7000,
         image_path: "/images/property_office_technology.png"
@@ -295,9 +295,9 @@ const bids = [
       {
         item_no: 14,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Construction Material", quantity: 4 },
-          { item_name: "Technology", quantity: 3 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Basic Infrastructure", quantity: 4 },
+          { item_name: "Technology Access", quantity: 3 }
         ],
         base_price: 7000,
         image_path: "/images/property_construction_technology.png"
@@ -318,8 +318,8 @@ const bids = [
       {
         item_no: 15,
         items: [
-          { item_name: "Office Space", quantity: 4 },
-          { item_name: "Technology", quantity: 6 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Technology Access", quantity: 6 }
         ],
         base_price: 7000,
         image_path: "/images/office_technology.png"
@@ -340,9 +340,9 @@ const bids = [
       {
         item_no: 16,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Office Space", quantity: 4 },
-          { item_name: "Technology", quantity: 3 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Technology Access", quantity: 3 }
         ],
         base_price: 7000,
         image_path: "/images/property_office_technology.png"
@@ -363,9 +363,9 @@ const bids = [
       {
         item_no: 17,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Transportation", quantity: 4 },
-          { item_name: "Technology", quantity: 3 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Transportation & Logistics", quantity: 4 },
+          { item_name: "Technology Access", quantity: 3 }
         ],
         base_price: 7000,
         image_path: "/images/property_transportation_technology.png"
@@ -386,9 +386,9 @@ const bids = [
       {
         item_no: 18,
         items: [
-          { item_name: "Property", quantity: 3 },
-          { item_name: "Technology", quantity: 5 },
-          { item_name: "Utilities", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 3 },
+          { item_name: "Technology Access", quantity: 5 },
+          { item_name: "Market Access & Partnerships", quantity: 4 }
         ],
         base_price: 7000,
         image_path: "/images/property_technology_utilities.png"
@@ -409,8 +409,8 @@ const bids = [
       {
         item_no: 19,
         items: [
-          { item_name: "Electricity Supply", quantity: 6 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Electricity & Energy", quantity: 6 },
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 7000,
         image_path: "/images/electricity_technology.png"
@@ -431,8 +431,8 @@ const bids = [
       {
         item_no: 20,
         items: [
-          { item_name: "Machinery & Tools", quantity: 4 },
-          { item_name: "Technology", quantity: 5 },
+          { item_name: "Tools & Equipment", quantity: 4 },
+          { item_name: "Technology Access", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 3 }
         ],
         base_price: 7000,
@@ -453,7 +453,7 @@ const bids = [
     item_list: [
       {
         item_no: 21,
-        items: [{ item_name: "Technology", quantity: 6 }],
+        items: [{ item_name: "Technology Access", quantity: 6 }],
         base_price: 7000,
         image_path: "/images/technology.png"
       }
@@ -473,9 +473,9 @@ const bids = [
       {
         item_no: 22,
         items: [
-          { item_name: "Property", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 4 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 7500,
         image_path: "/images/property_labour_technology.png"
@@ -496,8 +496,8 @@ const bids = [
       {
         item_no: 23,
         items: [
-          { item_name: "Technology", quantity: 3 },
-          { item_name: "Property", quantity: 5 }
+          { item_name: "Technology Access", quantity: 3 },
+          { item_name: "Land & Workspace", quantity: 5 }
         ],
         base_price: 6500,
         image_path: "/images/technology_property.png"
@@ -518,8 +518,8 @@ const bids = [
       {
         item_no: 24,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Office Space", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 4 }
         ],
         base_price: 6500,
         image_path: "/images/property_office.png"
@@ -540,9 +540,9 @@ const bids = [
       {
         item_no: 25,
         items: [
-          { item_name: "Property", quantity: 3 },
-          { item_name: "Office Space", quantity: 4 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 3 },
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 6500,
         image_path: "/images/property_office_technology.png"
@@ -563,8 +563,8 @@ const bids = [
       {
         item_no: 26,
         items: [
-          { item_name: "Technology", quantity: 4 },
-          { item_name: "Office Space", quantity: 4 }
+          { item_name: "Technology Access", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 }
         ],
         base_price: 6500,
         image_path: "/images/technology_office.png"
@@ -585,9 +585,9 @@ const bids = [
       {
         item_no: 27,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Technology", quantity: 3 },
-          { item_name: "Utilities", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Technology Access", quantity: 3 },
+          { item_name: "Market Access & Partnerships", quantity: 4 }
         ],
         base_price: 6500,
         image_path: "/images/property_technology_utilities.png"
@@ -608,8 +608,8 @@ const bids = [
       {
         item_no: 28,
         items: [
-          { item_name: "Electricity Supply", quantity: 6 },
-          { item_name: "Technology", quantity: 3 }
+          { item_name: "Electricity & Energy", quantity: 6 },
+          { item_name: "Technology Access", quantity: 3 }
         ],
         base_price: 6500,
         image_path: "/images/electricity_technology.png"
@@ -630,8 +630,8 @@ const bids = [
       {
         item_no: 29,
         items: [
-          { item_name: "Office Space", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 6 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Tools & Equipment", quantity: 6 }
         ],
         base_price: 6500,
         image_path: "/images/office_machinery.png"
@@ -652,9 +652,9 @@ const bids = [
       {
         item_no: 30,
         items: [
-          { item_name: "Property", quantity: 3 },
-          { item_name: "Technology", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 5 }
+          { item_name: "Land & Workspace", quantity: 3 },
+          { item_name: "Technology Access", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 5 }
         ],
         base_price: 6500,
         image_path: "/images/property_technology_electricity.png"
@@ -675,9 +675,9 @@ const bids = [
       {
         item_no: 31,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Office Space", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 4 }
         ],
         base_price: 6500,
         image_path: "/images/property_office_electricity.png"
@@ -698,7 +698,7 @@ const bids = [
       {
         item_no: 32,
         items: [
-          { item_name: "Property", quantity: 6 },
+          { item_name: "Land & Workspace", quantity: 6 },
           { item_name: "Skilled Labour", quantity: 5 }
         ],
         base_price: 6500,
@@ -720,8 +720,8 @@ const bids = [
       {
         item_no: 33,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 6000,
         image_path: "/images/property_technology.png"
@@ -742,8 +742,8 @@ const bids = [
       {
         item_no: 34,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Office Space", quantity: 5 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 5 }
         ],
         base_price: 6000,
         image_path: "/images/property_office.png"
@@ -764,8 +764,8 @@ const bids = [
       {
         item_no: 35,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Electricity Supply", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Electricity & Energy", quantity: 4 }
         ],
         base_price: 6000,
         image_path: "/images/property_electricity.png"
@@ -786,8 +786,8 @@ const bids = [
       {
         item_no: 36,
         items: [
-          { item_name: "Machinery & Tools", quantity: 4 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Tools & Equipment", quantity: 4 },
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 6000,
         image_path: "/images/machinery_technology.png"
@@ -808,8 +808,8 @@ const bids = [
       {
         item_no: 37,
         items: [
-          { item_name: "Machinery & Tools", quantity: 6 },
-          { item_name: "Technology", quantity: 3 }
+          { item_name: "Tools & Equipment", quantity: 6 },
+          { item_name: "Technology Access", quantity: 3 }
         ],
         base_price: 6000,
         image_path: "/images/machinery_technology.png"
@@ -830,7 +830,7 @@ const bids = [
       {
         item_no: 38,
         items: [
-          { item_name: "Property", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 6 }
         ],
         base_price: 6000,
@@ -852,9 +852,9 @@ const bids = [
       {
         item_no: 39,
         items: [
-          { item_name: "Technology", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 3 }
+          { item_name: "Technology Access", quantity: 4 },
+          { item_name: "Tools & Equipment", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 3 }
         ],
         base_price: 6000,
         image_path: "/images/technology_machinery_electricity.png"
@@ -875,8 +875,8 @@ const bids = [
       {
         item_no: 40,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Construction Material", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Basic Infrastructure", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 3 }
         ],
         base_price: 6000,
@@ -897,7 +897,7 @@ const bids = [
     item_list: [
       {
         item_no: 41,
-        items: [{ item_name: "Property", quantity: 6 }],
+        items: [{ item_name: "Land & Workspace", quantity: 6 }],
         base_price: 6000,
         image_path: "/images/property.png"
       }
@@ -917,9 +917,9 @@ const bids = [
       {
         item_no: 42,
         items: [
-          { item_name: "Property", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 6 },
-          { item_name: "Utilities", quantity: 4 }
+          { item_name: "Market Access & Partnerships", quantity: 4 }
         ],
         base_price: 6000,
         image_path: "/images/property_labour_utilities.png"
@@ -940,9 +940,9 @@ const bids = [
       {
         item_no: 43,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Construction Material", quantity: 5 },
-          { item_name: "Machinery & Tools", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Basic Infrastructure", quantity: 5 },
+          { item_name: "Tools & Equipment", quantity: 4 }
         ],
         base_price: 6000,
         image_path: "/images/property_construction_machinery.png"
@@ -963,8 +963,8 @@ const bids = [
       {
         item_no: 44,
         items: [
-          { item_name: "Technology", quantity: 4 },
-          { item_name: "Transportation", quantity: 5 }
+          { item_name: "Technology Access", quantity: 4 },
+          { item_name: "Transportation & Logistics", quantity: 5 }
         ],
         base_price: 6000,
         image_path: "/images/technology_transportation.png"
@@ -984,7 +984,7 @@ const bids = [
     item_list: [
       {
         item_no: 45,
-        items: [{ item_name: "Technology", quantity: 5 }],
+        items: [{ item_name: "Technology Access", quantity: 5 }],
         base_price: 5500,
         image_path: "/images/technology.png"
       }
@@ -1004,7 +1004,7 @@ const bids = [
       {
         item_no: 46,
         items: [
-          { item_name: "Machinery & Tools", quantity: 5 },
+          { item_name: "Tools & Equipment", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 4 }
         ],
         base_price: 5500,
@@ -1026,7 +1026,7 @@ const bids = [
       {
         item_no: 47,
         items: [
-          { item_name: "Technology", quantity: 4 },
+          { item_name: "Technology Access", quantity: 4 },
           { item_name: "Skilled Labour", quantity: 5 }
         ],
         base_price: 5500,
@@ -1048,8 +1048,8 @@ const bids = [
       {
         item_no: 48,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Transportation", quantity: 3 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Transportation & Logistics", quantity: 3 }
         ],
         base_price: 5500,
         image_path: "/images/property_transportation.png"
@@ -1070,8 +1070,8 @@ const bids = [
       {
         item_no: 49,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Construction Material", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Basic Infrastructure", quantity: 4 }
         ],
         base_price: 5500,
         image_path: "/images/property_construction.png"
@@ -1092,9 +1092,9 @@ const bids = [
       {
         item_no: 50,
         items: [
-          { item_name: "Property", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 },
           { item_name: "Skilled Labour", quantity: 6 },
-          { item_name: "Utilities", quantity: 4 }
+          { item_name: "Market Access & Partnerships", quantity: 4 }
         ],
         base_price: 5500,
         image_path: "/images/property_labour_utilities.png"
@@ -1115,9 +1115,9 @@ const bids = [
       {
         item_no: 51,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Tools & Equipment", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 4 }
         ],
         base_price: 5500,
         image_path: "/images/property_machinery_electricity.png"
@@ -1138,8 +1138,8 @@ const bids = [
       {
         item_no: 52,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Utilities", quantity: 5 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Market Access & Partnerships", quantity: 5 }
         ],
         base_price: 5500,
         image_path: "/images/property_utilities.png"
@@ -1160,7 +1160,7 @@ const bids = [
       {
         item_no: 53,
         items: [
-          { item_name: "Machinery & Tools", quantity: 6 },
+          { item_name: "Tools & Equipment", quantity: 6 },
           { item_name: "Skilled Labour", quantity: 4 }
         ],
         base_price: 5500,
@@ -1182,8 +1182,8 @@ const bids = [
       {
         item_no: 54,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 6 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 6 }
         ],
         base_price: 5500,
         image_path: "/images/property_electricity.png"
@@ -1204,8 +1204,8 @@ const bids = [
       {
         item_no: 55,
         items: [
-          { item_name: "Property", quantity: 5 },
-          { item_name: "Transportation", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 5 },
+          { item_name: "Transportation & Logistics", quantity: 4 }
         ],
         base_price: 5500,
         image_path: "/images/property_transportation.png"
@@ -1226,9 +1226,9 @@ const bids = [
       {
         item_no: 56,
         items: [
-          { item_name: "Property", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 },
           { item_name: "Skilled Labour", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 4 }
+          { item_name: "Tools & Equipment", quantity: 4 }
         ],
         base_price: 5500,
         image_path: "/images/property_labour_machinery.png"
@@ -1249,9 +1249,9 @@ const bids = [
       {
         item_no: 57,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Transportation", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Transportation & Logistics", quantity: 4 },
+          { item_name: "Tools & Equipment", quantity: 4 }
         ],
         base_price: 5500,
         image_path: "/images/property_transportation_machinery.png"
@@ -1272,8 +1272,8 @@ const bids = [
       {
         item_no: 58,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 4 }
         ],
         base_price: 5500,
@@ -1295,8 +1295,8 @@ const bids = [
       {
         item_no: 59,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Office Space", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 },
           { item_name: "Skilled Labour", quantity: 5 }
         ],
         base_price: 5500,
@@ -1318,9 +1318,9 @@ const bids = [
       {
         item_no: 60,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 4 },
+          { item_name: "Tools & Equipment", quantity: 4 }
         ],
         base_price: 5500,
         image_path: "/images/property_electricity_machinery.png"
@@ -1341,7 +1341,7 @@ const bids = [
       {
         item_no: 61,
         items: [
-          { item_name: "Property", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 },
           { item_name: "Skilled Labour", quantity: 5 }
         ],
         base_price: 5000,
@@ -1363,8 +1363,8 @@ const bids = [
       {
         item_no: 62,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Construction Material", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Basic Infrastructure", quantity: 4 },
           { item_name: "Skilled Labour", quantity: 3 }
         ],
         base_price: 5000,
@@ -1386,9 +1386,9 @@ const bids = [
       {
         item_no: 63,
         items: [
-          { item_name: "Property", quantity: 3 },
-          { item_name: "Machinery & Tools", quantity: 5 },
-          { item_name: "Utilities", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 3 },
+          { item_name: "Tools & Equipment", quantity: 5 },
+          { item_name: "Market Access & Partnerships", quantity: 4 }
         ],
         base_price: 5000,
         image_path: "/images/property_machinery_utilities.png"
@@ -1409,8 +1409,8 @@ const bids = [
       {
         item_no: 64,
         items: [
-          { item_name: "Machinery & Tools", quantity: 5 },
-          { item_name: "Construction Material", quantity: 5 }
+          { item_name: "Tools & Equipment", quantity: 5 },
+          { item_name: "Basic Infrastructure", quantity: 5 }
         ],
         base_price: 5000,
         image_path: "/images/machinery_construction.png"
@@ -1431,8 +1431,8 @@ const bids = [
       {
         item_no: 65,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Transportation", quantity: 5 }
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Transportation & Logistics", quantity: 5 }
         ],
         base_price: 5000,
         image_path: "/images/property_transportation.png"
@@ -1453,7 +1453,7 @@ const bids = [
       {
         item_no: 66,
         items: [
-          { item_name: "Electricity Supply", quantity: 6 },
+          { item_name: "Electricity & Energy", quantity: 6 },
           { item_name: "Skilled Labour", quantity: 4 }
         ],
         base_price: 5000,
@@ -1476,7 +1476,7 @@ const bids = [
         item_no: 67,
         items: [
           { item_name: "Skilled Labour", quantity: 7 },
-          { item_name: "Office Space", quantity: 4 }
+          { item_name: "Land & Workspace", quantity: 4 }
         ],
         base_price: 5000,
         image_path: "/images/labour_office.png"
@@ -1497,7 +1497,7 @@ const bids = [
       {
         item_no: 68,
         items: [
-          { item_name: "Office Space", quantity: 6 },
+          { item_name: "Land & Workspace", quantity: 6 },
           { item_name: "Skilled Labour", quantity: 4 }
         ],
         base_price: 5000,
@@ -1519,8 +1519,8 @@ const bids = [
       {
         item_no: 69,
         items: [
-          { item_name: "Machinery & Tools", quantity: 6 },
-          { item_name: "Utilities", quantity: 4 }
+          { item_name: "Tools & Equipment", quantity: 6 },
+          { item_name: "Market Access & Partnerships", quantity: 4 }
         ],
         base_price: 5000,
         image_path: "/images/machinery_utilities.png"
@@ -1541,9 +1541,9 @@ const bids = [
       {
         item_no: 70,
         items: [
-          { item_name: "Property", quantity: 3 },
+          { item_name: "Land & Workspace", quantity: 3 },
           { item_name: "Skilled Labour", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 5 }
+          { item_name: "Tools & Equipment", quantity: 5 }
         ],
         base_price: 5000,
         image_path: "/images/property_labour_machinery.png"
@@ -1564,8 +1564,8 @@ const bids = [
       {
         item_no: 71,
         items: [
-          { item_name: "Property", quantity: 4 },
-          { item_name: "Utilities", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 4 },
+          { item_name: "Market Access & Partnerships", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 4 }
         ],
         base_price: 5000,
@@ -1587,9 +1587,9 @@ const bids = [
       {
         item_no: 72,
         items: [
-          { item_name: "Property", quantity: 3 },
+          { item_name: "Land & Workspace", quantity: 3 },
           { item_name: "Skilled Labour", quantity: 7 },
-          { item_name: "Utilities", quantity: 5 }
+          { item_name: "Market Access & Partnerships", quantity: 5 }
         ],
         base_price: 5000,
         image_path: "/images/property_labour_utilities.png"
@@ -1610,9 +1610,9 @@ const bids = [
       {
         item_no: 73,
         items: [
-          { item_name: "Property", quantity: 4 },
+          { item_name: "Land & Workspace", quantity: 4 },
           { item_name: "Skilled Labour", quantity: 5 },
-          { item_name: "Utilities", quantity: 5 }
+          { item_name: "Market Access & Partnerships", quantity: 5 }
         ],
         base_price: 5000,
         image_path: "/images/property_labour_utilities2.png"
@@ -1633,9 +1633,9 @@ const bids = [
       {
         item_no: 74,
         items: [
-          { item_name: "Property", quantity: 5 },
+          { item_name: "Land & Workspace", quantity: 5 },
           { item_name: "Skilled Labour", quantity: 4 },
-          { item_name: "Technology", quantity: 4 }
+          { item_name: "Technology Access", quantity: 4 }
         ],
         base_price: 7500,
         image_path: "/images/property_labour_technology.png"
@@ -1656,9 +1656,9 @@ const bids = [
       {
         item_no: 75,
         items: [
-          { item_name: "Technology", quantity: 4 },
-          { item_name: "Machinery & Tools", quantity: 4 },
-          { item_name: "Electricity Supply", quantity: 3 }
+          { item_name: "Technology Access", quantity: 4 },
+          { item_name: "Tools & Equipment", quantity: 4 },
+          { item_name: "Electricity & Energy", quantity: 3 }
         ],
         base_price: 6000,
         image_path: "/images/technology_machinery_electricity.png"
@@ -1681,19 +1681,19 @@ async function seedData() {
   try {
     await mongoose.connect(MONGO_URI);
 
-    console.log("✅ Connected to MongoDB");
+    console.log("Connected to MongoDB");
 
     // Clear old round one data
     await RoundOne.deleteMany({});
-    console.log("🗑️ Cleared old Round 1 bids");
+    console.log("Cleared old Round 1 bids");
 
     // Insert fresh data
     await RoundOne.insertMany(bids);
-    console.log("🎉 Round 1 bids seeded successfully");
+    console.log("Round 1 bids seeded successfully");
 
     process.exit(0);
   } catch (err) {
-    console.error("❌ Error seeding data:", err);
+    console.error("Error seeding data:", err);
     process.exit(1);
   }
 }

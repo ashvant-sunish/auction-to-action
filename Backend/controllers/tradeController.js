@@ -4,24 +4,20 @@ const TradeHistory = require('../models/TradeHistory');
 const Team = require('../models/Team');
 const BidHistory = require('../models/BidHistory');
 const TradeWishlist = require('../models/TradeWishlist');
+const { formatResourcesList, formatTradeTransfer, sendTargetedNotification } = require('../utils/notificationHelper');
 
 // CORRECT APPROACH - Remove traded items from the GIVING team's wishlist
 const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems) => {
   try {
-    console.log('🚀 STARTING WISHLIST UPDATE AFTER TRADE 🚀');
-    console.log('Team1:', team1.teamName, '(', team1.teamCode, ') gave:', team1GaveItems);
-    console.log('Team2:', team2.teamName, '(', team2.teamCode, ') gave:', team2GaveItems);
-
+    
     const mongoose = require('mongoose');
     const db = mongoose.connection.db;
     const collection = db.collection('tradelistings');
 
     // Remove items from team1's wishlist that they GAVE AWAY
     if (team1GaveItems && team1GaveItems.length > 0) {
-      console.log(`🔍 Removing items from ${team1.teamName}'s wishlist that they gave away`);
       
       for (const gaveItem of team1GaveItems) {
-        console.log(`⚡ Removing ${gaveItem.name} (quantity: ${gaveItem.quantity}) from ${team1.teamName}'s wishlist`);
         
         // Find and update the wishlist directly in MongoDB
         const updateResult = await collection.updateOne(
@@ -36,10 +32,8 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
           }
         );
 
-        console.log(`📊 Update result for ${gaveItem.name} in ${team1.teamName}'s wishlist:`, updateResult);
-
+        
         if (updateResult.matchedCount > 0 && updateResult.modifiedCount > 0) {
-          console.log(`✅ Successfully reduced ${gaveItem.name} by ${gaveItem.quantity} in ${team1.teamName}'s wishlist`);
           
           // Remove items with count <= 0
           const removeResult = await collection.updateOne(
@@ -52,8 +46,6 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
               $pull: { 'itemsToTrade': { 'count': { $lte: 0 } } }
             }
           );
-          
-          console.log(`🗑️ Removed zero/negative count items result:`, removeResult);
           
           // Recalculate total items
           const wishlist = await collection.findOne({
@@ -74,21 +66,15 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
                 $set: { totalItems: newTotal }
               }
             );
-            console.log(`📊 Updated total items for ${team1.teamName} to: ${newTotal}`);
           }
-        } else {
-          console.log(`⚠️ Item ${gaveItem.name} not found in ${team1.teamName}'s wishlist or already at zero`);
         }
       }
     }
 
     // Remove items from team2's wishlist that they GAVE AWAY
     if (team2GaveItems && team2GaveItems.length > 0) {
-      console.log(`🔍 Removing items from ${team2.teamName}'s wishlist that they gave away`);
       
-      for (const gaveItem of team2GaveItems) {
-        console.log(`⚡ Removing ${gaveItem.name} (quantity: ${gaveItem.quantity}) from ${team2.teamName}'s wishlist`);
-        
+      for (const gaveItem of team2GaveItems) {  
         // Find and update the wishlist directly in MongoDB
         const updateResult = await collection.updateOne(
           {
@@ -102,11 +88,7 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
           }
         );
 
-        console.log(`📊 Update result for ${gaveItem.name} in ${team2.teamName}'s wishlist:`, updateResult);
-
-        if (updateResult.matchedCount > 0 && updateResult.modifiedCount > 0) {
-          console.log(`✅ Successfully reduced ${gaveItem.name} by ${gaveItem.quantity} in ${team2.teamName}'s wishlist`);
-          
+        if (updateResult.matchedCount > 0 && updateResult.modifiedCount > 0) {          
           // Remove items with count <= 0
           const removeResult = await collection.updateOne(
             {
@@ -118,8 +100,6 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
               $pull: { 'itemsToTrade': { 'count': { $lte: 0 } } }
             }
           );
-          
-          console.log(`🗑️ Removed zero/negative count items result:`, removeResult);
           
           // Recalculate total items
           const wishlist = await collection.findOne({
@@ -140,10 +120,7 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
                 $set: { totalItems: newTotal }
               }
             );
-            console.log(`📊 Updated total items for ${team2.teamName} to: ${newTotal}`);
           }
-        } else {
-          console.log(`⚠️ Item ${gaveItem.name} not found in ${team2.teamName}'s wishlist or already at zero`);
         }
       }
     }
@@ -161,13 +138,9 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
       round: 3
     });
 
-    console.log(`🎯 ${team1.teamName} updated wishlist:`, team1UpdatedWishlist ? team1UpdatedWishlist.itemsToTrade.map(item => `${item.name} (${item.count})`) : 'No wishlist found');
-    console.log(`🎯 ${team2.teamName} updated wishlist:`, team2UpdatedWishlist ? team2UpdatedWishlist.itemsToTrade.map(item => `${item.name} (${item.count})`) : 'No wishlist found');
-
-    console.log('🚀 DIRECT WISHLIST UPDATE COMPLETED SUCCESSFULLY 🚀');
   } catch (error) {
-    console.error('❌ CRITICAL ERROR updating trade wishlists:', error);
-    console.error('❌ Stack trace:', error.stack);
+    console.error(' CRITICAL ERROR updating trade wishlists:', error);
+    console.error(' Stack trace:', error.stack);
     // Don't throw error - trade should still succeed even if wishlist update fails
   }
 };
@@ -175,13 +148,6 @@ const updateTradeWishlists = async (team1, team2, team1GaveItems, team2GaveItems
 // Execute a trade between two teams
 const executeTrade = async (req, res) => {
   try {
-    console.log('🚨🚨🚨 TRADE EXECUTION ENDPOINT HIT!!! 🚨🚨🚨');
-    console.log('🚨 Request method:', req.method);
-    console.log('🚨 Request path:', req.path);
-    console.log('🚨 Request URL:', req.url);
-    console.log('🚨 Request headers:', JSON.stringify(req.headers, null, 2));
-    console.log('🚨 Trade execution request body:', JSON.stringify(req.body, null, 2));
-    
     const {
       tradeId,
       round = 3, // Default to round 3 if not specified
@@ -194,7 +160,6 @@ const executeTrade = async (req, res) => {
 
     // Validate required fields
     if (!tradeId || !teamOne || !teamTwo || !teamOneGives || !teamTwoGives) {
-      console.log('Missing required fields:', { tradeId, teamOne, teamTwo, teamOneGives, teamTwoGives });
       return res.status(400).json({
         success: false,
         message: 'Missing required trade information'
@@ -203,8 +168,7 @@ const executeTrade = async (req, res) => {
 
     // Validate team codes
     if (!teamOne.teamCode || !teamTwo.teamCode) {
-      console.log('Missing team codes:', { teamOneCode: teamOne.teamCode, teamTwoCode: teamTwo.teamCode });
-      return res.status(400).json({
+        return res.status(400).json({
         success: false,
         message: 'Team codes are required'
       });
@@ -215,17 +179,11 @@ const executeTrade = async (req, res) => {
     const team2 = await Team.findOne({ teamCode: teamTwo.teamCode });
 
     if (!team1 || !team2) {
-      console.log('Teams not found:', { team1Found: !!team1, team2Found: !!team2 });
       return res.status(404).json({
         success: false,
         message: `Team(s) not found: ${!team1 ? teamOne.teamCode : ''} ${!team2 ? teamTwo.teamCode : ''}`
       });
     }
-
-    console.log('Team 1 found:', team1.teamName);
-    console.log('Team 2 found:', team2.teamName);
-    console.log('TeamOneGives from request:', JSON.stringify(teamOneGives, null, 2));
-    console.log('TeamTwoGives from request:', JSON.stringify(teamTwoGives, null, 2));
 
     // Validate team1 has sufficient resources
     if (teamOneGives.items) {
@@ -317,13 +275,7 @@ const executeTrade = async (req, res) => {
     await team1.save();
     await team2.save();
 
-    // Create trade record
-    console.log('Creating trade record with data:', {
-      tradeId,
-      teamOneGives: JSON.stringify(teamOneGives, null, 2),
-      teamTwoGives: JSON.stringify(teamTwoGives, null, 2)
-    });
-    
+    // Create trade record    
     const tradeRecord = new TradeHistory({
       tradeId,
       round,
@@ -345,16 +297,11 @@ const executeTrade = async (req, res) => {
     await tradeRecord.save();
 
     // Update trade wishlists - remove traded items
-    console.log('🎯 About to update trade wishlists...');
-    console.log('🎯 Team1 (', team1.teamName, ') gave:', teamOneGives.items);
-    console.log('🎯 Team2 (', team2.teamName, ') gave:', teamTwoGives.items);
     await updateTradeWishlists(team1, team2, teamOneGives.items, teamTwoGives.items);
 
     // Broadcast real-time update with AGGRESSIVE SOCKET BROADCASTING
     const io = req.app.get('socketio');
     if (io) {
-      console.log('📡 Socket.IO found, broadcasting MULTIPLE trade update events...');
-      
       const tradeUpdate = {
         tradeId,
         teams: [team1.teamNumber || team1._id, team2.teamNumber || team2._id],
@@ -363,7 +310,6 @@ const executeTrade = async (req, res) => {
       };
       
       // Broadcast to ALL clients with multiple event types
-      console.log('📡 Broadcasting to ALL clients...');
       io.emit('tradeExecuted', tradeUpdate);
       io.emit('tradeWishlistUpdated', {
         message: 'Trade wishlists updated after trade execution',
@@ -382,16 +328,55 @@ const executeTrade = async (req, res) => {
         teams: [team1.teamCode, team2.teamCode]
       });
       
-      // Also notify specific team rooms if they exist
-      io.to(`team_${team1.teamNumber || team1._id}`).emit('tradeExecuted', tradeUpdate);
-      io.to(`team_${team2.teamNumber || team2._id}`).emit('tradeExecuted', tradeUpdate);
+      // Also notify specific team rooms
+      io.to(`team_${team1.teamCode}`).emit('tradeExecuted', tradeUpdate);
+      io.to(`team_${team2.teamCode}`).emit('tradeExecuted', tradeUpdate);
+      io.to(`team_${team1.teamCode}`).emit('teamUpdated', team1);
+      io.to(`team_${team2.teamCode}`).emit('teamUpdated', team2);
       
       // Notify all admins
       io.emit('adminTradeUpdate', tradeRecord);
-      
-      console.log('📡 ALL socket events emitted successfully - wishlists should refresh now!');
-    } else {
-      console.log('❌ Socket.IO not found - real-time updates unavailable');
+
+      // --- TARGETED NOTIFICATIONS (ROUND 3 TRADES) ---
+      const gaveTeam1 = formatTradeTransfer(teamOneGives);
+      const receivedTeam1 = formatTradeTransfer(teamTwoGives);
+
+      const notifTeam1 = `Trade Completed\nYour trade with ${team2.teamName} was successful.\nYou gave: ${gaveTeam1}\nYou received: ${receivedTeam1}\nYour inventory and balance have been updated.`;
+      const notifTeam2 = `Trade Completed\nYour trade with ${team1.teamName} was successful.\nYou gave: ${receivedTeam1}\nYou received: ${gaveTeam1}\nYour inventory and balance have been updated.`;
+
+      // Target Team 1 strictly
+      await sendTargetedNotification(io, {
+        teamCode: team1.teamCode,
+        teamName: team1.teamName,
+        title: 'Trade Completed',
+        message: notifTeam1,
+        round: 3,
+        type: 'TRADE_COMPLETED',
+        data: {
+          tradeId,
+          partnerTeamCode: team2.teamCode,
+          partnerTeamName: team2.teamName,
+          gave: teamOneGives,
+          received: teamTwoGives
+        }
+      });
+
+      // Target Team 2 strictly
+      await sendTargetedNotification(io, {
+        teamCode: team2.teamCode,
+        teamName: team2.teamName,
+        title: 'Trade Completed',
+        message: notifTeam2,
+        round: 3,
+        type: 'TRADE_COMPLETED',
+        data: {
+          tradeId,
+          partnerTeamCode: team1.teamCode,
+          partnerTeamName: team1.teamName,
+          gave: teamTwoGives,
+          received: teamOneGives
+        }
+      });
     }
 
     res.json({
@@ -525,8 +510,6 @@ const getTradeStats = async (req, res) => {
 // Submit trade for Round 2 Mystery Box rewards
 const submitTrade = async (req, res) => {
   try {
-    console.log('Mystery box trade submission:', JSON.stringify(req.body, null, 2));
-    
     const {
       teamId,
       teamName,
@@ -569,13 +552,6 @@ const submitTrade = async (req, res) => {
         message: `Insufficient balance. Required: ₹${deductionAmount.toLocaleString()}, Available: ₹${currentBalance.toLocaleString()}`
       });
     }
-
-    console.log(`Team ${team.teamName} balance before transaction:`, {
-      credit: team.credit,
-      debit: team.debit,
-      balance: currentBalance
-    });
-
     // Update team balance using credit/debit system
     if (deductionAmount) {
       team.debit += deductionAmount; // Increase debit when spending money
@@ -590,7 +566,6 @@ const submitTrade = async (req, res) => {
         if (amount > 0) {
           const currentAmount = team.resources.get(resourceName) || 0;
           team.resources.set(resourceName, currentAmount + amount);
-          console.log(`Added ${amount} ${resourceName} to team ${team.teamName}. New total: ${currentAmount + amount}`);
         }
       });
     }
@@ -600,13 +575,6 @@ const submitTrade = async (req, res) => {
 
     // Calculate final balance after transaction
     const finalBalance = team.credit - team.debit;
-    
-    console.log(`Team ${team.teamName} balance after transaction:`, {
-      credit: team.credit,
-      debit: team.debit,
-      balance: finalBalance,
-      balanceChange: finalBalance - currentBalance
-    });
 
     // Create bid history record
     const bidHistoryData = {
@@ -683,7 +651,7 @@ const submitTrade = async (req, res) => {
     await tradeHistory.save();
 
     // Emit socket event for real-time updates
-    const io = req.app.get('io');
+    const io = req.app.get('io') || req.app.get('socketio');
     if (io) {
       io.emit('tradeCompleted', {
         teamCode: team.teamCode,
@@ -696,6 +664,38 @@ const submitTrade = async (req, res) => {
         newCredit: team.credit,
         newDebit: team.debit,
         resourcesGained: bidHistoryData.resourcesGained
+      });
+
+      io.to(`team_${team.teamCode}`).emit('teamUpdated', team);
+
+      // --- TARGETED NOTIFICATION (ROUND 2 MYSTERY BOX) ---
+      const formattedResources = formatResourcesList(bidHistoryData.resourcesGained);
+      const resourceSection = formattedResources 
+        ? `\n\nResources acquired:\n${formattedResources}` 
+        : '';
+      
+      let rewardText = mysteryBoxReward ? ` (${mysteryBoxReward})` : '';
+      if (cashReward > 0) {
+        rewardText += ` [Cash Reward: ₹${Number(cashReward).toLocaleString('en-IN')}]`;
+      }
+
+      const notifMessage = `You won Mystery Box${rewardText} for ₹${Number(bidAmount).toLocaleString('en-IN')}.${resourceSection}\n\n(If balance is not updated, kindly refresh the page)`;
+
+      await sendTargetedNotification(io, {
+        teamCode: team.teamCode,
+        teamName: team.teamName,
+        title: 'Mystery Box Won',
+        message: notifMessage,
+        round: Number(round) || 2,
+        type: 'MYSTERY_BOX',
+        data: {
+          mysteryBoxReward,
+          bidAmount,
+          cashReward,
+          deductionAmount,
+          resourcesGained: bidHistoryData.resourcesGained,
+          bidHistoryId: bidHistory._id
+        }
       });
     }
 

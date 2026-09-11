@@ -10,6 +10,9 @@ router.post('/login', authController.loginTeam);
 // Protected route for a team to log out
 router.post('/logout', protectTeam, authController.logoutTeam);
 
+// Heartbeat — called every 5 min by the dashboard to refresh the inactive-session timer
+router.post('/heartbeat', protectTeam, authController.heartbeatTeam);
+
 // --- Protected Routes ---
 // The following routes require a valid team JWT to be sent in the Authorization header.
 
@@ -32,6 +35,11 @@ router.put('/update-wishlist', protectTeam, teamController.updateWishlist);
 
 // All teams trade offers for the trading market view
 router.get('/all-trade-offers', protectTeam, teamController.getAllTeamsTradeOffers);
+
+// Notification routes for the logged-in team
+router.get('/notifications', protectTeam, teamController.getNotifications);
+router.put('/notifications/:id/read', protectTeam, teamController.markNotificationAsRead);
+router.put('/notifications/read-all', protectTeam, teamController.markAllNotificationsAsRead);
 
 module.exports = router;
 

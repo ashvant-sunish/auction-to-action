@@ -10,7 +10,8 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import serverUrl from "../../../../servercon";
-import { updateRoundRealtime } from "../../../../services/adminSocket";
+import { updateRoundRealtime, pauseRoundRealtime } from "../../../../services/adminSocket";
+
 
 function RoundsStartAdmin({ ongoingRound }) {
   const toast = useToast();
@@ -109,14 +110,29 @@ function RoundsStartAdmin({ ongoingRound }) {
   const handleEndRound = (currentState) => {
     const nextState = currentState + 1;
     // State will update automatically via useRoundManager hook when database changes
+    // State will update automatically via useRoundManager hook when database changes
     roundNumber(nextState);
+  };
 
-    // Auto-reset to state 0 after Round 3 ends (state 6)
-    if (nextState === 6) {
-      setTimeout(() => {
-        // State will update automatically via useRoundManager hook when database changes
-        roundNumber(0);
-      }, 0); // Reset immediately
+  const handlePauseResume = async (action) => {
+    try {
+      await pauseRoundRealtime(action);
+      toast({
+        title: `Round ${action === 'pause' ? 'Paused' : 'Resumed'}`,
+        description: `The round has been ${action === 'pause' ? 'paused' : 'resumed'} and broadcasted to all users`,
+        status: action === 'pause' ? 'warning' : 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error(`Error ${action}ing round:`, error);
+      toast({
+        title: `${action === 'pause' ? 'Pause' : 'Resume'} failed`,
+        description: error.response?.data?.message || `Failed to ${action} round`,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -129,10 +145,17 @@ function RoundsStartAdmin({ ongoingRound }) {
       3: 'Round 2 - Ongoing',
       4: 'Round 2 - Ended',
       5: 'Round 3 - Ongoing',
-      6: 'Round 3 - Ended'
+      6: 'Round 3 - Ended',
+      7: 'Round 1 - ⏸️ Paused',
+      8: 'Round 2 - ⏸️ Paused',
+      9: 'Round 3 - ⏸️ Paused'
     };
     return displays[state] || 'Unknown State';
   };
+  // Check if any round is paused
+  const isPaused = [7, 8, 9].includes(ongoingRound);
+  const alertStatus = isPaused ? 'warning' : 'info';
+
   return (
     <Box
       bg="white"
@@ -145,7 +168,7 @@ function RoundsStartAdmin({ ongoingRound }) {
       mr={2}
     >
       <Alert
-        status="info"
+        status={alertStatus}
         borderRadius="md"
         justifyContent="center"
         alignItems="center"
@@ -154,18 +177,19 @@ function RoundsStartAdmin({ ongoingRound }) {
         <AlertTitle>{getStateDisplay(ongoingRound)}</AlertTitle>
       </Alert>
       <Flex direction="column">
+        {/* ====== Round One ====== */}
         <Box borderBottom="1px" borderColor="gray.200" py={4}>
-          <Flex>
+          <Flex alignItems="center">
             <Box flex="1">
               Round One
             </Box>
             <Box>
-              {ongoingRound === 0 ? (
+              {(ongoingRound === 0 || ongoingRound === 6) ? (
                 <Button
                   onClick={() => handleStartRound(1)}
                   colorScheme="green"
                   size="sm"
-                  mr={6}
+                  mr={3}
                   isDisabled={!isSuperAdmin}
                 >
                   Start Round
@@ -175,7 +199,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   isDisabled
                   colorScheme="green"
                   size="sm"
-                  mr={6}
+                  mr={3}
                 >
                   Start Round
                 </Button>
@@ -183,6 +207,38 @@ function RoundsStartAdmin({ ongoingRound }) {
             </Box>
             <Box>
               {ongoingRound === 1 ? (
+                <Button
+                  onClick={() => handlePauseResume('pause')}
+                  colorScheme="orange"
+                  size="sm"
+                  mr={3}
+                  isDisabled={!isSuperAdmin}
+                >
+                  ⏸ Pause
+                </Button>
+              ) : ongoingRound === 7 ? (
+                <Button
+                  onClick={() => handlePauseResume('resume')}
+                  colorScheme="teal"
+                  size="sm"
+                  mr={3}
+                  isDisabled={!isSuperAdmin}
+                >
+                  ▶ Resume
+                </Button>
+              ) : (
+                <Button
+                  isDisabled
+                  colorScheme="orange"
+                  size="sm"
+                  mr={3}
+                >
+                  ⏸ Pause
+                </Button>
+              )}
+            </Box>
+            <Box>
+              {(ongoingRound === 1 || ongoingRound === 7) ? (
                 <Button
                   onClick={() => handleEndRound(1)}
                   colorScheme="red"
@@ -203,8 +259,9 @@ function RoundsStartAdmin({ ongoingRound }) {
             </Box>
           </Flex>
         </Box>
+        {/* ====== Round Two ====== */}
         <Box borderBottom="1px" borderColor="gray.200" py={4}>
-          <Flex>
+          <Flex alignItems="center">
             <Box flex="1">Round Two</Box>
             <Box>
               {ongoingRound === 2 ? (
@@ -212,7 +269,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   onClick={() => handleStartRound(3)}
                   colorScheme="green"
                   size="sm"
-                  mr={6}
+                  mr={3}
                   isDisabled={!isSuperAdmin}
                 >
                   Start Round
@@ -222,7 +279,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   isDisabled
                   colorScheme="green"
                   size="sm"
-                  mr={6}
+                  mr={3}
                 >
                   Start Round
                 </Button>
@@ -230,6 +287,38 @@ function RoundsStartAdmin({ ongoingRound }) {
             </Box>
             <Box>
               {ongoingRound === 3 ? (
+                <Button
+                  onClick={() => handlePauseResume('pause')}
+                  colorScheme="orange"
+                  size="sm"
+                  mr={3}
+                  isDisabled={!isSuperAdmin}
+                >
+                  ⏸ Pause
+                </Button>
+              ) : ongoingRound === 8 ? (
+                <Button
+                  onClick={() => handlePauseResume('resume')}
+                  colorScheme="teal"
+                  size="sm"
+                  mr={3}
+                  isDisabled={!isSuperAdmin}
+                >
+                  ▶ Resume
+                </Button>
+              ) : (
+                <Button
+                  isDisabled
+                  colorScheme="orange"
+                  size="sm"
+                  mr={3}
+                >
+                  ⏸ Pause
+                </Button>
+              )}
+            </Box>
+            <Box>
+              {(ongoingRound === 3 || ongoingRound === 8) ? (
                 <Button
                   onClick={() => handleEndRound(3)}
                   colorScheme="red"
@@ -250,8 +339,9 @@ function RoundsStartAdmin({ ongoingRound }) {
             </Box>
           </Flex>
         </Box>
+        {/* ====== Round Three ====== */}
         <Box borderBottom="1px" borderColor="gray.200" py={4}>
-          <Flex>
+          <Flex alignItems="center">
             <Box flex="1">Round Three</Box>
             <Box>
               {ongoingRound === 4 ? (
@@ -259,7 +349,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   onClick={() => handleStartRound(5)}
                   colorScheme="green"
                   size="sm"
-                  mr={6}
+                  mr={3}
                   isDisabled={!isSuperAdmin}
                 >
                   Start Round
@@ -269,7 +359,7 @@ function RoundsStartAdmin({ ongoingRound }) {
                   isDisabled
                   colorScheme="green"
                   size="sm"
-                  mr={6}
+                  mr={3}
                 >
                   Start Round
                 </Button>
@@ -277,6 +367,38 @@ function RoundsStartAdmin({ ongoingRound }) {
             </Box>
             <Box>
               {ongoingRound === 5 ? (
+                <Button
+                  onClick={() => handlePauseResume('pause')}
+                  colorScheme="orange"
+                  size="sm"
+                  mr={3}
+                  isDisabled={!isSuperAdmin}
+                >
+                  ⏸ Pause
+                </Button>
+              ) : ongoingRound === 9 ? (
+                <Button
+                  onClick={() => handlePauseResume('resume')}
+                  colorScheme="teal"
+                  size="sm"
+                  mr={3}
+                  isDisabled={!isSuperAdmin}
+                >
+                  ▶ Resume
+                </Button>
+              ) : (
+                <Button
+                  isDisabled
+                  colorScheme="orange"
+                  size="sm"
+                  mr={3}
+                >
+                  ⏸ Pause
+                </Button>
+              )}
+            </Box>
+            <Box>
+              {(ongoingRound === 5 || ongoingRound === 9) ? (
                 <Button
                   onClick={() => handleEndRound(5)}
                   colorScheme="red"

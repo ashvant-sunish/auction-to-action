@@ -16,7 +16,7 @@ const bidHistorySchema = new mongoose.Schema({
   
   // Round 2 mystery box fields
   mysteryBoxReward: { type: String }, // Description of the reward
-  rewardType: { type: String, enum: ['cash', 'resources', 'challenge', 'nothing'] },
+  rewardType: { type: String, enum: ['cash', 'resources', 'challenge', 'nothing', 'resource_grant', 'money_multiplier'] },
   deductionAmount: { type: Number, default: 0 }, // Amount deducted from team
   cashReward: { type: Number, default: 0 }, // Cash amount gained
   cashMultiplier: { type: Number, default: 1 }, // Multiplier for cash rewards

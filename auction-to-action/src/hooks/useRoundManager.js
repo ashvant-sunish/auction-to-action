@@ -23,17 +23,15 @@ export const useRoundManager = () => {
       const response = await axios.get(`${serverUrl}/api/round/current`);
       if (response.data.success) {
         setCurrentRound(response.data.roundData);
-        console.log('🎯 Round state fetched from database:', response.data.roundData);
       }
     } catch (err) {
-      console.error('❌ Error fetching current round:', err);
+      console.error('Error fetching current round:', err);
       setError('Failed to fetch current round state');
     }
   }, []);
 
   // Handle real-time round updates
   const handleRoundUpdate = useCallback((roundData) => {
-    console.log('🔄 Real-time round update received:', roundData);
     setCurrentRound(roundData);
   }, []);
 
@@ -66,7 +64,7 @@ export const useRoundManager = () => {
       fetchCurrentRound();
 
     } catch (err) {
-      console.error('❌ Error setting up round manager:', err);
+      console.error('Error setting up round manager:', err);
       setError('Failed to connect to real-time updates');
     }
 
@@ -78,18 +76,22 @@ export const useRoundManager = () => {
     };
   }, [handleRoundUpdate, fetchCurrentRound]);
 
-  // Convert round data to game state (0-6 format for existing components)
+  // Convert round data to game state (0-6 format for existing components, 7-9 for paused)
+  // 7 = Round 1 paused, 8 = Round 2 paused, 9 = Round 3 paused
   const getGameState = useCallback(() => {
     const { roundNumber, roundStatus } = currentRound;
     
     if (roundNumber === 0 || !roundNumber || roundStatus === 'not_started') {
       return 0; // Not yet started
     } else if (roundNumber === 1) {
-      return roundStatus === 'ongoing' ? 1 : 2; // Round 1 ongoing or ended
+      if (roundStatus === 'paused') return 7;
+      return roundStatus === 'ongoing' ? 1 : 2;
     } else if (roundNumber === 2) {
-      return roundStatus === 'ongoing' ? 3 : 4; // Round 2 ongoing or ended  
+      if (roundStatus === 'paused') return 8;
+      return roundStatus === 'ongoing' ? 3 : 4;
     } else if (roundNumber === 3) {
-      return roundStatus === 'ongoing' ? 5 : 6; // Round 3 ongoing or ended
+      if (roundStatus === 'paused') return 9;
+      return roundStatus === 'ongoing' ? 5 : 6;
     }
     return 0;
   }, [currentRound]);

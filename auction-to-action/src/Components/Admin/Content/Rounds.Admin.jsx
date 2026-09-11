@@ -5,7 +5,6 @@ import Round3 from "./Rounds/Round3";
 import Round1 from "./Rounds/Round1";
 
 function RoundsAdmin({ ongoingRound, setfile }) {
-
   // Styles for the tabs to ensure they are visible on a dark background
   const tabStyles = {
     color: "white",
@@ -24,14 +23,14 @@ function RoundsAdmin({ ongoingRound, setfile }) {
       case 1:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
-            <Round1/>
+            <Round1 />
           </Box>
         );
       case 3:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
             {/* <p>Round two!</p> */}
-            <Round2/>
+            <Round2 />
           </Box>
         );
       case 5:
@@ -59,6 +58,14 @@ function RoundsAdmin({ ongoingRound, setfile }) {
             <p>Round three ended!</p>
           </Box>
         );
+      case 7:
+      case 8:
+      case 9:
+        return (
+          <Box p={4} color="white" borderRadius="md" mt={4}>
+            <p>The current round has been paused.</p>
+          </Box>
+        );
       default:
         return (
           <Box p={4} color="white" borderRadius="md" mt={4}>
@@ -77,19 +84,19 @@ function RoundsAdmin({ ongoingRound, setfile }) {
           index={
             ongoingRound === 0
               ? 4
-              : ongoingRound === 1
-              ? 0
-              : ongoingRound === 2
-              ? 4
-              : ongoingRound === 3
-              ? 1
-              : ongoingRound === 4
-              ? 4
-              : ongoingRound === 5
-              ? 2
-              : ongoingRound === 6
-              ? 4
-              : null
+              : ongoingRound === 1 || ongoingRound === 7
+                ? 0
+                : ongoingRound === 2
+                  ? 4
+                  : ongoingRound === 3 || ongoingRound === 8
+                    ? 1
+                    : ongoingRound === 4
+                      ? 4
+                      : ongoingRound === 5 || ongoingRound === 9
+                        ? 2
+                        : ongoingRound === 6
+                          ? 4
+                          : null
           }
         >
           <TabList>
@@ -105,7 +112,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                   Round 3
                 </Tab>
               </>
-            ) : ongoingRound === 1 ? (
+            ) : ongoingRound === 1 || ongoingRound === 7 ? (
               <>
                 <Tab {...tabStyles}>Round 1</Tab>
                 <Tab {...tabStyles} isDisabled>
@@ -115,7 +122,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                   Round 3
                 </Tab>
               </>
-            ) : ongoingRound === 3 ? (
+            ) : ongoingRound === 3 || ongoingRound === 8 ? (
               <>
                 <Tab {...tabStyles} isDisabled>
                   Round 1
@@ -125,7 +132,7 @@ function RoundsAdmin({ ongoingRound, setfile }) {
                   Round 3
                 </Tab>
               </>
-            ) : ongoingRound === 5 ? (
+            ) : ongoingRound === 5 || ongoingRound === 9 ? (
               <>
                 <Tab {...tabStyles} isDisabled>
                   Round 1

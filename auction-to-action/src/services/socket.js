@@ -18,17 +18,17 @@ class SocketService {
       });
 
       this.socket.on('connect', () => {
-        console.log('✅ Socket connected:', this.socket.id);
+        console.log('Socket connected:', this.socket.id);
         this.isConnected = true;
       });
 
       this.socket.on('disconnect', () => {
-        console.log('❌ Socket disconnected');
+        console.log('Socket disconnected');
         this.isConnected = false;
       });
 
       this.socket.on('connect_error', (error) => {
-        console.error('❌ Socket connection error:', error);
+        console.error('Socket connection error:', error);
       });
     }
 
@@ -48,7 +48,6 @@ class SocketService {
   joinTeam(teamNumber) {
     if (this.socket) {
       this.socket.emit('joinTeam', teamNumber);
-      console.log(`🏠 Joined team room: ${teamNumber}`);
     }
   }
 
@@ -56,7 +55,6 @@ class SocketService {
   leaveTeam(teamNumber) {
     if (this.socket) {
       this.socket.emit('leaveTeam', teamNumber);
-      console.log(`🚪 Left team room: ${teamNumber}`);
     }
   }
 
@@ -74,10 +72,45 @@ class SocketService {
     }
   }
 
+  // Listen for wheel updates
+  onWheelUpdate(callback) {
+    if (this.socket) {
+      this.socket.on('wheelUpdate', callback);
+    }
+  }
+
+  // Listen for wheel confirmation
+  onWheelConfirmation(callback) {
+    if (this.socket) {
+      this.socket.on('wheelConfirmation', callback);
+    }
+  }
+
+  // Listen for wheel skip
+  onWheelSkip(callback) {
+    if (this.socket) {
+      this.socket.on('wheelSkip', callback);
+    }
+  }
+
   // Listen for database updates
   onDatabaseUpdate(callback) {
     if (this.socket) {
       this.socket.on('databaseUpdate', callback);
+    }
+  }
+
+  // Listen for targeted team notifications
+  onNotification(callback) {
+    if (this.socket) {
+      this.socket.on('newNotification', callback);
+    }
+  }
+
+  // Join admin room (for superadmin/admin notifications)
+  joinAdmin() {
+    if (this.socket) {
+      this.socket.emit('joinAdmin');
     }
   }
 

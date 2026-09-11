@@ -31,7 +31,7 @@ import { io } from "socket.io-client";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { PiConfettiBold } from "react-icons/pi";
 
-const AvailableMaterialsTable = ({
+export const AvailableMaterialsTable = ({
   resources,
   isFullScreen,
   toggleFullScreen,
@@ -42,39 +42,29 @@ const AvailableMaterialsTable = ({
     if (!resources || typeof resources !== "object") {
       return [];
     }
+    const resourceValues = {
+      "Skilled Labour": 1200,
+      "Land & Workspace": 900,
+      "Basic Infrastructure": 800,
+      "Community Network": 600,
+      "Tools & Equipment": 1500,
+      "Technology Access": 2000,
+      "Electricity & Energy": 1100,
+      "Transportation & Logistics": 1000,
+      "Training & Expertise": 1300,
+      "Market Access & Partnerships": 1500,
+    };
     const entries =
       resources instanceof Map
         ? Array.from(resources.entries())
         : Object.entries(resources);
     return entries
-      .filter(([name, quantity]) => quantity > 0)
+      .filter(([, quantity]) => quantity > 0)
       .map(([name, quantity]) => {
-        let multipleyer = 1;
-        if (name === "Technology") {
-          multipleyer = 2500;
-        } else if (name === "Transportation") {
-          multipleyer = 1000;
-        } else if (name === "Property") {
-          multipleyer = 2000;
-        } else if (name === "Skilled Labour") {
-          multipleyer = 1000;
-        } else if (name === "Machinery & Tools") {
-          multipleyer = 1800;
-        } else if (name === "Utilities") {
-          multipleyer = 800;
-        } else if (name === "Electricity Supply") {
-          multipleyer = 1500;
-        } else if (name === "Office Space") {
-          multipleyer = 1500;
-        } else if (name === "Construction Material") {
-          multipleyer = 1200;
-        } else {
-          multipleyer = 0;
-        }
         return {
           name,
           count: quantity,
-          totalAmount: quantity * multipleyer,
+          totalAmount: quantity * (resourceValues[name] || 0),
         };
       })
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -86,7 +76,7 @@ const AvailableMaterialsTable = ({
 
   return (
     <Box
-      bg="rgba(15, 59, 61, 0.5)"
+      bg="theme.surface"
       backdropFilter="blur(10px)"
       p={6}
       borderRadius="xl"
@@ -95,23 +85,23 @@ const AvailableMaterialsTable = ({
       display="flex"
       flexDirection="column"
       border="1px solid"
-      borderColor="rgba(255, 255, 255, 0.2)"
-      color="white"
+      borderColor="theme.outline"
+      color="theme.textPrimary"
     >
       <HStack justify="space-between" align="center" mb={4}>
-        <Heading size="md" fontWeight="600">
+        <Heading size="md" fontSize="22px" fontWeight="600" color="theme.textPrimary">
           Resources Inventory
         </Heading>
         <HStack>
           <Box
-            bg="rgba(255, 255, 255, 0.1)"
+            bg="theme.surfaceContainer"
             px={3}
             py={1}
             borderRadius="full"
             border="1px solid"
-            borderColor="rgba(255, 255, 255, 0.2)"
+            borderColor="theme.outline"
           >
-            <Text fontSize="xs" color="white" fontWeight="semibold">
+            <Text fontSize="xs" color="theme.textSecondary" fontWeight="semibold">
               {filteredHistory.length} Types
             </Text>
           </Box>
@@ -121,31 +111,34 @@ const AvailableMaterialsTable = ({
             aria-label="Toggle fullscreen"
             variant="ghost"
             size="sm"
-            _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+            color="theme.textSecondary"
+            _hover={{ bg: "theme.surfaceContainer", color: "theme.textPrimary" }}
           />
         </HStack>
       </HStack>
 
       <InputGroup mb={4}>
         <InputLeftElement pointerEvents="none">
-          <Icon as={FaSearch} color="gray.400" />
+          <Icon as={FaSearch} color="theme.textSecondary" />
         </InputLeftElement>
         <Input
           placeholder="Search resources..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           size="md"
-          bg="rgba(0, 0, 0, 0.2)"
+          bg="theme.background"
           border="1px solid"
-          borderColor="rgba(255, 255, 255, 0.2)"
+          borderColor="theme.outline"
           borderRadius="lg"
+          color="theme.textPrimary"
+          _placeholder={{ color: "theme.textMuted" }}
           _focus={{
-            bg: "rgba(0, 0, 0, 0.3)",
-            borderColor: "blue.300",
-            boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
+            bg: "theme.background",
+            borderColor: "theme.primary",
+            boxShadow: "0 0 0 1px var(--primary)",
           }}
           _hover={{
-            borderColor: "rgba(255, 255, 255, 0.3)",
+            borderColor: "theme.outline",
           }}
         />
       </InputGroup>
@@ -157,37 +150,43 @@ const AvailableMaterialsTable = ({
           "&::-webkit-scrollbar": { width: "8px" },
           "&::-webkit-scrollbar-track": { background: "transparent" },
           "&::-webkit-scrollbar-thumb": {
-            background: "rgba(255, 255, 255, 0.2)",
-            borderRadius: "8px",
+            background: "var(--outline)",
+            borderRadius: "4px",
           },
           "&::-webkit-scrollbar-thumb:hover": {
-            background: "rgba(255, 255, 255, 0.3)",
+            background: "var(--primary)",
           },
         }}
       >
         <Table variant="simple" size="md">
-          <Thead position="sticky" top={0} bg="#0f3b3d" zIndex={1}>
+          <Thead position="sticky" top={0} bg="theme.surfaceContainer" zIndex={1}>
             <Tr>
               <Th
-                color="gray.300"
+                color="theme.textSecondary"
+                fontSize="13px"
+                fontWeight="600"
                 textTransform="none"
-                borderColor="rgba(255, 255, 255, 0.2)"
+                borderColor="theme.outline"
               >
                 Resource Type
               </Th>
               <Th
                 isNumeric
-                color="gray.300"
+                color="#D9DEE2"
+                fontSize="13px"
+                fontWeight="600"
                 textTransform="none"
-                borderColor="rgba(255, 255, 255, 0.2)"
+                borderColor="theme.outline"
               >
                 Quantity
               </Th>
               <Th
                 isNumeric
-                color="gray.300"
+                color="#D9DEE2"
+                fontSize="13px"
+                fontWeight="600"
                 textTransform="none"
-                borderColor="rgba(255, 255, 255, 0.2)"
+                borderColor="theme.outline"
               >
                 Approx. Value
               </Th>
@@ -195,22 +194,33 @@ const AvailableMaterialsTable = ({
           </Thead>
           <Tbody>
             {filteredHistory.map((item, index) => (
-              <Tr key={index} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
-                <Td borderColor="rgba(255, 255, 255, 0.1)" fontWeight="500">
+              <Tr
+                key={index}
+                _hover={{
+                  bg: "theme.surfaceHigh",
+                  color: "theme.textPrimary",
+                  shadow: "0 6px 12px rgba(0, 0, 0, 0.2)",
+                  transform: "scale(1.02)",
+                  transition: "all 0.3s ease-in-out",
+                }}
+              >
+                <Td borderColor="theme.outline" fontSize="14px" fontWeight="400" color="theme.textSecondary">
                   <HStack>
-                    <Box w={2} h={2} bg="blue.400" borderRadius="full" />
+                    <Box w={2} h={2} bg="theme.info" borderRadius="full" />
                     <Text>{item.name}</Text>
                   </HStack>
                 </Td>
                 <Td
                   isNumeric
-                  borderColor="rgba(255, 255, 255, 0.1)"
-                  fontWeight="500"
+                  borderColor="theme.outline"
+                  fontSize="14px"
+                  fontWeight="400"
+                  color="theme.textSecondary"
                 >
                   {item.count}
                 </Td>
-                <Td isNumeric borderColor="rgba(255, 255, 255, 0.1)">
-                  <Text fontWeight="600" color="green.300">
+                <Td isNumeric borderColor="theme.outline" fontSize="14px" fontWeight="400">
+                  <Text fontWeight="600" color="theme.success">
                     ₹{Math.round(item.totalAmount).toLocaleString()}
                   </Text>
                 </Td>
@@ -219,7 +229,7 @@ const AvailableMaterialsTable = ({
           </Tbody>
         </Table>
         {filteredHistory.length === 0 && (
-          <Box textAlign="center" py={8} color="gray.400">
+          <Box textAlign="center" py={8} color="theme.textMuted">
             <Icon as={FaSearch} boxSize={8} mb={2} />
             <Text fontSize="sm">No resources found</Text>
           </Box>
@@ -230,6 +240,8 @@ const AvailableMaterialsTable = ({
 };
 
 function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
+  const [enterprisesData, setEnterprisesData] = useState([]);
+  const [productsData, setProductsData] = useState([]);
   const [isMaterialsFullScreen, setMaterialsFullScreen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState("0");
   const [currentRevealedBox, setCurrentRevealedBox] = useState("0");
@@ -240,6 +252,22 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
+
+      const inventoryResponse = await fetch(
+        `${serverUrl}/api/construction/inventory`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (inventoryResponse.ok) {
+        const inventoryData = await inventoryResponse.json();
+        setEnterprisesData(inventoryData.enterprises || []);
+        setProductsData(inventoryData.products || []);
+      }
 
       if (gameState === 1) {
         const response = await fetch(
@@ -267,7 +295,7 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
         }
       }
 
-      if (gameState === 5) {
+      if (gameState >= 5) {
         const response = await fetch(
           `${serverUrl}/api/construction/portfolio-worth`,
           {
@@ -298,9 +326,18 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
     );
     socket.on("productPurchased", () => gameState === 5 && fetchLiveData());
 
+    // Listen for local inventory updates dispatched from other components
+    const handleInventoryUpdated = () => fetchLiveData();
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('inventoryUpdated', handleInventoryUpdated);
+    }
+
     return () => {
       clearInterval(interval);
       socket.disconnect();
+      if (typeof window !== 'undefined' && window.removeEventListener) {
+        window.removeEventListener('inventoryUpdated', handleInventoryUpdated);
+      }
     };
   }, [gameState]);
 
@@ -333,10 +370,18 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
       p={4}
       shadow="md"
       borderRadius="lg"
-      bg="rgba(15, 59, 61, 0.5)"
+      bg="theme.surface"
       backdropFilter="blur(10px)"
-      border="1px solid rgba(255, 255, 255, 0.2)"
+      border="1px solid"
+      borderColor="theme.outline"
       mb={4}
+      _hover={{
+        bg: "theme.surfaceHigh",
+        transform: "translateY(-4px) scale(1.01)",
+        transition: "all 0.3s ease-in-out",
+        shadow: "0 6px 12px rgba(0, 0, 0, 0.2)",
+        borderColor: "theme.outline",
+      }}
     >
       <Flex>
         <Box
@@ -351,11 +396,47 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
           <Icon as={icon} color="white" w={6} h={6} />
         </Box>
         <Box>
-          <Text color="gray.300" fontSize="sm">
+          <Text color="theme.textSecondary" fontSize="15px" fontWeight="500">
             {title}
           </Text>
-          <Text fontWeight="bold" fontSize="2xl" color={valueColor}>
+          <Text fontWeight="600" fontSize="26px" color={valueColor}>
             {value}
+          </Text>
+        </Box>
+      </Flex>
+    </Box>
+  );
+
+  const InfoCard = ({ title, value, valueColor, secondaryValue }) => (
+    <Box
+      flex="1"
+      minW="200px"
+      p={4}
+      shadow="md"
+      borderRadius="lg"
+      bg="theme.surface"
+      backdropFilter="blur(10px)"
+      border="1px solid"
+      borderColor="theme.outline"
+      mb={4}
+      _hover={{
+        bg: "theme.surfaceHigh",
+        transform: "translateY(-4px) scale(1.01)",
+        transition: "all 0.3s ease-in-out",
+        shadow: "0 6px 12px rgba(0, 0, 0, 0.2)",
+        borderColor: "theme.outline",
+      }}
+    >
+      <Flex>
+        <Box>
+          <Text color="theme.textSecondary" fontSize="15px" fontWeight="500">
+            {title}
+          </Text>
+          <Text fontWeight="600" fontSize="26px" color={valueColor} paddingLeft={3}>
+            {value}
+          </Text>
+          <Text as="span" fontWeight="400" color="theme.textMuted" fontSize="13px">
+            {secondaryValue}
           </Text>
         </Box>
       </Flex>
@@ -369,8 +450,8 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
         title="Selected Number"
         value={selectedNumber}
         icon={FaGavel}
-        iconBgColor="blue.500"
-        valueColor="blue.300"
+        iconBgColor="theme.info"
+        valueColor="theme.info"
       />
     );
   } else if (gameState === 3) {
@@ -379,8 +460,8 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
         title="Current Revealed Box"
         value={currentRevealedBox}
         icon={PiConfettiBold}
-        iconBgColor="orange.500"
-        valueColor="orange.300"
+        iconBgColor="theme.warning"
+        valueColor="theme.warning"
       />
     );
   } else if (gameState === 5) {
@@ -390,8 +471,8 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
         title="Total Worth"
         value={`₹${totalWorth.toLocaleString()}`}
         icon={FaRupeeSign}
-        iconBgColor="purple.500"
-        valueColor="purple.300"
+        iconBgColor="theme.portfolio"
+        valueColor="theme.portfolio"
       />
     );
   } else {
@@ -400,8 +481,8 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
         title="Round Status"
         value={getRoundDisplayText(currentRound)}
         icon={IoIosInformationCircleOutline}
-        iconBgColor="gray.500"
-        valueColor="gray.300"
+        iconBgColor="theme.surfaceHigh"
+        valueColor="theme.textSecondary"
       />
     );
   }
@@ -411,27 +492,52 @@ function DashboardContent({ teamData, currentRound, gameState, teamNumber }) {
       <Box
         display="flex"
         flexDirection="column"
-        gap={4}
         overflow="hidden"
         h="full"
+        wrap="wrap"
       >
         <Flex gap={4} flexWrap="wrap">
           <StatCard
             title="Balance"
             value={`₹${calculateTotalBalance(credit, debit).toLocaleString()}`}
             icon={MdTrendingUp}
-            iconBgColor="green.500"
-            valueColor="green.300"
+            iconBgColor="theme.success"
+            valueColor="theme.success"
           />
           <StatCard
             title="Debit"
             value={`₹${debit.toLocaleString()}`}
             icon={MdTrendingDown}
-            iconBgColor="red.500"
-            valueColor="red.300"
+            iconBgColor="theme.error"
+            valueColor="theme.error"
           />
           {dynamicCard}
         </Flex>
+        <Flex gap={4} flexWrap="wrap">
+          <InfoCard
+            title={"Total Enterprises"}
+            value={enterprisesData.length}
+            valueColor={"theme.info"}
+            secondaryValue={`Worth: ₹${enterprisesData
+              .reduce((sum, prod) => sum + Number(prod.worth || 0), 0)
+              .toLocaleString()}`}
+          />
+          <InfoCard
+            title={"Total Products"}
+            value={productsData.length}
+            valueColor={"theme.warning"}
+            secondaryValue={`Worth: ₹${productsData
+              .reduce((sum, prod) => sum + Number(prod.worth || 0), 0)
+              .toLocaleString()}`}
+          />
+          <InfoCard
+            title={"Total Portfolio Value"}
+            value={`₹${(enterpriseWorth + productWorth).toLocaleString()}`}
+            valueColor={"theme.portfolio"}
+            secondaryValue={"Enterprises + Products"}
+          />
+        </Flex>
+        <Box height={"3"}></Box>
         <Box w="100%" flex="1" minH="0">
           <AvailableMaterialsTable
             resources={resources}

@@ -1,179 +1,260 @@
 [
   {
     "id": 1,
-    "title": "Eco-Furniture Workshop",
-    "worth": "50000",
+    "title": "Community Skill Development Centre",
+    "worth": "14000",
     "requirements": [
-      "Property (2)",
-      "Skilled Labour (2)",
-      "Construction Material (1)",
-      "Transportation (1)"
+      "Skilled Labour (4)",
+      "Land & Workspace (2)",
+      "Training & Expertise (2)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise1.png"
   },
   {
     "id": 2,
-    "title": "Solar Lighting Solutions Assembly Unit",
-    "worth": "65000",
+    "title": "Affordable Community Kitchen",
+    "worth": "16000",
     "requirements": [
-      "Property (2)",
-      "Technology (2)",
-      "Electricity Supply (1)",
-      "Skilled Labour (1)",
-      "Transportation (1)"
+      "Skilled Labour (3)",
+      "Land & Workspace (2)",
+      "Tools & Equipment (2)",
+      "Electricity & Energy (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise2.png"
   },
   {
     "id": 3,
-    "title": "Nutrient-Rich Food Products Unit",
-    "worth": "55000",
+    "title": "Rural Transport Service",
+    "worth": "19000",
     "requirements": [
-      "Property (2)",
-      "Machinery & Tools (2)",
-      "Utilities (1)"
+      "Transportation & Logistics (4)",
+      "Skilled Labour (2)",
+      "Tools & Equipment (1)",
+      "Electricity & Energy (2)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise3.png"
   },
   {
     "id": 4,
-    "title": "Community Water Purification & Bottling Center",
-    "worth": "55000",
+    "title": "Community Recycling Centre",
+    "worth": "20000",
     "requirements": [
-      "Property (2)",
-      "Machinery & Tools (2)",
-      "Electricity Supply (1)",
-      "Transportation (1)"
+      "Basic Infrastructure (4)",
+      "Tools & Equipment (2)",
+      "Skilled Labour (2)",
+      "Community Network (2)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise4.png"
   },
   {
     "id": 5,
-    "title": "Recycled Glass Products Studio",
-    "worth": "65000",
+    "title": "Affordable Tutoring Initiative",
+    "worth": "21000",
     "requirements": [
-      "Property (2)",
-      "Construction Material (2)",
-      "Electricity Supply (1)"
+      "Training & Expertise (4)",
+      "Skilled Labour (3)",
+      "Community Network (3)",
+      "Land & Workspace (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise5.png"
   },
   {
     "id": 6,
-    "title": "Women-Led Stitching & Tailoring Unit",
-    "worth": "45000",
+    "title": "Women Artisan Cooperative",
+    "worth": "22000",
     "requirements": [
-      "Property (2)",
-      "Skilled Labour (2)",
-      "Machinery & Tools (1)",
-      "Transportation (1)"
+      "Skilled Labour (4)",
+      "Tools & Equipment (2)",
+      "Community Network (4)",
+      "Training & Expertise (2)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise6.png"
   },
   {
     "id": 7,
-    "title": "Community Bicycle Repair & Rental Hub",
-    "worth": "50000",
+    "title": "Community Solar Service",
+    "worth": "23000",
     "requirements": [
-      "Property (2)",
-      "Machinery & Tools (2)",
-      "Skilled Labour (1)",
-      "Transportation (1)"
+      "Technology Access (2)",
+      "Tools & Equipment (2)",
+      "Skilled Labour (2)",
+      "Electricity & Energy (2)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise7.png"
   },
   {
     "id": 8,
-    "title": "Rural Handicrafts & Artisan Collective",
-    "worth": "35000",
+    "title": "Local Employment Agency",
+    "worth": "25000",
     "requirements": [
-      "Property (2)",
-      "Skilled Labour (2)",
-      "Utilities (1)"
+      "Skilled Labour (3)",
+      "Community Network (5)",
+      "Training & Expertise (3)",
+      "Technology Access (1)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise8.png"
   },
   {
     "id": 9,
-    "title": "Urban Recycling Booth",
-    "worth": "35000",
+    "title": "Affordable Healthcare Centre",
+    "worth": "45000",
     "requirements": [
-      "Property (2)",
-      "Machinery & Tools (1)",
-      "Skilled Labour (1)",
-      "Transportation (1)"
+      "Skilled Labour (5)",
+      "Land & Workspace (4)",
+      "Tools & Equipment (3)",
+      "Training & Expertise (4)",
+      "Electricity & Energy (2)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise9.png"
   },
   {
     "id": 10,
-    "title": "Youth Career Guidance Center",
-    "worth": "45000",
+    "title": "Rural Digital Education Platform",
+    "worth": "55000",
     "requirements": [
-      "Property (2)",
-      "Office Space (2)",
-      "Technology (1)",
-      "Transportation (1)"
+      "Technology Access (4)",
+      "Training & Expertise (5)",
+      "Skilled Labour (4)",
+      "Community Network (4)",
+      "Basic Infrastructure (3)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise10.png"
   },
   {
     "id": 11,
-    "title": "Agro-Tech Support Center",
-    "worth": "60000",
+    "title": "Sustainable Waste Management Enterprise",
+    "worth": "52000",
     "requirements": [
-      "Property (2)",
-      "Technology (2)",
-      "Utilities (1)"
+      "Basic Infrastructure (5)",
+      "Tools & Equipment (4)",
+      "Transportation & Logistics (4)",
+      "Skilled Labour (5)",
+      "Community Network (3)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise11.png"
   },
   {
     "id": 12,
-    "title": "Rainwater Reserve Vault",
-    "worth": "55000",
+    "title": "Clean Water Access Initiative",
+    "worth": "58000",
     "requirements": [
-      "Property (2)",
-      "Construction Material (2)",
-      "Utilities (1)"
+      "Technology Access (3)",
+      "Tools & Equipment (4)",
+      "Basic Infrastructure (5)",
+      "Skilled Labour (4)",
+      "Market Access & Partnerships (2)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise12.png"
   },
   {
     "id": 13,
-    "title": "SunSpot Energy Center",
-    "worth": "80000",
+    "title": "Renewable Energy Cooperative",
+    "worth": "65000",
     "requirements": [
-      "Property (2)",
-      "Technology (2)",
-      "Electricity Supply (1)",
-      "Skilled Labour (1)",
-      "Transportation (1)"
+      "Technology Access (4)",
+      "Tools & Equipment (4)",
+      "Skilled Labour (5)",
+      "Electricity & Energy (4)",
+      "Market Access & Partnerships (3)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise13.png"
   },
   {
     "id": 14,
-    "title": "UrbanRoots Garden Center",
-    "worth": "65000",
+    "title": "Inclusive Agriculture Support Network",
+    "worth": "50000",
     "requirements": [
-      "Property (2)",
-      "Skilled Labour (2)",
-      "Utilities (1)"
+      "Land & Workspace (5)",
+      "Transportation & Logistics (4)",
+      "Tools & Equipment (3)",
+      "Community Network (5)",
+      "Training & Expertise (3)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise14.png"
   },
   {
     "id": 15,
-    "title": "WeCare Health Studio",
-    "worth": "55000",
+    "title": "Rural Micro-Enterprise Incubator",
+    "worth": "60000",
     "requirements": [
-      "Property (2)",
-      "Office Space (2)",
-      "Skilled Labour (1)",
-      "Transportation (1)"
+      "Technology Access (3)",
+      "Training & Expertise (5)",
+      "Market Access & Partnerships (4)",
+      "Community Network (5)",
+      "Land & Workspace (3)"
     ],
     "imageUrl": "/assets/images/Construction/Enterprise15.png"
+  },
+  {
+    "id": 16,
+    "title": "Smart Rural Development Network",
+    "worth": "150000",
+    "requirements": [
+      "Technology Access (7)",
+      "Basic Infrastructure (7)",
+      "Skilled Labour (7)",
+      "Community Network (6)",
+      "Transportation & Logistics (5)",
+      "Market Access & Partnerships (5)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise16.png"
+  },
+  {
+    "id": 17,
+    "title": "National Affordable Healthcare Network",
+    "worth": "170000",
+    "requirements": [
+      "Skilled Labour (8)",
+      "Technology Access (6)",
+      "Tools & Equipment (7)",
+      "Training & Expertise (7)",
+      "Land & Workspace (6)",
+      "Market Access & Partnerships (5)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise17.png"
+  },
+  {
+    "id": 18,
+    "title": "Large-Scale Renewable Energy Enterprise",
+    "worth": "190000",
+    "requirements": [
+      "Technology Access (7)",
+      "Tools & Equipment (8)",
+      "Skilled Labour (7)",
+      "Electricity & Energy (7)",
+      "Basic Infrastructure (6)",
+      "Market Access & Partnerships (6)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise18.png"
+  },
+  {
+    "id": 19,
+    "title": "Integrated Circular Economy Network",
+    "worth": "200000",
+    "requirements": [
+      "Basic Infrastructure (8)",
+      "Tools & Equipment (7)",
+      "Transportation & Logistics (7)",
+      "Skilled Labour (7)",
+      "Technology Access (5)",
+      "Community Network (6)",
+      "Market Access & Partnerships (5)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise19.png"
+  },
+  {
+    "id": 20,
+    "title": "Social Innovation Ecosystem",
+    "worth": "250000",
+    "requirements": [
+      "Technology Access (8)",
+      "Skilled Labour (8)",
+      "Training & Expertise (7)",
+      "Market Access & Partnerships (7)",
+      "Community Network (7)",
+      "Basic Infrastructure (6)",
+      "Tools & Equipment (6)"
+    ],
+    "imageUrl": "/assets/images/Construction/Enterprise20.png"
   }
 ]
-

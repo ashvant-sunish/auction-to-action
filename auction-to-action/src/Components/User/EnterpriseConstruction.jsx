@@ -1,15 +1,41 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import SlidingAnimation from "./Construction/SlidingAnimation";
 import SlidingAnimationProduct from "./Construction/SlidingAnimationProduct";
 import SubmitButton from "./Construction/SubmitButton";
 import serverUrl from "./../../servercon";
+import { AvailableMaterialsTable } from "./DashboardContent";
+import { Box } from "@chakra-ui/react";
 
 const EnterpriseConstruction = ({ gameState }) => {
   const [notification, setNotification] = useState("");
   const [activeTab, setActiveTab] = useState("enterprises");
+  const [resources, setResources] = useState({});
   const slidingAnimationRef = useRef();
   const slidingAnimationProductRef = useRef();
+
+  const fetchTeamInventory = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch(`${serverUrl}/api/construction/inventory`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const inventoryData = await response.json();
+        setResources(inventoryData.resources || {});
+      }
+    } catch (error) {
+      console.error("Error fetching team inventory:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTeamInventory();
+  }, []);
 
   const handleConstruct = async () => {
     const activeRef =
@@ -22,7 +48,7 @@ const EnterpriseConstruction = ({ gameState }) => {
       setNotification(
         `Please select a ${
           activeTab === "enterprises" ? "enterprise" : "product"
-        } first.`
+        } first.`,
       );
       setTimeout(() => setNotification(""), 5000);
       return;
@@ -70,6 +96,7 @@ const EnterpriseConstruction = ({ gameState }) => {
         if (activeRef.current?.refreshComponent) {
           activeRef.current.refreshComponent();
         }
+        fetchTeamInventory();
       }
     } catch (error) {
       console.error("Construction error:", error);
@@ -77,7 +104,7 @@ const EnterpriseConstruction = ({ gameState }) => {
       if (error.response?.data?.error) {
         setNotification(error.response.data.error);
       } else {
-        setNotification("Failed to construct/purchase item. Please try again.");
+        setNotification("Failed to construct/create item. Please try again.");
       }
     }
 
@@ -96,13 +123,13 @@ const EnterpriseConstruction = ({ gameState }) => {
       position: fixed;
       top: 1.25rem;
       right: 1.25rem;
-      background: rgba(15, 59, 61, 0.9);
+      background: var(--surface);
       backdropFilter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
+      border: 1px solid var(--outline);
+      color: var(--text-primary);
       padding: 0.75rem 1.25rem;
       border-radius: 0.75rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       z-index: 50;
       animation: fadeInOut 5s ease-in-out forwards;
     }
@@ -124,10 +151,10 @@ const EnterpriseConstruction = ({ gameState }) => {
     .tab-button {
       flex: 1;
       padding: 12px 24px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(15, 59, 61, 0.3);
+      border: 1px solid var(--outline);
+      background: var(--surface-container);
       backdropFilter: blur(10px);
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
@@ -137,19 +164,19 @@ const EnterpriseConstruction = ({ gameState }) => {
     }
     
     .tab-button:hover {
-      background: rgba(15, 59, 61, 0.5);
-      color: rgba(255, 255, 255, 0.9);
-      border-color: rgba(255, 255, 255, 0.3);
+      background: var(--surface-high);
+      color: var(--text-primary);
+      border-color: var(--outline);
       transform: translateY(-1px);
     }
     
     .tab-button.active {
-      background: rgba(15, 59, 61, 0.8);
+      background: var(--primary-container);
       backdropFilter: blur(15px);
-      color: white;
-      border-color: rgba(255, 255, 255, 0.4);
+      color: var(--on-primary-container);
+      border-color: var(--primary);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(15, 59, 61, 0.4);
+      box-shadow: 0 6px 20px rgba(81, 36, 49, 0.5);
     }
     
     .tab-button.active::after {
@@ -159,7 +186,7 @@ const EnterpriseConstruction = ({ gameState }) => {
       left: 0;
       right: 0;
       height: 3px;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), rgba(107, 163, 190, 0.8));
+      background: var(--primary);
       border-radius: 0 0 8px 8px;
     }
     
@@ -210,9 +237,22 @@ const EnterpriseConstruction = ({ gameState }) => {
           buttonText={
             activeTab === "enterprises"
               ? "Construct Enterprise"
-              : "Purchase Product"
+              : "Create Product"
+          }
+          show={
+            activeTab === "enterprises"
+              ? gameState === 6
+              : gameState === 5 || gameState === 6
           }
         />
+
+        <Box mt={8}>
+          <AvailableMaterialsTable
+            resources={resources}
+            isFullScreen={false}
+            toggleFullScreen={() => {}}
+          />
+        </Box>
       </div>
     </div>
   );

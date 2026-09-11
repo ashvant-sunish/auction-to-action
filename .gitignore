@@ -1,1 +1,16 @@
-node_modules
+node_modules/
+.env
+.env.*
+!.env.example
+
+Backend/.env
+Backend/.env.*
+!Backend/.env.example
+
+dist/
+Backend/dist/
+
+.log
+npm-debug.log
+yarn-debug.log*
+pnpm-debug.log*

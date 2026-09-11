@@ -1,57 +1,117 @@
 [
   {
     "id": 101,
-    "title": "Sustainable Wooden Chairs",
+    "title": "Handmade Soap Kit",
     "worth": "4000",
-    "requiredEnterpriseId": 1,
+    "requiredEnterpriseId": null,
     "requirements": [
-      "Construction Material (1)",
+      "Tools & Equipment (1)",
       "Skilled Labour (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product1.png"
   },
   {
     "id": 102,
-    "title": "Purified Drinking Water Packs",
-    "worth": "3000",
-    "requiredEnterpriseId": 4,
+    "title": "Solar Lantern",
+    "worth": "5000",
+    "requiredEnterpriseId": null,
     "requirements": [
-      "Machinery & Tools (1)",
-      "Electricity Supply (1)"
+      "Technology Access (1)",
+      "Electricity & Energy (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product2.png"
   },
   {
     "id": 103,
-    "title": "Handmade Cloth Bags",
-    "worth": "4000",
-    "requiredEnterpriseId": 6,
+    "title": "Community Water Filter",
+    "worth": "5500",
+    "requiredEnterpriseId": null,
     "requirements": [
-      "Machinery & Tools (1)",
+      "Tools & Equipment (1)",
+      "Basic Infrastructure (1)",
       "Skilled Labour (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product3.png"
   },
   {
     "id": 104,
-    "title": "Recycled Paper Stationery",
-    "worth": "3500",
-    "requiredEnterpriseId": 9,
+    "title": "School Supply Pack",
+    "worth": "4300",
+    "requiredEnterpriseId": null,
     "requirements": [
-      "Machinery & Tools (1)",
-      "Skilled Labour (1)"
+      "Training & Expertise (1)",
+      "Community Network (1)",
+      "Land & Workspace (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product4.png"
   },
   {
     "id": 105,
-    "title": "Affordable Seed Kits",
-    "worth": "4500",
-    "requiredEnterpriseId": 11,
+    "title": "Community Notice Board",
+    "worth": "3400",
+    "requiredEnterpriseId": null,
     "requirements": [
-      "Technology (1)",
-      "Utilities (1)"
+      "Basic Infrastructure (2)",
+      "Community Network (1)"
     ],
     "imageUrl": "/src/assets/images/Products/Product5.png"
+  },
+  {
+    "id": 106,
+    "title": "Portable First-Aid Kit",
+    "worth": "4400",
+    "requiredEnterpriseId": null,
+    "requirements": [
+      "Tools & Equipment (1)",
+      "Training & Expertise (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product6.png"
+  },
+  {
+    "id": 107,
+    "title": "Eco-Friendly Shopping Bags",
+    "worth": "4100",
+    "requiredEnterpriseId": null,
+    "requirements": [
+      "Land & Workspace (1)",
+      "Skilled Labour (1)",
+      "Community Network (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product7.png"
+  },
+  {
+    "id": 108,
+    "title": "Skill Training Manual",
+    "worth": "7000",
+    "requiredEnterpriseId": null,
+    "requirements": [
+      "Training & Expertise (2)",
+      "Technology Access (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product8.png"
+  },
+  {
+    "id": 109,
+    "title": "Mobile Charging Station",
+    "worth": "6500",
+    "requiredEnterpriseId": null,
+    "requirements": [
+      "Technology Access (1)",
+      "Electricity & Energy (1)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product9.png"
+  },
+  {
+    "id": 110,
+    "title": "Seed Starter Kit",
+    "worth": "5800",
+    "requiredEnterpriseId": null,
+    "requirements": [
+      "Land & Workspace (2)",
+      "Basic Infrastructure (1)",
+      "Skilled Labour (1)"
+    ],
+    "imageUrl": "/src/assets/images/Products/Product10.png"
   }
 ]

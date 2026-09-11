@@ -17,6 +17,8 @@ const colors = {
 };
 
 function RoundsUser({ gameState }) {
+  const isRoundOne = gameState === 1;
+
   const renderRoundContent = () => {
     switch (gameState) {
       case 1: // Round 1 ongoing
@@ -27,7 +29,7 @@ function RoundsUser({ gameState }) {
         );
       case 3: // Round 2 ongoing
         return (
-          <Box borderRadius="full" bg="primary.200">
+          <Box borderRadius="xl" bg="transparent">
             <Round2User />
           </Box>
         );
@@ -37,7 +39,8 @@ function RoundsUser({ gameState }) {
             <Round3User />
           </Box>
         );
-      default: // Not started, or between rounds (states 0, 2, 4, 6)
+      default: // Not started, between rounds, or paused (0, 2, 4, 6, 7, 8, 9)
+        const isPaused = [7, 8, 9].includes(gameState);
         return (
           <Box
             p={8}
@@ -48,13 +51,15 @@ function RoundsUser({ gameState }) {
             bg="rgba(0,0,0,0.3)"
             backdropFilter="blur(10px)"
             border="1px solid"
-            borderColor="whiteAlpha.200"
+            borderColor={isPaused ? "orange.400" : "whiteAlpha.200"}
           >
             <Text fontSize="2xl" fontWeight="bold">
-              Please Wait
+              {isPaused ? "Round Paused" : "Please Wait"}
             </Text>
             <Text mt={4} fontSize="lg" opacity={0.8}>
-              The current round has not started or has ended.
+              {isPaused 
+                ? "The current round has been paused." 
+                : "The current round has not started or has ended."}
             </Text>
           </Box>
         );
@@ -62,8 +67,19 @@ function RoundsUser({ gameState }) {
   };
 
   return (
-    <Box bg="transparent" minH="100vh" p={4}>
-      <Box p={4} mt={2} borderRadius="xl" width="100%">
+    <Box
+      bg="transparent"
+      h={isRoundOne ? "100%" : undefined}
+      minH={isRoundOne ? 0 : "100vh"}
+      p={isRoundOne ? 0 : 4}
+    >
+      <Box
+        h={isRoundOne ? "100%" : undefined}
+        p={isRoundOne ? 0 : 4}
+        mt={isRoundOne ? 0 : 2}
+        borderRadius="xl"
+        width="100%"
+      >
         {renderRoundContent()}
       </Box>
     </Box>

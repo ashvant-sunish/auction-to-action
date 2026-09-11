@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Flex, useToast, VStack, Text, Spinner } from "@chakra-ui/react";
+import { Badge, Box, Flex, useToast, VStack, Text, Spinner } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import serverUrl from "../../servercon";
@@ -23,6 +23,9 @@ function UserDashboard() {
   const [showRules, setShowRules] = useState(false);
   const [isFirstTimeLogin, setIsFirstTimeLogin] = useState(false);
   const [imageLoading, setImageLoading] = useState(true); // State for preloading
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const processedNotificationIds = React.useRef(new Set());
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -47,12 +50,31 @@ function UserDashboard() {
     setupRealTimeConnection();
     fetchTeamData();
     fetchCurrentRound();
+    fetchNotifications();
 
+    // Refresh team data every 30 seconds
     const refreshInterval = setInterval(fetchTeamData, 30000);
+
+    // Send a heartbeat every 5 minutes to keep the session alive.
+    // If this tab is closed, heartbeats stop and the session expires in ≤10 min.
+    const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+    const sendHeartbeat = async () => {
+      try {
+        const t = localStorage.getItem('token');
+        if (t) {
+          await axios.post(`${serverUrl}/api/team/heartbeat`, {}, {
+            headers: { Authorization: `Bearer ${t}` }
+          });
+        }
+      } catch (_) { /* silent — non-critical */ }
+    };
+    sendHeartbeat(); // immediate on mount
+    const heartbeatInterval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
 
     return () => {
       socketService.disconnect();
       clearInterval(refreshInterval);
+      clearInterval(heartbeatInterval);
     };
   }, [navigate]);
 
@@ -68,20 +90,23 @@ function UserDashboard() {
   }, [teamData]);
 
   useEffect(() => {
-    if (teamData?.teamNumber) {
-      socketService.joinTeam(teamData.teamNumber);
+    if (teamData?.teamCode) {
+      socketService.joinTeam(teamData.teamCode);
     }
-  }, [teamData?.teamNumber]);
+  }, [teamData?.teamCode]);
 
   const processRoundData = (roundData) => {
     const { roundNumber, roundStatus } = roundData;
     let newGameState = 0;
     if (roundNumber === 1) {
-      newGameState = roundStatus === "ongoing" ? 1 : 2;
+      if (roundStatus === 'paused') newGameState = 7;
+      else newGameState = roundStatus === "ongoing" ? 1 : 2;
     } else if (roundNumber === 2) {
-      newGameState = roundStatus === "ongoing" ? 3 : 4;
+      if (roundStatus === 'paused') newGameState = 8;
+      else newGameState = roundStatus === "ongoing" ? 3 : 4;
     } else if (roundNumber === 3) {
-      newGameState = roundStatus === "ongoing" ? 5 : 6;
+      if (roundStatus === 'paused') newGameState = 9;
+      else newGameState = roundStatus === "ongoing" ? 5 : 6;
     }
     setGameState(newGameState);
     return newGameState;
@@ -96,6 +121,9 @@ function UserDashboard() {
       4: "Round 2 - Ended",
       5: "Round 3 - Ongoing",
       6: "Round 3 - Ended",
+      7: "Round 1 - ⏸️ Paused",
+      8: "Round 2 - ⏸️ Paused",
+      9: "Round 3 - ⏸️ Paused",
     };
     return displays[state] || "Not Started";
   };
@@ -129,6 +157,18 @@ function UserDashboard() {
       });
     });
 
+    // Globally listen to wheel updates to clear cached card states
+    // so if user is on another page during a spin/skip, they get fresh data when returning
+    const handleClearWheelState = (data) => {
+      if (data && data.round) {
+        localStorage.removeItem(`wheel_state_round_${data.round}`);
+      }
+    };
+
+    socketService.onWheelUpdate(handleClearWheelState);
+    socketService.onWheelConfirmation(handleClearWheelState);
+    socketService.onWheelSkip(handleClearWheelState);
+
     socketService.onDatabaseUpdate((data) => {
       toast({
         title: "System update",
@@ -138,6 +178,134 @@ function UserDashboard() {
         isClosable: true,
       });
     });
+
+    // Targeted notification listener with deduplication
+    socketService.onNotification((notif) => {
+      if (!notif) return;
+      const notifId = notif._id || `${notif.recipientTeamCode}_${notif.createdAt}`;
+
+      // Prevent duplicate processing from reconnects or multiple renders
+      if (processedNotificationIds.current.has(notifId)) {
+        return;
+      }
+      processedNotificationIds.current.add(notifId);
+
+      // Prepend to notifications list and update unread count
+      setNotifications((prev) => [notif, ...prev.filter((n) => n._id !== notif._id)]);
+      setUnreadCount((prev) => prev + 1);
+
+      // Display real-time notification toast card matching UI design
+      toast({
+        position: "top-right",
+        duration: 8000,
+        isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            color="theme.textPrimary"
+            p={4}
+            bg="theme.surface"
+            backdropFilter="blur(20px)"
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="theme.outline"
+            boxShadow="0 8px 32px rgba(0, 0, 0, 0.6)"
+            cursor="pointer"
+            onClick={onClose}
+            maxW="400px"
+          >
+            <Flex justify="space-between" align="center" mb={2}>
+              <Text fontWeight="bold" fontSize="md" color="theme.primary">
+                {notif.title || "Targeted Notification"}
+              </Text>
+              <Badge colorScheme="yellow" fontSize="xs">
+                Just now
+              </Badge>
+            </Flex>
+            <Text
+              fontSize="xs"
+              whiteSpace="pre-line"
+              lineHeight="tall"
+              color="theme.textSecondary"
+            >
+              {notif.message}
+            </Text>
+          </Box>
+        ),
+      });
+
+      // Also refresh team data in background to ensure balance & inventory are synced
+      fetchTeamData();
+    });
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.get(`${serverUrl}/api/team/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data?.success) {
+        const fetchedNotifs = response.data.notifications || [];
+        setNotifications(fetchedNotifs);
+        setUnreadCount(response.data.unreadCount || 0);
+
+        // Pre-fill deduplication set so page refresh doesn't trigger alerts for past notifications
+        fetchedNotifs.forEach((n) => {
+          if (n._id) processedNotificationIds.current.add(n._id);
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.put(
+        `${serverUrl}/api/team/notifications/${id}/read`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data?.success) {
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === id ? { ...n, read: true } : n))
+        );
+        setUnreadCount(response.data.unreadCount);
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.put(
+        `${serverUrl}/api/team/notifications/read-all`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data?.success) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
   };
 
   const fetchTeamData = async () => {
@@ -189,8 +357,8 @@ function UserDashboard() {
       console.error("Error during logout:", error);
     }
 
-    if (teamData?.teamNumber) {
-      socketService.leaveTeam(teamData.teamNumber);
+    if (teamData?.teamCode) {
+      socketService.leaveTeam(teamData.teamCode);
     }
     socketService.disconnect();
     localStorage.removeItem("token");
@@ -258,10 +426,8 @@ function UserDashboard() {
     <Flex
       h="100vh"
       overflow="hidden"
-      bgImage={`url(${dashboardBg})`}
-      bgSize="cover"
-      bgPosition="center"
-      bgRepeat="no-repeat"
+      className="user-app-root"
+      bg="theme.background"
     >
       {showRules && (
         <RulesUser onClose={handleCloseRules} isFirstTime={isFirstTimeLogin} />
@@ -276,8 +442,7 @@ function UserDashboard() {
       <Box
         flex="1"
         ml={{ base: 0, md: isSidebarCollapsed ? "80px" : "260px" }}
-        bg="rgba(0, 0, 0, 0.3)"
-        backdropFilter="blur(2px)"
+        bg="transparent"
         h="100vh"
         overflow="hidden"
         transition="margin-left 0.2s ease-in-out"
@@ -289,12 +454,16 @@ function UserDashboard() {
           teamCode={teamData?.teamName}
           currentRound={getRoundDisplayText(gameState)}
           gameState={gameState}
+          notifications={notifications}
+          unreadCount={unreadCount}
+          onMarkAsRead={handleMarkAsRead}
+          onMarkAllAsRead={handleMarkAllAsRead}
         />
         {imageLoading ? (
           <Flex h="calc(100vh - 72px)" align="center" justify="center">
             <VStack>
-              <Spinner size="xl" color="white" thickness="4px" />
-              <Text color="white" mt={4} fontSize="lg">
+              <Spinner size="xl" color="theme.primary" thickness="4px" />
+              <Text color="theme.textSecondary" mt={4} fontSize="lg">
                 Loading Dashboard...
               </Text>
             </VStack>
@@ -309,13 +478,13 @@ function UserDashboard() {
             overflowY="auto"
             css={{
               "&::-webkit-scrollbar": { width: "8px" },
-              "&::-webkit-scrollbar-track": { background: "transparent" },
+              "&::-webkit-scrollbar-track": { background: "rgba(0, 0, 0, 0.2)" },
               "&::-webkit-scrollbar-thumb": {
-                background: "rgba(255, 255, 255, 0.2)",
+                background: "rgba(255, 255, 255, 0.1)",
                 borderRadius: "8px",
               },
               "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(255, 255, 255, 0.3)",
+                background: "var(--primary)",
               },
             }}
           >

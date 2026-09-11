@@ -509,7 +509,7 @@ function RoundThreeBidHistory() {
                                             <Textarea
                                                 value={editingTrade.tradeDetails?.teamOneGivesItems?.join(', ') || ''}
                                                 onChange={(e) => handleArrayChange('teamOneGivesItems', e.target.value)}
-                                                placeholder="e.g., Property A, Goods B, Resource C"
+                                                placeholder="e.g., Land & Workspace A, Goods B, Resource C"
                                                 rows={2}
                                             />
                                         </FormControl>
@@ -536,7 +536,7 @@ function RoundThreeBidHistory() {
                                             <Textarea
                                                 value={editingTrade.tradeDetails?.teamTwoGivesItems?.join(', ') || ''}
                                                 onChange={(e) => handleArrayChange('teamTwoGivesItems', e.target.value)}
-                                                placeholder="e.g., Property X, Goods Y, Resource Z"
+                                                placeholder="e.g., Land & Workspace X, Goods Y, Resource Z"
                                                 rows={2}
                                             />
                                         </FormControl>

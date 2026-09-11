@@ -61,21 +61,21 @@ const TradingMarket = () => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
 
       if (response.data.success) {
         const currentTeamCode = getCurrentTeamCode();
         // Filter out current team from the list
         const otherTeams = response.data.teams.filter(
-          (team) => team.teamCode !== currentTeamCode
+          (team) => team.teamCode !== currentTeamCode,
         );
-        
+
         // Log detailed wishlist data for debugging
-        otherTeams.forEach(team => {
+        otherTeams.forEach((team) => {
           if (team.tradeWishlist && team.tradeWishlist.length > 0) {
-            console.log(`📋 ${team.teamCode} (${team.teamName}) wishlist:`, 
-              team.tradeWishlist.map(item => `${item.name}: ${item.count}`).join(', '));
+            // console.log(`📋 ${team.teamCode} (${team.teamName}) wishlist:`,
+            //   team.tradeWishlist.map(item => `${item.name}: ${item.count}`).join(', '));
           }
         });
         setTeams(otherTeams);
@@ -104,17 +104,17 @@ const TradingMarket = () => {
         if (!socketService.isSocketConnected()) {
           socketService.connect();
         }
-        
+
         // Wait a bit for connection to establish
         setTimeout(() => {
           if (socketService.isSocketConnected()) {
-            console.log("✅ Socket connection confirmed for TradingMarket");
+            // console.log("Socket connection confirmed for TradingMarket");
           } else {
-            console.log("⚠️ Socket connection not established, but will still try to listen");
+            // console.log("Socket connection not established, but will still try to listen");
           }
         }, 1000);
       } catch (error) {
-        console.error("❌ Error initializing socket:", error);
+        // console.error("Error initializing socket:", error);
       }
     };
 
@@ -159,21 +159,24 @@ const TradingMarket = () => {
         socket.on("teamDataUpdated", handleTeamDataUpdated);
         socket.on("forceWishlistReload", handleForceWishlistReload);
         socket.on("tradeExecuted", handleTradeExecuted);
-        
+
         return true;
       } else {
-        console.log("❌ Socket service not available");
         return false;
       }
     };
 
     // Try to set up listeners, with retry
     if (!setupSocketListeners()) {
-      console.log("🔄 Retrying socket listener setup in 2 seconds...");
       setTimeout(() => {
         setupSocketListeners();
       }, 2000);
     }
+
+    // Poll for updates every 5 minutes (300000 ms)
+    let pollingInterval = setInterval(() => {
+      fetchTeamsData(true);
+    }, 5 * 60 * 1000);
 
     return () => {
       const socket = socketService.getSocket();
@@ -184,6 +187,11 @@ const TradingMarket = () => {
         socket.off("teamDataUpdated", handleTeamDataUpdated);
         socket.off("forceWishlistReload", handleForceWishlistReload);
         socket.off("tradeExecuted", handleTradeExecuted);
+      }
+
+      // Clear polling interval on unmount
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
       }
     };
   }, []);
@@ -201,7 +209,7 @@ const TradingMarket = () => {
 
     const searchLower = searchQuery.toLowerCase();
     return team.tradeWishlist.some((item) =>
-      item.name.toLowerCase().includes(searchLower)
+      item.name.toLowerCase().includes(searchLower),
     );
   });
 
@@ -301,11 +309,7 @@ const TradingMarket = () => {
     >
       <Box maxW="1200px" w="full">
         <Flex justify="space-between" align="center" mb={8}>
-          <Heading
-            size="xl"
-            color="white"
-            fontFamily="Inter, sans-serif"
-          >
+          <Heading size="xl" color="white" fontFamily="Inter, sans-serif">
             Trading Offers
           </Heading>
           <Flex align="center" gap={3}>
@@ -321,13 +325,12 @@ const TradingMarket = () => {
               icon={<FaSync />}
               aria-label="Refresh trading offers"
               size="md"
-              bg="rgba(59, 130, 246, 0.2)"
-              color="blue.300"
+              bg="theme.primary"
+              color="white"
               border="1px solid"
-              borderColor="rgba(59, 130, 246, 0.3)"
+              borderColor="theme.primary"
               _hover={{
-                bg: "rgba(59, 130, 246, 0.3)",
-                borderColor: "rgba(59, 130, 246, 0.5)",
+                bg: "#D46B84",
               }}
               onClick={() => fetchTeamsData(true)}
               isLoading={refreshing}
@@ -340,26 +343,26 @@ const TradingMarket = () => {
         <Box mb={8}>
           <InputGroup size="lg">
             <InputLeftElement pointerEvents="none" h="full">
-              <Icon as={FaSearch} color="gray.400" />
+              <Icon as={FaSearch} color="theme.textMuted" />
             </InputLeftElement>
             <Input
-              placeholder="Search for items teams want to trade (e.g., 'Property')"
+              placeholder="Search for items teams want to trade (e.g., 'Land & Workspace')"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              bg="rgba(0, 0, 0, 0.2)"
+              bg="theme.background"
               border="1px solid"
-              borderColor="rgba(255, 255, 255, 0.2)"
+              borderColor="theme.outline"
               borderRadius="lg"
-              color="white"
+              color="theme.textPrimary"
               fontFamily="Inter, sans-serif"
-              _placeholder={{ color: "gray.400" }}
+              _placeholder={{ color: "theme.textMuted" }}
               _focus={{
-                bg: "rgba(0, 0, 0, 0.3)",
-                borderColor: "blue.300",
-                boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
+                bg: "theme.background",
+                borderColor: "theme.primary",
+                boxShadow: "0 0 0 1px var(--primary)",
               }}
               _hover={{
-                borderColor: "rgba(255, 255, 255, 0.3)",
+                borderColor: "theme.primary",
               }}
             />
           </InputGroup>
@@ -373,32 +376,60 @@ const TradingMarket = () => {
             lg: "repeat(3, 1fr)",
           }}
           gap={6}
+          rowGap={12}
           alignItems="start"
+          gridAutoFlow="dense"
+          gridAutoRows="max-content"
         >
           {filteredTeams.length > 0 ? (
             filteredTeams.map((team) => (
               <Box
                 key={team._id}
-                bg="rgba(15, 59, 61, 0.5)"
+                bg="theme.surface"
                 backdropFilter="blur(10px)"
                 p={6}
                 borderRadius="xl"
                 shadow="lg"
                 border="1px solid"
-                borderColor="rgba(255, 255, 255, 0.2)"
-                color="white"
-                transition="all 0.2s"
+                borderColor="theme.outline"
+                color="theme.textPrimary"
+                transition="all 0.5s"
                 alignSelf="start"
+                gridRow={visibleDetails.has(team._id) ? "span 2" : "span 1"}
+                overflow={visibleDetails.has(team._id) ? "auto" : "visible"}
+                minH={visibleDetails.has(team._id) ? "250px" : "100px"}
+                maxH={visibleDetails.has(team._id) ? "250px" : "200px"}
+                css={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "var(--outline) transparent",
+                  "&::-webkit-scrollbar": {
+                    width: "8px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "transparent",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "var(--outline)",
+                    borderRadius: "999px",
+                  },
+                  "&::-webkit-scrollbar-thumb:hover": {
+                    background: "rgba(57, 67, 77, 0.8)",
+                  },
+                }}
                 _hover={{
                   transform: "translateY(-2px)",
-                  shadow: "xl",
-                  borderColor: "rgba(255, 255, 255, 0.3)",
+                  shadow: "0 12px 24px rgba(0, 0, 0, 0.4)",
+                  borderColor: "theme.primary",
                 }}
               >
-                <Flex justify="space-between" align="center" mb={4}>
+                <Flex
+                  justify="space-between"
+                  align="center"
+                  mb={visibleDetails.has(team._id) ? 4 : 0}
+                >
                   <Heading
                     size="md"
-                    color="white"
+                    color="theme.textPrimary"
                     fontFamily="Inter, sans-serif"
                   >
                     {team.teamCode}
@@ -406,19 +437,18 @@ const TradingMarket = () => {
                   <Button
                     onClick={() => toggleDetails(team._id)}
                     size="sm"
-                    bg="rgba(59, 130, 246, 0.2)"
-                    color="blue.300"
+                    bg="theme.primary"
+                    color="white"
                     border="1px solid"
-                    borderColor="rgba(59, 130, 246, 0.3)"
+                    borderColor="theme.primary"
                     borderRadius="full"
                     minW="40px"
                     h="40px"
                     _hover={{
-                      bg: "rgba(59, 130, 246, 0.3)",
-                      borderColor: "rgba(59, 130, 246, 0.5)",
+                      bg: "#D46B84",
                     }}
                     _active={{
-                      bg: "rgba(59, 130, 246, 0.2)",
+                      bg: "#B54761",
                     }}
                   >
                     {visibleDetails.has(team._id) ? (
@@ -433,11 +463,11 @@ const TradingMarket = () => {
                   <Box
                     pt={4}
                     borderTop="1px solid"
-                    borderColor="rgba(255, 255, 255, 0.1)"
+                    borderColor="theme.outline"
                   >
                     <Text
                       fontWeight="600"
-                      color="blue.300"
+                      color="theme.textSecondary"
                       mb={3}
                       fontFamily="Inter, sans-serif"
                     >
@@ -450,7 +480,7 @@ const TradingMarket = () => {
                             <Box
                               w={2}
                               h={2}
-                              bg="blue.400"
+                              bg="theme.primary"
                               borderRadius="full"
                             />
                             <Text

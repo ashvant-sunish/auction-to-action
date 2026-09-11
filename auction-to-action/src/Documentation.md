@@ -130,7 +130,7 @@
 
     - Built the main dashboard page with a persistent sidebar and a dynamic top navbar.
     - The layout is fixed to the viewport height, with internal scrolling for content-heavy components to prevent a main page scrollbar and improve user experience.
-    - The main content area features a three-column grid of stat cards for "Credit," "Debit," and "Property Amount," along with a two-column grid for detailed information tables.
+    - The main content area features a three-column grid of stat cards for "Credit," "Debit," and "Land & Workspace Amount," along with a two-column grid for detailed information tables.
 
     ### Built Reusable Dashboard Components (Sidebar.jsx, Navbar.jsx)
 

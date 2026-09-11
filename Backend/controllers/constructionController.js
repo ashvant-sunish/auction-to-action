@@ -1,11 +1,12 @@
 const Team = require('../models/Team');
 const jwt = require('jsonwebtoken');
+const { sendTargetedNotification } = require('../utils/notificationHelper');
 
 // Helper function to parse requirements from string format
 const parseRequirements = (requirements) => {
   const parsed = {};
   requirements.forEach(req => {
-    // Parse format like "Property (2)" to { "Property": 2 }
+    // Parse format like "Land & Workspace (2)" to { "Land & Workspace": 2 }
     const match = req.match(/^(.+)\s*\((\d+)\)$/);
     if (match) {
       const resourceName = match[1].trim();
@@ -90,6 +91,17 @@ const constructEnterprise = async (req, res) => {
         teamName: team.teamName,
         enterprise: { id: enterpriseId, title, worth }
       });
+
+      // Target notification to the specific team
+      await sendTargetedNotification(io, {
+        teamCode: team.teamCode,
+        teamName: team.teamName,
+        title: 'Enterprise Constructed!',
+        message: `Successfully constructed "${title}" worth ₹${parseInt(worth).toLocaleString()}.`,
+        round: 3,
+        type: 'ENTERPRISE_CONSTRUCTED',
+        data: { enterpriseId, title, worth }
+      });
     }
 
     res.json({
@@ -127,17 +139,11 @@ const purchaseProduct = async (req, res) => {
       return res.status(404).json({ error: 'Team not found' });
     }
 
-    // Check if required enterprise is owned
-    const ownsRequiredEnterprise = team.enterprises.find(ent => 
-      parseInt(ent.id) === parseInt(requiredEnterpriseId)
-    );
-    if (!ownsRequiredEnterprise) {
-      console.log('Enterprise check failed:', {
-        requiredEnterpriseId,
-        ownedEnterprises: team.enterprises.map(ent => ({ id: ent.id, title: ent.title }))
-      });
+    // Check if team owns ANY enterprise
+    const hasAnyEnterprise = team.enterprises && team.enterprises.length > 0;
+    if (!hasAnyEnterprise) {
       return res.status(400).json({ 
-        error: `You need to own the required enterprise (ID: ${requiredEnterpriseId}) to purchase this product`,
+        error: `You need to construct at least one enterprise to form products`,
         type: 'missing_enterprise'
       });
     }
@@ -174,11 +180,22 @@ const purchaseProduct = async (req, res) => {
         teamName: team.teamName,
         product: { id: productId, title, worth }
       });
+
+      // Target notification to the specific team
+      await sendTargetedNotification(io, {
+        teamCode: team.teamCode,
+        teamName: team.teamName,
+        title: 'Product Created!',
+        message: `Successfully created "${title}" worth ₹${parseInt(worth).toLocaleString()}.`,
+        round: 3,
+        type: 'PRODUCT_FORMED',
+        data: { productId, title, worth }
+      });
     }
 
     res.json({
       success: true,
-      message: `Successfully purchased "${title}"! Product worth ₹${parseInt(worth).toLocaleString()} added to your inventory.`,
+      message: `Successfully created "${title}"! Product worth ₹${parseInt(worth).toLocaleString()} added to your inventory.`,
       product: {
         id: productId,
         title,
@@ -188,8 +205,8 @@ const purchaseProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Purchase error:', error);
-    res.status(500).json({ error: 'Failed to purchase product' });
+    console.error('Create product error:', error);
+    res.status(500).json({ error: 'Failed to create product' });
   }
 };
 
@@ -232,43 +249,24 @@ const getTeamPortfolioWorth = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const teamId = decoded.teamId;
 
-    console.log('Getting portfolio worth for team ID:', teamId);
-    console.log('Decoded token:', decoded);
-
     // Use findById since teamId in JWT is the MongoDB _id
     const team = await Team.findById(teamId);
     if (!team) {
-      console.log('Team not found with ID:', teamId);
       return res.status(404).json({ error: 'Team not found' });
     }
-
-    console.log('Found team:', team.teamCode);
-    console.log('Team enterprises:', team.enterprises);
-    console.log('Team products:', team.products);
 
     // Calculate total worth
     const enterpriseWorth = (team.enterprises || []).reduce((total, enterprise) => {
       const worth = parseInt(enterprise.worth) || 0;
-      console.log(`Enterprise ${enterprise.title}: ${worth}`);
       return total + worth;
     }, 0);
 
     const productWorth = (team.products || []).reduce((total, product) => {
       const worth = parseInt(product.worth) || 0;
-      console.log(`Product ${product.title}: ${worth}`);
       return total + worth;
     }, 0);
 
     const totalWorth = enterpriseWorth + productWorth;
-
-    console.log('Portfolio calculation:', {
-      teamCode: team.teamCode,
-      enterpriseWorth,
-      productWorth,
-      totalWorth,
-      enterpriseCount: (team.enterprises || []).length,
-      productCount: (team.products || []).length
-    });
 
     res.json({
       totalWorth,

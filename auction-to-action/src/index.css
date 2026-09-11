@@ -1,6 +1,55 @@
 /* Global styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+
 :root {
-  font-family: system-ui, -apple-system, sans-serif;
+  /* Main surfaces - Teal & Green from repo */
+  --background: #080B0F;
+  --sidebar: rgba(15, 59, 61, 0.65);
+  --header: rgba(15, 59, 61, 0.95);
+
+  --surface: rgba(15, 59, 61, 0.55);
+  --surface-container: rgba(15, 59, 61, 0.75);
+  --surface-high: rgba(15, 59, 61, 0.9);
+
+  /* Borders */
+  --outline: rgba(255, 255, 255, 0.18);
+
+  /* Primary - Cranberry highlights */
+  --primary: #C24F6D;
+  --on-primary: #FFFFFF;
+
+  --primary-container: #512431;
+  --on-primary-container: #F3B8C7;
+
+  /* Secondary - Vibrant Teal & Teal Green from repo */
+  --secondary: #0C969C;
+  --secondary-container: #0A7075;
+  --on-secondary-container: #E0F7F8;
+
+  /* Tertiary - Soft Teal & Slate Teal from repo */
+  --tertiary: #6BA3BE;
+  --tertiary-container: #274D60;
+  --on-tertiary-container: #E6F3F7;
+
+  /* Text */
+  --text-primary: #F0F4FF;
+  --text-secondary: #CBD5E1;
+  --text-muted: #82959B;
+  --text-disabled: #4E6268;
+
+  /* Semantic */
+  --success: #6EC497;
+  --error: #E17786;
+  --info: #74ABCD;
+  --warning: #D6AC64;
+  --portfolio: #AE97D6;
+
+  /* Event branding */
+  --event-red: #C00F37;
+}
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
 }
 
@@ -29,4 +78,58 @@ body {
   animation: pulse 2s infinite;
 }
 
-/* Add your global styles here */
+/* --- USER-SIDE REDESIGN STYLES --- */
+
+.user-app-root {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at top left, rgba(12, 150, 156, 0.05) 0%, transparent 45%),
+    radial-gradient(ellipse at bottom right, rgba(10, 112, 117, 0.05) 0%, transparent 45%);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* User-side specific scrollbar */
+.user-app-root ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.user-app-root ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.user-app-root ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.user-app-root ::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+@keyframes pulseYellow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(232, 255, 0, 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 20px rgba(232, 255, 0, 0.8);
+  }
+}
+
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 0 0 rgba(232, 255, 0, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(232, 255, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 255, 0, 0); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

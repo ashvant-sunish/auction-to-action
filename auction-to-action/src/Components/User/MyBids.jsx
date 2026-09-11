@@ -79,7 +79,7 @@ function MyBids() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (inventoryResponse.ok) {
@@ -136,29 +136,27 @@ function MyBids() {
 
   const renderBidsTable = (data) => (
     <Table variant="simple" size="md" color="white">
-      <Thead bg="rgba(15, 59, 61, 0.7)" position="sticky" top={0} zIndex={1}>
+      <Thead bg="theme.surfaceContainer" position="sticky" top={0} zIndex={1}>
         <Tr>
-          <Th color="gray.300" borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" borderColor="theme.outline">
             Items
           </Th>
-          <Th isNumeric color="gray.300" borderColor="rgba(255, 255, 255, 0.2)">
+          <Th isNumeric color="theme.textSecondary" borderColor="theme.outline">
             Amount
           </Th>
-          <Th color="gray.300" borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" borderColor="theme.outline">
             Resources
           </Th>
         </Tr>
       </Thead>
       <Tbody>
         {data.map((bid) => (
-          <Tr key={bid._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
-            <Td borderColor="rgba(255, 255, 255, 0.1)">
-              {formatBidItems(bid)}
+          <Tr key={bid._id} _hover={{ bg: "theme.surfaceHigh" }}>
+            <Td borderColor="theme.outline">{formatBidItems(bid)}</Td>
+            <Td isNumeric borderColor="theme.outline" color="green.300">
+              <Text fontWeight="bold">₹{bid.bidAmount.toLocaleString()}</Text>
             </Td>
-            <Td isNumeric borderColor="rgba(255, 255, 255, 0.1)">
-              ₹{bid.bidAmount.toLocaleString()}
-            </Td>
-            <Td borderColor="rgba(255, 255, 255, 0.1)">
+            <Td borderColor="theme.outline">
               {bid.resourcesGained ? (
                 <VStack align="start" spacing={1}>
                   {Object.entries(bid.resourcesGained).map(
@@ -166,7 +164,7 @@ function MyBids() {
                       <Text key={resource} fontSize="sm">
                         {resource}: {quantity}
                       </Text>
-                    )
+                    ),
                   )}
                 </VStack>
               ) : (
@@ -181,32 +179,32 @@ function MyBids() {
 
   const renderTradesTable = (data) => (
     <Table variant="simple" size="md" whiteSpace="nowrap" color="white">
-      <Thead bg="rgba(15, 59, 61, 0.7)" position="sticky" top={0} zIndex={1}>
+      <Thead bg="theme.surfaceContainer" position="sticky" top={0} zIndex={1}>
         <Tr>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Teams
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Items Exchanged
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Money Exchanged
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Status
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Date
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Action
           </Th>
         </Tr>
       </Thead>
       <Tbody>
         {data.map((trade, index) => (
-          <Tr key={trade._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
-            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
+          <Tr key={trade._id} _hover={{ bg: "theme.surfaceHigh" }}>
+            <Td py={4} borderColor="theme.outline">
               <Text fontSize="sm">
                 <Text as="span" fontWeight="bold" color="blue.300">
                   {trade.teamOne?.teamName || "Team 1"}
@@ -217,7 +215,7 @@ function MyBids() {
                 </Text>
               </Text>
             </Td>
-            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
+            <Td py={4} borderColor="theme.outline">
               <Text fontSize="xs">
                 <Text color="blue.300">
                   {formatTradeItems(trade.teamOneGives?.items) || "No items"}
@@ -228,7 +226,7 @@ function MyBids() {
                 </Text>
               </Text>
             </Td>
-            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
+            <Td py={4} borderColor="theme.outline">
               <Text fontSize="xs">
                 <Text color="blue.300">
                   ₹{(trade.teamOneGives?.money || 0).toLocaleString()}
@@ -239,23 +237,23 @@ function MyBids() {
                 </Text>
               </Text>
             </Td>
-            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
+            <Td py={4} borderColor="theme.outline">
               <Badge
                 colorScheme={trade.status === "completed" ? "green" : "yellow"}
               >
                 {trade.status}
               </Badge>
             </Td>
-            <Td py={4} color="gray.400" borderColor="rgba(255, 255, 255, 0.1)">
+            <Td py={4} color="gray.400" borderColor="theme.outline">
               {new Date(trade.createdAt).toLocaleDateString()}
             </Td>
-            <Td py={4} borderColor="rgba(255, 255, 255, 0.1)">
+            <Td py={4} borderColor="theme.outline">
               <ChakraButton
                 size="sm"
                 colorScheme="blue"
                 variant="outline"
                 onClick={() => handleViewTrade(trade)}
-                _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                _hover={{ bg: "theme.surfaceHigh" }}
               >
                 View Details
               </ChakraButton>
@@ -268,43 +266,39 @@ function MyBids() {
 
   const renderEnterprisesTable = (data) => (
     <Table variant="simple" size="md" color="white">
-      <Thead bg="rgba(15, 59, 61, 0.7)" position="sticky" top={0} zIndex={1}>
+      <Thead bg="theme.surfaceContainer" position="sticky" top={0} zIndex={1}>
         <Tr>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Enterprise ID
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Name
           </Th>
           <Th
             isNumeric
-            color="gray.300"
+            color="theme.textSecondary"
             py={4}
-            borderColor="rgba(255, 255, 255, 0.2)"
+            borderColor="theme.outline"
           >
             Worth
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Constructed Date
           </Th>
         </Tr>
       </Thead>
       <Tbody>
         {data.map((enterprise, index) => (
-          <Tr key={enterprise._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
+          <Tr key={enterprise._id} _hover={{ bg: "theme.surfaceHigh" }}>
             <Td
               py={4}
               fontWeight="bold"
               color="blue.300"
-              borderColor="rgba(255, 255, 255, 0.1)"
+              borderColor="theme.outline"
             >
               ENT-{enterprise.id}
             </Td>
-            <Td
-              py={4}
-              fontWeight="medium"
-              borderColor="rgba(255, 255, 255, 0.1)"
-            >
+            <Td py={4} fontWeight="medium" borderColor="theme.outline">
               {enterprise.title}
             </Td>
             <Td
@@ -312,11 +306,11 @@ function MyBids() {
               isNumeric
               fontWeight="bold"
               color="green.300"
-              borderColor="rgba(255, 255, 255, 0.1)"
+              borderColor="theme.outline"
             >
               ₹{Number(enterprise.worth).toLocaleString()}
             </Td>
-            <Td py={4} color="gray.400" borderColor="rgba(255, 255, 255, 0.1)">
+            <Td py={4} color="gray.400" borderColor="theme.outline">
               {new Date(enterprise.constructedAt).toLocaleDateString()}
             </Td>
           </Tr>
@@ -327,46 +321,42 @@ function MyBids() {
 
   const renderProductsTable = (data) => (
     <Table variant="simple" size="md" color="white">
-      <Thead bg="rgba(15, 59, 61, 0.7)" position="sticky" top={0} zIndex={1}>
+      <Thead bg="theme.surfaceContainer" position="sticky" top={0} zIndex={1}>
         <Tr>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Product ID
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Name
           </Th>
           <Th
             isNumeric
-            color="gray.300"
+            color="theme.textSecondary"
             py={4}
-            borderColor="rgba(255, 255, 255, 0.2)"
+            borderColor="theme.outline"
           >
             Worth
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Required Enterprise
           </Th>
-          <Th color="gray.300" py={4} borderColor="rgba(255, 255, 255, 0.2)">
+          <Th color="theme.textSecondary" py={4} borderColor="theme.outline">
             Purchased Date
           </Th>
         </Tr>
       </Thead>
       <Tbody>
         {data.map((product, index) => (
-          <Tr key={product._id} _hover={{ bg: "rgba(255, 255, 255, 0.05)" }}>
+          <Tr key={product._id} _hover={{ bg: "theme.surfaceHigh" }}>
             <Td
               py={4}
               fontWeight="bold"
               color="blue.300"
-              borderColor="rgba(255, 255, 255, 0.1)"
+              borderColor="theme.outline"
             >
               PROD-{product.id}
             </Td>
-            <Td
-              py={4}
-              fontWeight="medium"
-              borderColor="rgba(255, 255, 255, 0.1)"
-            >
+            <Td py={4} fontWeight="medium" borderColor="theme.outline">
               {product.title}
             </Td>
             <Td
@@ -374,14 +364,14 @@ function MyBids() {
               isNumeric
               fontWeight="bold"
               color="green.300"
-              borderColor="rgba(255, 255, 255, 0.1)"
+              borderColor="theme.outline"
             >
               ₹{Number(product.worth).toLocaleString()}
             </Td>
-            <Td py={4} color="gray.400" borderColor="rgba(255, 255, 255, 0.1)">
+            <Td py={4} color="gray.400" borderColor="theme.outline">
               ENT-{product.requiredEnterpriseId}
             </Td>
-            <Td py={4} color="gray.400" borderColor="rgba(255, 255, 255, 0.1)">
+            <Td py={4} color="gray.400" borderColor="theme.outline">
               {new Date(product.purchasedAt).toLocaleDateString()}
             </Td>
           </Tr>
@@ -411,6 +401,7 @@ function MyBids() {
             width="100%"
             direction={{ base: "column", md: "row" }}
           >
+            {/*
             <Box
               bg="rgba(15, 59, 61, 0.5)"
               backdropFilter="blur(10px)"
@@ -525,6 +516,7 @@ function MyBids() {
                 </Text>
               </VStack>
             </Box>
+            */}
           </Flex>
         )}
 
@@ -533,40 +525,43 @@ function MyBids() {
             <MenuButton
               as={ChakraButton}
               rightIcon={<FiChevronDown />}
-              bg="rgba(15, 59, 61, 0.5)"
+              bg="theme.surfaceContainer"
               backdropFilter="blur(10px)"
-              color="white"
-              border="1px solid rgba(255,255,255,0.2)"
-              _hover={{ bg: "rgba(15, 59, 61, 0.7)" }}
-              _active={{ bg: "rgba(15, 59, 61, 0.7)" }}
+              color="theme.textPrimary"
+              border="1px solid"
+              borderColor="theme.outline"
+              _hover={{ bg: "theme.surfaceHigh", borderColor: "theme.outline" }}
+              _active={{ bg: "theme.surfaceHigh" }}
               borderRadius="lg"
-              width="250px" // Set a specific width
+              width="350px"
             >
               {ROUND_OPTIONS.find((o) => o.value === selectedRound)?.label ||
                 "Select Round"}
             </MenuButton>
             <MenuList
-              bg="rgba(15, 59, 61, 0.8)"
+              bg="theme.surface"
               backdropFilter="blur(15px)"
-              borderColor="rgba(255,255,255,0.2)"
-              color="white"
+              borderColor="theme.outline"
+              color="theme.textPrimary"
               borderRadius="lg"
-              border="1px solid rgba(255,255,255,0.2)"
-              boxShadow="0 8px 32px rgba(0, 0, 0, 0.3)"
-              width="250px" // Match the MenuButton width
-              minWidth="250px" // Ensure minimum width
+              border="1px solid"
+              boxShadow="0 8px 32px rgba(0, 0, 0, 0.4)"
+              width="250px"
+              minWidth="250px"
             >
               {ROUND_OPTIONS.map((opt) => (
                 <MenuItem
                   key={opt.value}
                   onClick={() => setSelectedRound(opt.value)}
                   bg="transparent"
+                  color="theme.textSecondary"
                   _hover={{
-                    bg: "rgba(255,255,255,0.1)",
-                    backdropFilter: "blur(10px)",
+                    bg: "theme.surfaceHigh",
+                    color: "theme.textPrimary",
                   }}
                   _focus={{
-                    bg: "rgba(255,255,255,0.1)",
+                    bg: "theme.surfaceHigh",
+                    color: "theme.textPrimary",
                   }}
                   borderRadius="md"
                   mx={1}
@@ -592,10 +587,11 @@ function MyBids() {
         )}
 
         <TableContainer
-          bg="rgba(15, 59, 61, 0.5)"
+          bg="theme.surface"
           backdropFilter="blur(10px)"
           borderRadius="lg"
-          border="1px solid rgba(255,255,255,0.2)"
+          border="1px solid"
+          borderColor="theme.outline"
         >
           {loading ? (
             <Flex justify="center" p={12}>
@@ -619,9 +615,10 @@ function MyBids() {
 
       <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
         <ModalContent
-          bg="#0f3b3d"
+          bg="rgb(15, 59, 61)"
           color="white"
-          borderColor="rgba(255,255,255,0.2)"
+          border="1px solid"
+          borderColor="theme.outline"
         >
           <ModalHeader>Trade Details</ModalHeader>
           <ModalCloseButton />
@@ -659,13 +656,7 @@ function MyBids() {
             )}
           </ModalBody>
           <ModalFooter>
-            <ChakraButton
-              onClick={onClose}
-              bg="rgba(255,255,255,0.1)"
-              _hover={{ bg: "rgba(255,255,255,0.2)" }}
-            >
-              Close
-            </ChakraButton>
+            <box width="20px"></box>
           </ModalFooter>
         </ModalContent>
       </Modal>

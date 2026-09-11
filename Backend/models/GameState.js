@@ -6,6 +6,7 @@ const gameStateSchema = new mongoose.Schema({
   singleton: { type: String, default: 'main', unique: true }, 
   currentRound: { type: Number, default: 1 },
   isAuctionLive: { type: Boolean, default: false },
+  isPaused: { type: Boolean, default: false },
   currentItemUpForBidding: {
     itemCode: String,
     name: String,
