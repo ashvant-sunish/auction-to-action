@@ -27,6 +27,7 @@ const server = http.createServer(app);
 
 // Initialize Socket.io
 const io = new Server(server, {
+  perMessageDeflate: false,
   cors: {
     origin: '*', // In production, restrict this to your frontend URL
     methods: ['GET', 'POST']
@@ -113,7 +114,7 @@ io.on('connection', (socket) => {
       setTimeout(async () => {
         // Check if there are any active sockets remaining for this team
         const activeSockets = Array.from(socketTeamMap.values()).filter(code => code === teamCode);
-        
+
         if (activeSockets.length === 0) {
           try {
             await Team.findOneAndUpdate(
